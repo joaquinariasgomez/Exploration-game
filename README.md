@@ -5,4 +5,8 @@ You can find my current versions of this game in /Unity projects
 
 Executable is generated from stable version (sequential version). I am working on a parallel version, which is inside /Unity projects folder, but it's currently unstable.
 
+=========================================
+
+Hola.
+
 ![Screenshot](image.PNG)
