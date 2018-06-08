@@ -45,6 +45,12 @@ public class CubeSphere : MonoBehaviour
     private Vector3[] normals;      //Only for OnDrawGizmos
 
     private Thread[] myThreads=new Thread[4];   //Testing
+    // Timer tests
+    float timer = 0f;
+    float timeToWait = 0.1f;
+    bool checkingTime=true;
+    bool timerDone=false;
+    int actual_offset = 0;
 
     public void Awake()
     {
@@ -73,6 +79,8 @@ public class CubeSphere : MonoBehaviour
                 UpdateChunks();
             }
         }*/
+
+        ShakeChunks();
 
         viewerPosition = bodyAttracted.position;
 
@@ -177,7 +185,7 @@ public class CubeSphere : MonoBehaviour
                        {
                            for (int x = 0; x < sqrtChunksPerFace; x++)
                            {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, y * chunkSize, 0, gridSize, regions, faceTexture);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, y * chunkSize, 0, gridSize, regions, faceTexture, noiseMap);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -188,7 +196,7 @@ public class CubeSphere : MonoBehaviour
                         {
                             for (int x = 0; x < sqrtChunksPerFace; x++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, y * chunkSize, 0, gridSize, regions, faceTexture);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, y * chunkSize, 0, gridSize, regions, faceTexture, noiseMap);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -200,7 +208,7 @@ public class CubeSphere : MonoBehaviour
                         {
                             for (int z = 0; z < sqrtChunksPerFace; z++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, 0, y * chunkSize, z * chunkSize, gridSize, regions, faceTexture);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, 0, y * chunkSize, z * chunkSize, gridSize, regions, faceTexture, noiseMap);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -212,7 +220,7 @@ public class CubeSphere : MonoBehaviour
                         {
                             for (int z = 0; z < sqrtChunksPerFace; z++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, 0, y * chunkSize, z * chunkSize, gridSize, regions, faceTexture);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, 0, y * chunkSize, z * chunkSize, gridSize, regions, faceTexture, noiseMap);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -224,7 +232,7 @@ public class CubeSphere : MonoBehaviour
                         {
                             for (int x = 0; x < sqrtChunksPerFace; x++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTexture);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTexture, noiseMap);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -236,7 +244,7 @@ public class CubeSphere : MonoBehaviour
                         {
                             for (int x = 0; x < sqrtChunksPerFace; x++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTexture);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTexture, noiseMap);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -361,6 +369,41 @@ public class CubeSphere : MonoBehaviour
         }
     }
 
+    public void ShakeChunks()
+    {
+        if (checkingTime)
+        {
+            timer += Time.deltaTime;
+            Debug.Log(timer);
+            if (timer >= timeToWait)
+            {
+                timerDone = true;
+                checkingTime = false;
+                timer = 0;
+            }
+        }
+
+        if (timerDone)
+        {
+            
+
+            timerDone = false;
+        }
+        Debug.Log("Shaking");
+        actual_offset += 1;
+        if (actual_offset == 200)
+        {
+            actual_offset = 0;
+        }
+        foreach (Chunk chunk in chunks)
+        {
+            if (chunk.IsClosestChunk())
+            {
+                chunk.Shake(new Vector2(actual_offset, 0));
+            }
+        }
+    }
+
     public void Attract(Transform body)
     {
         bodyAttracted = body;
@@ -446,6 +489,7 @@ public class CubeSphere : MonoBehaviour
         private float radius;
         private Vector3 center;
         Texture2D faceTexture;   //Texture of the face
+        float[,] myNoiseMap;
 
         private bool closestChunk;
         private bool isActive;
@@ -459,7 +503,7 @@ public class CubeSphere : MonoBehaviour
 
         private VerticesData data;
 
-        public Chunk(Transform parent, Material material, int chunkSize, float radius, string face, int fromX, int fromY, int fromZ, int gridSize, TerrainType[] regions, Texture2D faceTexture)
+        public Chunk(Transform parent, Material material, int chunkSize, float radius, string face, int fromX, int fromY, int fromZ, int gridSize, TerrainType[] regions, Texture2D faceTexture, float[,] myNoiseMap)
         {
             chunkObject = new GameObject("Chunk");
             chunkObject.transform.parent = parent;
@@ -476,6 +520,7 @@ public class CubeSphere : MonoBehaviour
             this.fromZ = fromZ;
             this.regions = regions;
             this.faceTexture = faceTexture;
+            this.myNoiseMap = myNoiseMap;
             isActive = true;
             reason = 0;         //Set reason to 0 to generate chunks in the first instance
             distanceToClosestChunk = 0;
@@ -520,6 +565,20 @@ public class CubeSphere : MonoBehaviour
         public bool IsClosestChunk()
         {
             return closestChunk;
+        }
+
+        public void Shake(Vector2 actual_offset)
+        {
+            int width = gridSize + 1;
+            int height = gridSize + 1;
+            myNoiseMap = Noise.GenerateNoiseMap(width, height, seed, scale, octaves, persistance, lacunarity, actual_offset);
+            //Update chunk with new noiseMap
+            mesh = meshFilter.mesh;
+            mesh.Clear();
+
+            CreateVertices();
+            CreateTriangles();
+            AssignCollider();
         }
 
         public void UpdateLOD(int reason)
@@ -604,7 +663,7 @@ public class CubeSphere : MonoBehaviour
                     {
                         for (int x = fromX; x <= (fromX + chunkSize); x+=reason)
                         {
-                            float height = noiseMap[x, y] * heightMultiplier;
+                            float height = myNoiseMap[x, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, x, y, 0);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
                             verticesParcial[v - 1] = realVertice;
@@ -621,7 +680,7 @@ public class CubeSphere : MonoBehaviour
                     {
                         for (int x = (fromX + chunkSize); x >= fromX; x-=reason)
                         {
-                            float height = noiseMap[x, y] * heightMultiplier;
+                            float height = myNoiseMap[x, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, x, y, gridSize);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
                             verticesParcial[v - 1] = realVertice;
@@ -638,7 +697,7 @@ public class CubeSphere : MonoBehaviour
                     {
                         for (int z = (fromZ + chunkSize); z >= fromZ; z-=reason)
                         {
-                            float height = noiseMap[z, y] * heightMultiplier;
+                            float height = myNoiseMap[z, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, 0, y, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
                             verticesParcial[v - 1] = realVertice;
@@ -655,7 +714,7 @@ public class CubeSphere : MonoBehaviour
                     {
                         for (int z = fromZ; z <= (fromZ + chunkSize); z+=reason)
                         {
-                            float height = noiseMap[z, y] * heightMultiplier;
+                            float height = myNoiseMap[z, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, gridSize, y, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
                             verticesParcial[v - 1] = realVertice;
@@ -672,7 +731,7 @@ public class CubeSphere : MonoBehaviour
                     {
                         for (int x = (fromX + chunkSize); x >= fromX; x-=reason)
                         {
-                            float height = noiseMap[x, z] * heightMultiplier;
+                            float height = myNoiseMap[x, z] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, x, 0, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
                             verticesParcial[v - 1] = realVertice;
@@ -689,7 +748,7 @@ public class CubeSphere : MonoBehaviour
                     {
                         for (int x = fromX; x <= (fromX+chunkSize); x+=reason)
                         {
-                            float height = noiseMap[x, z] * heightMultiplier;
+                            float height = myNoiseMap[x, z] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, x, gridSize, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v-1]*(height/radius);
                             verticesParcial[v-1] = realVertice;
