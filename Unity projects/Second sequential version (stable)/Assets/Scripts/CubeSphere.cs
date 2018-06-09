@@ -62,7 +62,7 @@ public class CubeSphere : MonoBehaviour
     private void Start()
     {
         ClosestChunkHasChanged();   //Set variables for UpdateChunks()
-        UpdateChunks();
+        StartCoroutine(UpdateChunks());
     }
 
     private void Update()
@@ -86,7 +86,7 @@ public class CubeSphere : MonoBehaviour
             //DO THINGS EACH TIME VIEWER MOVE viewerMoveThreshHoldForChunkUpdate UNITS
             if (ClosestChunkHasChanged())
             {
-                UpdateChunks();
+                StartCoroutine(UpdateChunks());
             }
         }
     }
@@ -305,7 +305,7 @@ public class CubeSphere : MonoBehaviour
         }
     }
 
-    private void UpdateChunks()
+    private IEnumerator UpdateChunks()
     {
         Chunk closestChunk = chunks[0];
 
@@ -363,6 +363,7 @@ public class CubeSphere : MonoBehaviour
                 }
             }
         }
+        yield return null;
     }
 
     public void Attract(Transform body)
