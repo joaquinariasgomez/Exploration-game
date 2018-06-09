@@ -321,35 +321,35 @@ public class CubeSphere : MonoBehaviour
         int adjacentCount = 1;
         foreach (Chunk adjacent in closestChunk.GetAdjacentChunks())
         {
-            if (adjacentCount < 150)    //150
+            if (adjacentCount < 149)    //150
             {
                 adjacent.UpdateLOD(1);
                 ++adjacentCount;
             }
             else
             {
-                if (adjacentCount < 300)    //300
+                if (adjacentCount < 250)    //300
                 {
                     adjacent.UpdateLOD(2);
                     ++adjacentCount;
                 }
                 else
                 {
-                    if (adjacentCount < 600)    //600
+                    if (adjacentCount < 500)    //600
                     {
                         adjacent.UpdateLOD(4);
                         ++adjacentCount;
                     }
                     else
                     {
-                        if(adjacentCount < 900)     //900
+                        if(adjacentCount < 650)     //900
                         {
                             adjacent.UpdateLOD(8);
                             ++adjacentCount;
                         }
                         else
                         {
-                            if(adjacentCount < 1200)    //1200
+                            if(adjacentCount < 900)    //1200
                             {
                                 adjacent.UpdateLOD(16);
                                 ++adjacentCount;
@@ -481,7 +481,7 @@ public class CubeSphere : MonoBehaviour
             this.regions = regions;
             this.faceTexture = faceTexture;
             isActive = true;
-            reason = 1;         //Set reason to 0 to generate chunks in the first instance
+            reason = 1;
             distanceToClosestChunk = 0;
 
             closestChunk = false;
@@ -502,7 +502,6 @@ public class CubeSphere : MonoBehaviour
             CreateVertices();
             CreateTriangles();
             AssignCollider();
-            reason = 0;
         }
 
         public void SetActive(bool condition)
