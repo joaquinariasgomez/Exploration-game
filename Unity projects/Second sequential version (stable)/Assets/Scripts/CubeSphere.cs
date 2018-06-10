@@ -14,12 +14,12 @@ public class CubeSphere : MonoBehaviour
     public Transform bodyAttracted;
 
     private float radius;
-    private int sqrtChunksPerFace = 25;     //50
+    private int sqrtChunksPerFace = 25;     //25
     private static float heightMultiplier = 20;
 
     private static float[,] noiseMap;
     private static Color[] colourMap;
-    private static int seed = 1024;
+    private static int seed = 2048;
     private static float scale = 30f;
     private static int octaves = 4;
     private static float persistance = 0.36f;
@@ -46,7 +46,7 @@ public class CubeSphere : MonoBehaviour
     private Vector3[] vertices;     //Only for OnDrawGizmos
     private Vector3[] normals;      //Only for OnDrawGizmos
 
-    private Thread[] myThreads=new Thread[4];   //Testing
+    //private Thread[] myThreads=new Thread[4];   //Testing
     // Timer tests
     public static Stopwatch timer = new Stopwatch();
 
@@ -56,13 +56,13 @@ public class CubeSphere : MonoBehaviour
 
         radius = gridSize / 2;
         chunkSize = gridSize / sqrtChunksPerFace;
-        GenerateChunks();
+        //GenerateChunks();     //DECOMMENT
     }
 
     private void Start()
     {
-        ClosestChunkHasChanged();   //Set variables for UpdateChunks()
-        StartCoroutine(UpdateChunks());
+        //ClosestChunkHasChanged();   //Set variables for UpdateChunks()    //DECOMMENT
+        //StartCoroutine(UpdateChunks());                                   //DECOMMENT
     }
 
     private void Update()
@@ -86,7 +86,7 @@ public class CubeSphere : MonoBehaviour
             //DO THINGS EACH TIME VIEWER MOVE viewerMoveThreshHoldForChunkUpdate UNITS
             if (ClosestChunkHasChanged())
             {
-                StartCoroutine(UpdateChunks());
+                //StartCoroutine(UpdateChunks());       //DECOMMENT
             }
         }
     }
@@ -499,7 +499,7 @@ public class CubeSphere : MonoBehaviour
         public void Generate()
         {
             CreateCenters();
-
+            //Asign Colliders
             CreateVertices();
             CreateTriangles();
             AssignCollider();
@@ -542,7 +542,6 @@ public class CubeSphere : MonoBehaviour
 
             CreateVertices();
             CreateTriangles();
-            //AssignCollider();
         }
 
         public Vector3 GetCenter()
