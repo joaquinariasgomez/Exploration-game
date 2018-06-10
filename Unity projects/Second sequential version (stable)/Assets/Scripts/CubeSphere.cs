@@ -56,13 +56,13 @@ public class CubeSphere : MonoBehaviour
 
         radius = gridSize / 2;
         chunkSize = gridSize / sqrtChunksPerFace;
-        //GenerateChunks();     //DECOMMENT
+        GenerateChunks();     //DECOMMENT
     }
 
     private void Start()
     {
-        //ClosestChunkHasChanged();   //Set variables for UpdateChunks()    //DECOMMENT
-        //StartCoroutine(UpdateChunks());                                   //DECOMMENT
+        ClosestChunkHasChanged();   //Set variables for UpdateChunks()    //DECOMMENT
+        StartCoroutine(UpdateChunks());                                   //DECOMMENT
     }
 
     private void Update()
@@ -86,7 +86,7 @@ public class CubeSphere : MonoBehaviour
             //DO THINGS EACH TIME VIEWER MOVE viewerMoveThreshHoldForChunkUpdate UNITS
             if (ClosestChunkHasChanged())
             {
-                //StartCoroutine(UpdateChunks());       //DECOMMENT
+                StartCoroutine(UpdateChunks());       //DECOMMENT
             }
         }
     }
