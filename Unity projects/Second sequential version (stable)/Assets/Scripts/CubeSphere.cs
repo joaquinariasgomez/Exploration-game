@@ -12,6 +12,7 @@ public class CubeSphere : MonoBehaviour
     public TerrainType[] regions;
     public Material material;
     public Transform bodyAttracted;
+    public Noise.NormalizeMode normalizeMode;
 
     private float radius;
     private int sqrtChunksPerFace = 5;     //25
@@ -100,9 +101,9 @@ public class CubeSphere : MonoBehaviour
 
         GenerateChunksOfFace(chunks, "xy", verticesData);
         //GenerateChunksOfFace(chunks, "xyz", verticesData);
-        //GenerateChunksOfFace(chunks, "zy", verticesData);
-        //GenerateChunksOfFace(chunks, "zyx", verticesData);
-        //GenerateChunksOfFace(chunks, "xz", verticesData);
+        GenerateChunksOfFace(chunks, "zy", verticesData);
+        GenerateChunksOfFace(chunks, "zyx", verticesData);
+        GenerateChunksOfFace(chunks, "xz", verticesData);
         GenerateChunksOfFace(chunks, "xzy", verticesData);
 
         VerticesData finalData = CollectData(verticesData);
@@ -143,32 +144,52 @@ public class CubeSphere : MonoBehaviour
         return new VerticesData(finalVertices, finalNormals);
     }
 
+    private float[,] MapMatrix(float[,] noiseMap, int width, int height, string face)
+    {
+        float[,] matrix = new float[width, height];
+        for(int i=0; i<width; i++)
+        {
+            for(int j=0; j<height; j++)
+            {
+                switch(face)
+                {
+                    case "zy": matrix[i, j] = noiseMap[width - 1 - i, j]; ; break;
+                    case "xz": matrix[i, j] = noiseMap[i, height - 1 - j]; ; break;
+                }
+            }
+        }
+        return matrix;
+    }
+
     private Texture2D CreateTexture(string face)
     {
         switch(face)
         {
             case "xy": offset = new Vector2(0, 0); break;
             case "xyz":
-            case "zy":
-            case "zyx":
-            case "xz": 
-            case "xzy": offset = new Vector2(0, -gridSize); break;//offset = new Vector2(0, gridSize); break;
+            case "zy": offset = new Vector2(-gridSize, 0); break;
+            case "zyx": offset = new Vector2(gridSize, 0); break;
+            case "xz": offset = new Vector2(0, gridSize); break;
+            case "xzy": offset = new Vector2(0, -gridSize); break;
         }
 
         //Generate Noise Map and ColourMap
         int width = gridSize + 1;
         int height = gridSize + 1;
 
-        noiseMap = Noise.GenerateNoiseMap(width, height, seed, scale, octaves, persistance, lacunarity, offset);
+        noiseMap = Noise.GenerateNoiseMap(width, height, seed, scale, octaves, persistance, lacunarity, offset, normalizeMode);
         colourMap = new Color[width * height];
 
-        for(int i=0; i<10; i++)
+        /*for(int i=0; i<10; i++)
         {
             for(int j=0; j<10; j++)
             {
-                //noiseMap[i, j] = 1;
+                noiseMap[i, j] = 1;
             }
-        }
+        }*/
+
+        if (face == "zy") { noiseMap = MapMatrix(noiseMap, width, height, "zy"); }
+        if (face == "xz") { noiseMap = MapMatrix(noiseMap, width, height, "xz"); }
 
         for (int i = 0; i < height; i++)
         {
@@ -177,7 +198,11 @@ public class CubeSphere : MonoBehaviour
                 float currentHeight = noiseMap[j, i];
                 for (int k = 0; k < regions.Length; k++)
                 {
-                    if (currentHeight <= regions[k].height)
+                    if (currentHeight >= regions[k].height)
+                    {
+                        colourMap[i * width + j] = regions[k].colour;
+                    }
+                    else
                     {
                         colourMap[i * width + j] = regions[k].colour;
                         break;

@@ -223,10 +223,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orbitingObject: {fileID: 2140928269}
   orbitPath:
-    xAxis: 600
-    yAxis: 1000
+    xAxis: 150
+    yAxis: 150
   orbitProgress: 0
-  orbitPeriod: 30
+  orbitPeriod: 10000
   orbitActive: 1
 --- !u!4 &1141292256
 Transform:
@@ -387,6 +387,7 @@ MonoBehaviour:
     colour: {r: 0.2647059, g: 0, b: 0, a: 0}
   material: {fileID: 2100000, guid: f5cad4d7eaf10954c86eda135e663625, type: 2}
   bodyAttracted: {fileID: 1736508242}
+  normalizeMode: 1
 --- !u!4 &1339366653
 Transform:
   m_ObjectHideFlags: 0
