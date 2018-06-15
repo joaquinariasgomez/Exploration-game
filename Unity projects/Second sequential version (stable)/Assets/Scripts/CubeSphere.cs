@@ -14,7 +14,7 @@ public class CubeSphere : MonoBehaviour
     public Transform bodyAttracted;
 
     private float radius;
-    private int sqrtChunksPerFace = 25;     //25
+    private int sqrtChunksPerFace = 5;     //25
     private static float heightMultiplier = 20;
 
     private static float[,] noiseMap;
@@ -99,10 +99,10 @@ public class CubeSphere : MonoBehaviour
         centers = new List<Vector3>();
 
         GenerateChunksOfFace(chunks, "xy", verticesData);
-        GenerateChunksOfFace(chunks, "xyz", verticesData);
-        GenerateChunksOfFace(chunks, "zy", verticesData);
-        GenerateChunksOfFace(chunks, "zyx", verticesData);
-        GenerateChunksOfFace(chunks, "xz", verticesData);
+        //GenerateChunksOfFace(chunks, "xyz", verticesData);
+        //GenerateChunksOfFace(chunks, "zy", verticesData);
+        //GenerateChunksOfFace(chunks, "zyx", verticesData);
+        //GenerateChunksOfFace(chunks, "xz", verticesData);
         GenerateChunksOfFace(chunks, "xzy", verticesData);
 
         VerticesData finalData = CollectData(verticesData);
@@ -143,14 +143,32 @@ public class CubeSphere : MonoBehaviour
         return new VerticesData(finalVertices, finalNormals);
     }
 
-    private Texture2D CreateTexture()
+    private Texture2D CreateTexture(string face)
     {
+        switch(face)
+        {
+            case "xy": offset = new Vector2(0, 0); break;
+            case "xyz":
+            case "zy":
+            case "zyx":
+            case "xz": 
+            case "xzy": offset = new Vector2(0, -gridSize); break;//offset = new Vector2(0, gridSize); break;
+        }
+
         //Generate Noise Map and ColourMap
         int width = gridSize + 1;
         int height = gridSize + 1;
 
         noiseMap = Noise.GenerateNoiseMap(width, height, seed, scale, octaves, persistance, lacunarity, offset);
         colourMap = new Color[width * height];
+
+        for(int i=0; i<10; i++)
+        {
+            for(int j=0; j<10; j++)
+            {
+                //noiseMap[i, j] = 1;
+            }
+        }
 
         for (int i = 0; i < height; i++)
         {
@@ -174,25 +192,27 @@ public class CubeSphere : MonoBehaviour
 
     private void GenerateChunksOfFace(List<Chunk> chunks, string face, List<VerticesData> verticesData)
     {
-        Texture2D faceTexture=CreateTexture();
+        //Texture2D faceTexture=CreateTexture();
         switch (face)
         {
-            case "xy": for (int y = 0; y < sqrtChunksPerFace; y++)
+            case "xy": Texture2D faceTextureXY = CreateTexture("xy");
+                       for (int y = 0; y < sqrtChunksPerFace; y++)
                        {
                            for (int x = 0; x < sqrtChunksPerFace; x++)
                            {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, y * chunkSize, 0, gridSize, regions, faceTexture);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, y * chunkSize, 0, gridSize, regions, faceTextureXY);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
                                 //centers.Add(chunk.GetCenter());
                            }
                        } break;
-            case "xyz": for (int y = 0; y < sqrtChunksPerFace; y++)
+            case "xyz": Texture2D faceTextureXYZ = CreateTexture("xyz");
+                        for (int y = 0; y < sqrtChunksPerFace; y++)
                         {
                             for (int x = 0; x < sqrtChunksPerFace; x++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, y * chunkSize, 0, gridSize, regions, faceTexture);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, y * chunkSize, 0, gridSize, regions, faceTextureXYZ);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -200,11 +220,12 @@ public class CubeSphere : MonoBehaviour
                             }
                         }
                         break;
-            case "zy":  for (int y = 0; y < sqrtChunksPerFace; y++)
+            case "zy":  Texture2D faceTextureZY = CreateTexture("zy");
+                        for (int y = 0; y < sqrtChunksPerFace; y++)
                         {
                             for (int z = 0; z < sqrtChunksPerFace; z++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, 0, y * chunkSize, z * chunkSize, gridSize, regions, faceTexture);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, 0, y * chunkSize, z * chunkSize, gridSize, regions, faceTextureZY);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -212,11 +233,12 @@ public class CubeSphere : MonoBehaviour
                             }
                         }
                         break;
-            case "zyx": for (int y = 0; y < sqrtChunksPerFace; y++)
+            case "zyx": Texture2D faceTextureZYX = CreateTexture("zyx");
+                        for (int y = 0; y < sqrtChunksPerFace; y++)
                         {
                             for (int z = 0; z < sqrtChunksPerFace; z++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, 0, y * chunkSize, z * chunkSize, gridSize, regions, faceTexture);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, 0, y * chunkSize, z * chunkSize, gridSize, regions, faceTextureZYX);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -224,11 +246,12 @@ public class CubeSphere : MonoBehaviour
                             }
                         }
                         break;
-            case "xz": for (int z = 0; z < sqrtChunksPerFace; z++)
+            case "xz":  Texture2D faceTextureXZ = CreateTexture("xz");
+                        for (int z = 0; z < sqrtChunksPerFace; z++)
                         {
                             for (int x = 0; x < sqrtChunksPerFace; x++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTexture);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTextureXZ);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -236,11 +259,12 @@ public class CubeSphere : MonoBehaviour
                             }
                         }
                         break;
-            case "xzy": for (int z = 0; z < sqrtChunksPerFace; z++)
+            case "xzy": Texture2D faceTextureXZY = CreateTexture("xzy");
+                        for (int z = 0; z < sqrtChunksPerFace; z++)
                         {
                             for (int x = 0; x < sqrtChunksPerFace; x++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTexture);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTextureXZY);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -375,7 +399,7 @@ public class CubeSphere : MonoBehaviour
 
         rigidbodyAttracted = body.GetComponent<Rigidbody>();
 
-        //rigidbodyAttracted.AddForce(gravityUp * gravity);   //Comment this line for no attraction force
+        rigidbodyAttracted.AddForce(gravityUp * gravity);   //Comment this line for no attraction force
 
         Quaternion targetRotation = Quaternion.FromToRotation(bodyUp, gravityUp) * body.rotation;
         body.rotation = Quaternion.Slerp(body.rotation, targetRotation, 50 * Time.deltaTime);
