@@ -223,8 +223,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orbitingObject: {fileID: 2140928269}
   orbitPath:
-    xAxis: 150
-    yAxis: 150
+    xAxis: 100
+    yAxis: 100
   orbitProgress: 0
   orbitPeriod: 10000
   orbitActive: 1
@@ -352,7 +352,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51691b5b6b28a9a42a9874ac6886b634, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: 400
+  gridSize: 100
   gravity: -9.8
   regions:
   - name: region1
@@ -439,7 +439,7 @@ Light:
   serializedVersion: 8
   m_Type: 1
   m_Color: {r: 1, g: 0.9804111, b: 0.52205884, a: 1}
-  m_Intensity: 0.25
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_CookieSize: 10

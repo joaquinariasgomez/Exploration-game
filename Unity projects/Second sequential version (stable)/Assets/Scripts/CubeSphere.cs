@@ -27,7 +27,7 @@ public class CubeSphere : MonoBehaviour
     private static float lacunarity = 1.7f;
     private static Vector2 offset = new Vector2(0, 0);
 
-    float[,] falloffMap;
+    //float[,] falloffMap;
 
     private int chunkSize;
     private List<Chunk> chunks;
@@ -60,7 +60,7 @@ public class CubeSphere : MonoBehaviour
         radius = gridSize / 2;
         chunkSize = gridSize / sqrtChunksPerFace;
 
-        falloffMap = FalloffGenerator.GenerateFalloffMap(gridSize + 1);
+        //falloffMap = FalloffGenerator.GenerateFalloffMap(gridSize + 1);
 
         GenerateChunks();     //DECOMMENT
     }
@@ -200,7 +200,7 @@ public class CubeSphere : MonoBehaviour
             for (int j = 0; j < width; j++)
             {
                 //FalloffMap
-                noiseMap[j, i] = Mathf.Clamp01(noiseMap[j, i] - falloffMap[j, i]);  //?
+                //noiseMap[j, i] = Mathf.Clamp01(noiseMap[j, i] - falloffMap[j, i]);  //?
                 //
                 float currentHeight = noiseMap[j, i];
                 for (int k = 0; k < regions.Length; k++)
@@ -507,6 +507,11 @@ public class CubeSphere : MonoBehaviour
         private float radius;
         private Vector3 center;
         Texture2D faceTexture;   //Texture of the face
+        private int[] triangles;
+        private Vector3[] vertices;
+
+        private Vector3[] borderVertices;
+        private int[] borderTriangles;
 
         private bool closestChunk;
         private bool isActive;
@@ -519,6 +524,8 @@ public class CubeSphere : MonoBehaviour
         private int reason;
 
         private VerticesData data;
+
+        int contBorderVertices;
 
         public Chunk(Transform parent, Material material, int chunkSize, float radius, string face, int fromX, int fromY, int fromZ, int gridSize, TerrainType[] regions, Texture2D faceTexture)
         {
@@ -558,6 +565,7 @@ public class CubeSphere : MonoBehaviour
             //Asign Colliders
             CreateVertices();
             CreateTriangles();
+            CalculateNormals();
             AssignCollider();
         }
 
@@ -598,6 +606,7 @@ public class CubeSphere : MonoBehaviour
 
             CreateVertices();
             CreateTriangles();
+            //CalculateNormals();
         }
 
         public Vector3 GetCenter()
@@ -652,6 +661,10 @@ public class CubeSphere : MonoBehaviour
 
         private void CreateVertices()
         {
+            contBorderVertices = 0;
+            int numBorderVertices = (chunkSize / reason) * 4;
+            print(numBorderVertices);
+            borderVertices = new Vector3[numBorderVertices];
             int numVertices = (chunkSize/reason + 1) * (chunkSize/reason + 1);
             Vector3[] verticesParcial = new Vector3[numVertices];
             Vector3[] normalsParcial = new Vector3[verticesParcial.Length];
@@ -765,6 +778,7 @@ public class CubeSphere : MonoBehaviour
                     break;
             }
 
+            vertices = verticesParcial;
             mesh.vertices = verticesParcial;
             mesh.normals = normalsParcial;
             mesh.uv = uvs;
@@ -784,10 +798,18 @@ public class CubeSphere : MonoBehaviour
             s.z = v.z * Mathf.Sqrt(1f - x2 / 2f - y2 / 2f + x2 * y2 / 3f);
             normalsParcial[i] = s;  //s
             verticesParcial[i] = normalsParcial[i] * radius;
+            //Assign border vertice if it is
+            if (i <= (chunkSize / reason) || i % (chunkSize / reason + 1) == 0 || i % (chunkSize / reason) == 0 || i >= (chunkSize / reason + 1) * (chunkSize / reason))
+            {
+                borderVertices[contBorderVertices] = verticesParcial[i];
+                ++contBorderVertices;
+            }
         }
 
         private void CreateTriangles()
         {
+            int numBorderTriangles = (chunkSize / reason -1) * 24;
+            borderTriangles = new int[numBorderTriangles];
             int[] trianglesParcial = new int[(chunkSize/reason) * (chunkSize/reason) * 6];
             int t = 0, v = 0;
 
@@ -799,6 +821,7 @@ public class CubeSphere : MonoBehaviour
                 }
             }
 
+            triangles = trianglesParcial;
             mesh.triangles = trianglesParcial;
         }
 
@@ -814,6 +837,42 @@ public class CubeSphere : MonoBehaviour
         private void AssignCollider()
         {
             chunkObject.GetComponent<MeshCollider>().sharedMesh = mesh;
+        }
+
+        private void CalculateNormals()
+        {
+            int numNormals = (chunkSize / reason + 1) * (chunkSize / reason + 1);
+            Vector3[] vertexNormals = new Vector3[numNormals];
+            int triangleCount = triangles.Length/3;
+            for(int i=0; i<triangleCount; i++) {
+                int normalTriangleIndex = i * 3;
+                int vertexIndexA = triangles[normalTriangleIndex];
+                int vertexIndexB = triangles[normalTriangleIndex + 1];
+                int vertexIndexC = triangles[normalTriangleIndex + 2];
+
+                Vector3 triangleNormal = SurfaceNormalFromIndices(vertexIndexA, vertexIndexB, vertexIndexC);
+                vertexNormals[vertexIndexA] += triangleNormal;
+                vertexNormals[vertexIndexB] += triangleNormal;
+                vertexNormals[vertexIndexC] += triangleNormal;
+            }
+
+            for(int i=0; i<vertexNormals.Length; i++)
+            {
+                vertexNormals[i].Normalize();
+            }
+
+            mesh.normals = vertexNormals;
+        }
+
+        Vector3 SurfaceNormalFromIndices(int indexA, int indexB, int indexC)
+        {
+            Vector3 pointA = vertices[indexA];
+            Vector3 pointB = vertices[indexB];
+            Vector3 pointC = vertices[indexC];
+
+            Vector3 sideAB = pointB - pointA;
+            Vector3 sideAC = pointC - pointA;
+            return Vector3.Cross(sideAB, sideAC);
         }
     }
 }
