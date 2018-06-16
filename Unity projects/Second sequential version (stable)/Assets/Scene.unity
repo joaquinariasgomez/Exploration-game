@@ -352,7 +352,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51691b5b6b28a9a42a9874ac6886b634, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: 100
+  gridSize: 400
   gravity: -9.8
   regions:
   - name: region1
@@ -387,7 +387,6 @@ MonoBehaviour:
     colour: {r: 0.2647059, g: 0, b: 0, a: 0}
   material: {fileID: 2100000, guid: f5cad4d7eaf10954c86eda135e663625, type: 2}
   bodyAttracted: {fileID: 1736508242}
-  normalizeMode: 1
 --- !u!4 &1339366653
 Transform:
   m_ObjectHideFlags: 0
@@ -549,7 +548,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1736508238}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 70, z: 0}
+  m_LocalPosition: {x: 0, y: 420, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 620806364}

@@ -12,8 +12,8 @@ public class CubeSphere : MonoBehaviour
     public TerrainType[] regions;
     public Material material;
     public Transform bodyAttracted;
-    public Noise.NormalizeMode normalizeMode;
 
+    private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;
     private float radius;
     private int sqrtChunksPerFace = 5;     //25
     private static float heightMultiplier = 20;
@@ -26,6 +26,8 @@ public class CubeSphere : MonoBehaviour
     private static float persistance = 0.36f;
     private static float lacunarity = 1.7f;
     private static Vector2 offset = new Vector2(0, 0);
+
+    float[,] falloffMap;
 
     private int chunkSize;
     private List<Chunk> chunks;
@@ -49,7 +51,7 @@ public class CubeSphere : MonoBehaviour
 
     //private Thread[] myThreads=new Thread[4];   //Testing
     // Timer tests
-    public static Stopwatch timer = new Stopwatch();
+    //public static Stopwatch timer = new Stopwatch();
 
     public void Awake()
     {
@@ -57,6 +59,9 @@ public class CubeSphere : MonoBehaviour
 
         radius = gridSize / 2;
         chunkSize = gridSize / sqrtChunksPerFace;
+
+        falloffMap = FalloffGenerator.GenerateFalloffMap(gridSize + 1);
+
         GenerateChunks();     //DECOMMENT
     }
 
@@ -144,7 +149,7 @@ public class CubeSphere : MonoBehaviour
         return new VerticesData(finalVertices, finalNormals);
     }
 
-    private float[,] MapMatrix(float[,] noiseMap, int width, int height, string face)
+    private float[,] FLipMatrix(float[,] noiseMap, int width, int height, string face)
     {
         float[,] matrix = new float[width, height];
         for(int i=0; i<width; i++)
@@ -188,13 +193,15 @@ public class CubeSphere : MonoBehaviour
             }
         }*/
 
-        if (face == "zy") { noiseMap = MapMatrix(noiseMap, width, height, "zy"); }
-        if (face == "xz") { noiseMap = MapMatrix(noiseMap, width, height, "xz"); }
+        if (face == "zy" || face== "xz") { noiseMap = FLipMatrix(noiseMap, width, height, face); }
 
         for (int i = 0; i < height; i++)
         {
             for (int j = 0; j < width; j++)
             {
+                //FalloffMap
+                noiseMap[j, i] = Mathf.Clamp01(noiseMap[j, i] - falloffMap[j, i]);  //?
+                //
                 float currentHeight = noiseMap[j, i];
                 for (int k = 0; k < regions.Length; k++)
                 {
