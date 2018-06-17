@@ -299,7 +299,7 @@ public class CubeSphere : MonoBehaviour
                                 Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTextureXZY);
                                 chunk.Generate();
                                 chunks.Add(chunk);
-                                //verticesData.Add(chunk.GetVerticesData());
+                                verticesData.Add(chunk.GetVerticesData());
                                 //centers.Add(chunk.GetCenter());
                             }
                         } break;
@@ -462,20 +462,20 @@ public class CubeSphere : MonoBehaviour
                 }
             }
         }*/
-        /*if (vertices == null)
+        if (vertices == null)
         {
             return;
         }
         Gizmos.color = Color.black;
         for (int i = 0; i < vertices.Length; i++)
         {
-            Gizmos.color = Color.black;
-            Gizmos.DrawSphere(vertices[i], 10f);
+            //Gizmos.color = Color.black;
+            //Gizmos.DrawSphere(vertices[i], 10f);
             Gizmos.color = Color.yellow;
             Gizmos.DrawRay(vertices[i], normals[i]);
-            Vector3 realVertice = vertices[i] + vertices[i] * (20 / radius);
+            //Vector3 realVertice = vertices[i] + vertices[i] * (20 / radius);
             //Gizmos.DrawRay(new Vector3(0, 0, 0), realVertice);
-        }*/
+        }
     }
 
     public class VerticesData
@@ -565,7 +565,7 @@ public class CubeSphere : MonoBehaviour
             //Asign Colliders
             CreateVertices();
             CreateTriangles();
-            //CalculateNormals();
+            CalculateNormals();
             AssignCollider();
         }
 
@@ -782,7 +782,7 @@ public class CubeSphere : MonoBehaviour
             mesh.normals = normalsParcial;
             mesh.uv = uvs;
 
-            data = new VerticesData(verticesParcial, normalsParcial);
+            //data = new VerticesData(verticesParcial, normalsParcial);
         }
 
         private void SetVertex(Vector3[] verticesParcial, Vector3[] normalsParcial, int i, float x, float y, float z)      //Generates the vertex 'i' in the coordinates x, y, z
@@ -918,6 +918,7 @@ public class CubeSphere : MonoBehaviour
             }
 
             mesh.normals = vertexNormals;
+            data = new VerticesData(vertices, vertexNormals);
         }
 
         Vector3 SurfaceNormalFromIndices(int indexA, int indexB, int indexC)
