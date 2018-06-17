@@ -470,11 +470,11 @@ public class CubeSphere : MonoBehaviour
         for (int i = 0; i < vertices.Length; i++)
         {
             Gizmos.color = Color.black;
-            Gizmos.DrawSphere(vertices[i], 0.1f);
+            Gizmos.DrawSphere(vertices[i], 10f);
             Gizmos.color = Color.yellow;
-            //Gizmos.DrawRay(vertices[i], normals[i]);
+            Gizmos.DrawRay(vertices[i], normals[i]);
             Vector3 realVertice = vertices[i] + vertices[i] * (20 / radius);
-            Gizmos.DrawRay(new Vector3(0, 0, 0), realVertice);
+            //Gizmos.DrawRay(new Vector3(0, 0, 0), realVertice);
         }*/
     }
 
@@ -525,7 +525,7 @@ public class CubeSphere : MonoBehaviour
 
         private VerticesData data;
 
-        int contBorderVertices;
+        int contBorderTriangles;
 
         public Chunk(Transform parent, Material material, int chunkSize, float radius, string face, int fromX, int fromY, int fromZ, int gridSize, TerrainType[] regions, Texture2D faceTexture)
         {
@@ -565,7 +565,7 @@ public class CubeSphere : MonoBehaviour
             //Asign Colliders
             CreateVertices();
             CreateTriangles();
-            CalculateNormals();
+            //CalculateNormals();
             AssignCollider();
         }
 
@@ -661,9 +661,8 @@ public class CubeSphere : MonoBehaviour
 
         private void CreateVertices()
         {
-            contBorderVertices = 0;
-            int numBorderVertices = (chunkSize / reason) * 4;
-            print(numBorderVertices);
+            int numBorderVertices = (chunkSize / reason + 1) * (chunkSize / reason + 1);
+            
             borderVertices = new Vector3[numBorderVertices];
             int numVertices = (chunkSize/reason + 1) * (chunkSize/reason + 1);
             Vector3[] verticesParcial = new Vector3[numVertices];
@@ -798,16 +797,17 @@ public class CubeSphere : MonoBehaviour
             s.z = v.z * Mathf.Sqrt(1f - x2 / 2f - y2 / 2f + x2 * y2 / 3f);
             normalsParcial[i] = s;  //s
             verticesParcial[i] = normalsParcial[i] * radius;
+
             //Assign border vertice if it is
-            if (i <= (chunkSize / reason) || i % (chunkSize / reason + 1) == 0 || i % (chunkSize / reason) == 0 || i >= (chunkSize / reason + 1) * (chunkSize / reason))
+            if (i <= (chunkSize / reason) || i % (chunkSize / reason + 1) == 0 || (i+1) % (chunkSize / reason + 1) == 0 || i >= (chunkSize / reason + 1) * (chunkSize / reason))
             {
-                borderVertices[contBorderVertices] = verticesParcial[i];
-                ++contBorderVertices;
+                borderVertices[i] = verticesParcial[i];
             }
         }
 
         private void CreateTriangles()
         {
+            contBorderTriangles = 0;
             int numBorderTriangles = (chunkSize / reason -1) * 24;
             borderTriangles = new int[numBorderTriangles];
             int[] trianglesParcial = new int[(chunkSize/reason) * (chunkSize/reason) * 6];
@@ -825,8 +825,50 @@ public class CubeSphere : MonoBehaviour
             mesh.triangles = trianglesParcial;
         }
 
-        private static int SetQuad(int[] triangles, int i, int v00, int v10, int v01, int v11)
+        private int SetQuad(int[] triangles, int i, int v00, int v10, int v01, int v11)
         {
+            //Check if one of the vertices that form the 2 triangles are border vertices
+            if(v00 <= (chunkSize / reason) || v00 % (chunkSize / reason + 1) == 0 || (v00+1) % (chunkSize / reason + 1) == 0 || v00 >= (chunkSize / reason + 1) * (chunkSize / reason))
+            {
+                borderTriangles[contBorderTriangles] = v00;
+                borderTriangles[contBorderTriangles + 1] = borderTriangles[contBorderTriangles + 4] = v01;
+                borderTriangles[contBorderTriangles + 2] = borderTriangles[contBorderTriangles + 3] = v10;
+                borderTriangles[contBorderTriangles + 5] = v11;
+                contBorderTriangles += 6;
+            }
+            else
+            {
+                if(v01 <= (chunkSize / reason) || v01 % (chunkSize / reason + 1) == 0 || (v01+1) % (chunkSize / reason + 1) == 0 || v01 >= (chunkSize / reason + 1) * (chunkSize / reason))
+                {
+                    borderTriangles[contBorderTriangles] = v00;
+                    borderTriangles[contBorderTriangles + 1] = borderTriangles[contBorderTriangles + 4] = v01;
+                    borderTriangles[contBorderTriangles + 2] = borderTriangles[contBorderTriangles + 3] = v10;
+                    borderTriangles[contBorderTriangles + 5] = v11;
+                    contBorderTriangles += 6;
+                }
+                else
+                {
+                    if(v10 <= (chunkSize / reason) || v10 % (chunkSize / reason + 1) == 0 || (v10+1) % (chunkSize / reason + 1) == 0 || v10 >= (chunkSize / reason + 1) * (chunkSize / reason))
+                    {
+                        borderTriangles[contBorderTriangles] = v00;
+                        borderTriangles[contBorderTriangles + 1] = borderTriangles[contBorderTriangles + 4] = v01;
+                        borderTriangles[contBorderTriangles + 2] = borderTriangles[contBorderTriangles + 3] = v10;
+                        borderTriangles[contBorderTriangles + 5] = v11;
+                        contBorderTriangles += 6;
+                    }
+                    else
+                    {
+                        if(v11 <= (chunkSize / reason) || v11 % (chunkSize / reason + 1) == 0 || (v11+1) % (chunkSize / reason + 1) == 0 || v11 >= (chunkSize / reason + 1) * (chunkSize / reason))
+                        {
+                            borderTriangles[contBorderTriangles] = v00;
+                            borderTriangles[contBorderTriangles + 1] = borderTriangles[contBorderTriangles + 4] = v01;
+                            borderTriangles[contBorderTriangles + 2] = borderTriangles[contBorderTriangles + 3] = v10;
+                            borderTriangles[contBorderTriangles + 5] = v11;
+                            contBorderTriangles += 6;
+                        }
+                    }
+                }
+            }
             triangles[i] = v00;
             triangles[i + 1] = triangles[i + 4] = v01;
             triangles[i + 2] = triangles[i + 3] = v10;
@@ -855,8 +897,22 @@ public class CubeSphere : MonoBehaviour
                 vertexNormals[vertexIndexB] += triangleNormal;
                 vertexNormals[vertexIndexC] += triangleNormal;
             }
+            //Border triangles
+            int borderTriangleCount = borderTriangles.Length / 3;
+            for (int i = 0; i < borderTriangleCount; i++)
+            {
+                int normalTriangleIndex = i * 3;
+                int vertexIndexA = borderTriangles[normalTriangleIndex];
+                int vertexIndexB = borderTriangles[normalTriangleIndex + 1];
+                int vertexIndexC = borderTriangles[normalTriangleIndex + 2];
 
-            for(int i=0; i<vertexNormals.Length; i++)
+                Vector3 triangleNormal = SurfaceNormalFromIndices(vertexIndexA, vertexIndexB, vertexIndexC);
+                vertexNormals[vertexIndexA] += triangleNormal;
+                vertexNormals[vertexIndexB] += triangleNormal;
+                vertexNormals[vertexIndexC] += triangleNormal;
+            }
+
+            for (int i=0; i<vertexNormals.Length; i++)
             {
                 vertexNormals[i].Normalize();
             }
@@ -869,6 +925,21 @@ public class CubeSphere : MonoBehaviour
             Vector3 pointA = vertices[indexA];
             Vector3 pointB = vertices[indexB];
             Vector3 pointC = vertices[indexC];
+
+            /*if(indexA <= (chunkSize / reason) || indexA % (chunkSize / reason + 1) == 0 || (indexA + 1) % (chunkSize / reason + 1) == 0 || indexA >= (chunkSize / reason + 1) * (chunkSize / reason))
+            {
+                pointA = borderVertices[indexA];
+            }
+
+            if (indexB <= (chunkSize / reason) || indexB % (chunkSize / reason + 1) == 0 || (indexB + 1) % (chunkSize / reason + 1) == 0 || indexB >= (chunkSize / reason + 1) * (chunkSize / reason))
+            {
+                pointB = borderVertices[indexB];
+            }
+
+            if (indexC <= (chunkSize / reason) || indexC % (chunkSize / reason + 1) == 0 || (indexC + 1) % (chunkSize / reason + 1) == 0 || indexC >= (chunkSize / reason + 1) * (chunkSize / reason))
+            {
+                pointC = borderVertices[indexC];
+            }*/
 
             Vector3 sideAB = pointB - pointA;
             Vector3 sideAC = pointC - pointA;
