@@ -11,4 +11,6 @@ CONTROLS: Arrow keys.
 
 <img align="left" width="100" height="100" src="./logo/exploration-game-logo.jpg">
 
-<img align="right" width="100" height="100" src="./logo/exploration-game-logo.PNG">
+<img align="right" width="100" height="100" src="./logo/exploration-game-logo.png">
+
+<img align="center" src="./image.PNG">
