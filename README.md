@@ -9,4 +9,8 @@ Executable is generated from stable version (sequential version). I am working o
 
 CONTROLS: Arrow keys.
 
+<img align="left" src="./logo/exploration-game-logo.JPG">
+
+<img align="right" src="./logo/exploration-game-logo.PNG">
+
 <img align="right" src="./image.PNG">
