@@ -10,7 +10,8 @@ Executable is generated from stable version (sequential version). I am working o
 CONTROLS: Arrow keys.
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
-
-<img align="center" src="./logo/exploration-game-logo.png">
+<p align="center">
+    <img src="./logo/exploration-game-logo.png">
+</p>
 
 <img align="center" src="./image.PNG">
