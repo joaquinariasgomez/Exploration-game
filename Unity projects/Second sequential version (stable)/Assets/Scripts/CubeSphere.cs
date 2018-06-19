@@ -565,7 +565,7 @@ public class CubeSphere : MonoBehaviour
             //Asign Colliders
             CreateVertices();
             CreateTriangles();
-            CalculateNormals();
+            //CalculateNormals();
             AssignCollider();
         }
 
@@ -683,7 +683,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[x, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, x, y, 0);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
-                            verticesParcial[v - 1] = realVertice;
+                            //verticesParcial[v - 1] = realVertice;
                             float coorX = (float)x / (float)gridSize;
                             float coorY = (float)y / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
@@ -700,7 +700,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[x, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, x, y, gridSize);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
-                            verticesParcial[v - 1] = realVertice;
+                            //verticesParcial[v - 1] = realVertice;
                             float coorX = (float)x / (float)gridSize;
                             float coorY = (float)y / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
@@ -717,7 +717,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[z, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, 0, y, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
-                            verticesParcial[v - 1] = realVertice;
+                            //verticesParcial[v - 1] = realVertice;
                             float coorX = (float)z / (float)gridSize;
                             float coorY = (float)y / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
@@ -734,7 +734,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[z, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, gridSize, y, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
-                            verticesParcial[v - 1] = realVertice;
+                            //verticesParcial[v - 1] = realVertice;
                             float coorX = (float)z / (float)gridSize;
                             float coorY = (float)y / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
@@ -751,7 +751,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[x, z] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, x, 0, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
-                            verticesParcial[v - 1] = realVertice;
+                            //verticesParcial[v - 1] = realVertice;
                             float coorX = (float)x / (float)gridSize;
                             float coorY = (float)z / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
@@ -768,7 +768,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[x, z] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, x, gridSize, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v-1]*(height/radius);
-                            verticesParcial[v-1] = realVertice;
+                            //verticesParcial[v-1] = realVertice;
                             float coorX = (float)x / (float)gridSize;
                             float coorY = (float)z / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
@@ -782,7 +782,7 @@ public class CubeSphere : MonoBehaviour
             mesh.normals = normalsParcial;
             mesh.uv = uvs;
 
-            //data = new VerticesData(verticesParcial, normalsParcial);
+            data = new VerticesData(verticesParcial, normalsParcial);
         }
 
         private void SetVertex(Vector3[] verticesParcial, Vector3[] normalsParcial, int i, float x, float y, float z)      //Generates the vertex 'i' in the coordinates x, y, z
@@ -918,7 +918,7 @@ public class CubeSphere : MonoBehaviour
             }
 
             mesh.normals = vertexNormals;
-            data = new VerticesData(vertices, vertexNormals);
+            //data = new VerticesData(vertices, vertexNormals);
         }
 
         Vector3 SurfaceNormalFromIndices(int indexA, int indexB, int indexC)
