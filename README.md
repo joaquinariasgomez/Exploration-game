@@ -9,6 +9,4 @@ Executable is generated from stable version (sequential version). I am working o
 
 CONTROLS: Arrow keys.
 
-![Screenshot](image.PNG)
-
-<img align="left" width="100" height="100" src="./image.PNG">
+<img align="right" src="./image.PNG">
