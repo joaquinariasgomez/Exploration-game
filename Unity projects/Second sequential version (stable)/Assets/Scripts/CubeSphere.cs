@@ -21,7 +21,7 @@ public class CubeSphere : MonoBehaviour
     private static float[,] noiseMap;
     private static Dictionary<string, float[,]> noiseMaps=new Dictionary<string, float[,]>();  //Face, noiseMap
     private static Color[] colourMap;
-    private static int seed = 2048;
+    private static int seed = 2048; //2048
     private static float scale = 30f;
     private static int octaves = 4;
     private static float persistance = 0.36f;
@@ -108,7 +108,7 @@ public class CubeSphere : MonoBehaviour
         GenerateNoiseMapOfFace("xz");
         GenerateNoiseMapOfFace("xzy");
         //Ahora mezclar los noiseMap con una funcion que coja los maps del diccionario
-        //MixNoiseMaps();
+        MixNoiseMaps();
         GenerateChunksOfFace(chunks, "xy", verticesData);
         GenerateChunksOfFace(chunks, "xyz", verticesData);
         GenerateChunksOfFace(chunks, "zy", verticesData);
@@ -232,16 +232,18 @@ public class CubeSphere : MonoBehaviour
     {
         int width = gridSize + 1;
         int height = gridSize + 1;
+        int tope = 15;
 
         float[,] noiseMapXZY = noiseMaps["xzy"];
         float[,] noiseMapZY = noiseMaps["zy"];
+        float[,] noiseMapXY = noiseMaps["xy"];
 
         for(int j=0; j<width; j++)
         {
             float medium = (noiseMapXZY[0, j] + noiseMapZY[j, height - 1]) / 2;
             noiseMapXZY[0, j] = medium;
             noiseMapZY[j, height - 1] = medium;
-            for (int prof=1; prof<15; prof++)
+            for (int prof=1; prof<tope; prof++)
             {   
                 float mediumXZY = (noiseMapXZY[prof, j] + noiseMapXZY[prof-1, j]) / 2;
                 float mediumZY = (noiseMapZY[j, height - 1 - prof] + noiseMapZY[j, height - prof]) / 2;
@@ -249,9 +251,38 @@ public class CubeSphere : MonoBehaviour
                 noiseMapZY[j, height - 1 - prof] = mediumZY;
             }
         }
+        //Esquina del XY
+        for(int i=1; i<tope; i++)
+        {
+            float medium;
+            noiseMapXY[i, height - 1] = noiseMapXZY[i, 0];
+            for(int prof=1; prof<tope; prof++)
+            {
+                if(i+prof<tope)
+                {
+                    medium = (noiseMapXY[i + prof, height - 1 - prof] + noiseMapXY[i + prof, height - prof]) / 2;
+                    noiseMapXY[i + prof, height - 1 - prof] = medium;  //medium
+                }
+            }
+        }
+
+        for (int i = 1; i < tope; i++)
+        {
+            float medium;
+            noiseMapXY[0, height - 1 - i] = noiseMapZY[0, height - 1 - i];
+            for(int prof=1; prof<tope; prof++)
+            {
+                if(i+prof<tope)
+                {
+                    medium = (noiseMapXY[prof, height - 1 - i - prof] + noiseMapXY[prof - 1, height - 1 - i - prof]) / 2;
+                    noiseMapXY[prof, height - 1 - i - prof] = medium;
+                }
+            }
+        }
 
         noiseMaps["xzy"] = noiseMapXZY;
         noiseMaps["zy"] = noiseMapZY;
+        noiseMaps["xy"] = noiseMapXY;
     }
 
     private void GenerateChunksOfFace(List<Chunk> chunks, string face, List<VerticesData> verticesData)
@@ -766,7 +797,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[z, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, gridSize, y, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
-                            verticesParcial[v - 1] = realVertice;
+                            //verticesParcial[v - 1] = realVertice;
                             float coorX = (float)z / (float)gridSize;
                             float coorY = (float)y / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
