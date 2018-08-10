@@ -19,6 +19,7 @@ public class CubeSphere : MonoBehaviour
     private static float heightMultiplier = 20;
 
     private static float[,] noiseMap;
+    private static Dictionary<string, float[,]> noiseMaps=new Dictionary<string, float[,]>();  //Face, noiseMap
     private static Color[] colourMap;
     private static int seed = 2048;
     private static float scale = 30f;
@@ -26,8 +27,6 @@ public class CubeSphere : MonoBehaviour
     private static float persistance = 0.36f;
     private static float lacunarity = 1.7f;
     private static Vector2 offset = new Vector2(0, 0);
-
-    //float[,] falloffMap;
 
     private int chunkSize;
     private List<Chunk> chunks;
@@ -59,8 +58,6 @@ public class CubeSphere : MonoBehaviour
 
         radius = gridSize / 2;
         chunkSize = gridSize / sqrtChunksPerFace;
-
-        //falloffMap = FalloffGenerator.GenerateFalloffMap(gridSize + 1);
 
         GenerateChunks();     //DECOMMENT
     }
@@ -104,8 +101,16 @@ public class CubeSphere : MonoBehaviour
         List<VerticesData> verticesData = new List<VerticesData>();
         centers = new List<Vector3>();
 
+        GenerateNoiseMapOfFace("xy");
+        GenerateNoiseMapOfFace("xyz");
+        GenerateNoiseMapOfFace("zy");
+        GenerateNoiseMapOfFace("zyx");
+        GenerateNoiseMapOfFace("xz");
+        GenerateNoiseMapOfFace("xzy");
+        //Ahora mezclar los noiseMap con una funcion que coja los maps del diccionario
+        //MixNoiseMaps();
         GenerateChunksOfFace(chunks, "xy", verticesData);
-        //GenerateChunksOfFace(chunks, "xyz", verticesData);
+        GenerateChunksOfFace(chunks, "xyz", verticesData);
         GenerateChunksOfFace(chunks, "zy", verticesData);
         GenerateChunksOfFace(chunks, "zyx", verticesData);
         GenerateChunksOfFace(chunks, "xz", verticesData);
@@ -158,8 +163,9 @@ public class CubeSphere : MonoBehaviour
             {
                 switch(face)
                 {
-                    case "zy": matrix[i, j] = noiseMap[width - 1 - i, j]; ; break;
-                    case "xz": matrix[i, j] = noiseMap[i, height - 1 - j]; ; break;
+                    case "zy": matrix[i, j] = noiseMap[width - 1 - i, j]; break;
+                    case "xz": matrix[i, j] = noiseMap[i, height - 1 - j]; break;
+                    case "xyz": matrix[i, j] = noiseMap[width - 1 - i, j]; break;
                 }
             }
         }
@@ -168,40 +174,17 @@ public class CubeSphere : MonoBehaviour
 
     private Texture2D CreateTexture(string face)
     {
-        switch(face)
-        {
-            case "xy": offset = new Vector2(0, 0); break;
-            case "xyz":
-            case "zy": offset = new Vector2(-gridSize, 0); break;
-            case "zyx": offset = new Vector2(gridSize, 0); break;
-            case "xz": offset = new Vector2(0, gridSize); break;
-            case "xzy": offset = new Vector2(0, -gridSize); break;
-        }
-
-        //Generate Noise Map and ColourMap
         int width = gridSize + 1;
         int height = gridSize + 1;
 
-        noiseMap = Noise.GenerateNoiseMap(width, height, seed, scale, octaves, persistance, lacunarity, offset, normalizeMode);
         colourMap = new Color[width * height];
 
-        /*for(int i=0; i<10; i++)
-        {
-            for(int j=0; j<10; j++)
-            {
-                noiseMap[i, j] = 1;
-            }
-        }*/
-
-        if (face == "zy" || face== "xz") { noiseMap = FLipMatrix(noiseMap, width, height, face); }
+        noiseMap = noiseMaps[face];
 
         for (int i = 0; i < height; i++)
         {
             for (int j = 0; j < width; j++)
             {
-                //FalloffMap
-                //noiseMap[j, i] = Mathf.Clamp01(noiseMap[j, i] - falloffMap[j, i]);  //?
-                //
                 float currentHeight = noiseMap[j, i];
                 for (int k = 0; k < regions.Length; k++)
                 {
@@ -220,6 +203,55 @@ public class CubeSphere : MonoBehaviour
 
         Texture2D texture = TextureGenerator.TextureFromHeightMap(noiseMap, colourMap);
         return texture;
+    }
+
+    private void GenerateNoiseMapOfFace(string face)
+    {
+        switch (face)
+        {
+            case "xy": offset = new Vector2(0, 0); break;
+            case "xyz": offset = new Vector2(-2 * gridSize, 0); break;
+            case "zy": offset = new Vector2(-gridSize, 0); break;
+            case "zyx": offset = new Vector2(gridSize, 0); break;
+            case "xz": offset = new Vector2(0, gridSize); break;
+            case "xzy": offset = new Vector2(0, -gridSize); break;
+        }
+
+        //Generate Noise Map
+        int width = gridSize + 1;
+        int height = gridSize + 1;
+
+        noiseMap = Noise.GenerateNoiseMap(width, height, seed, scale, octaves, persistance, lacunarity, offset, normalizeMode);
+
+        if (face == "zy" || face == "xz" || face == "xyz") { noiseMap = FLipMatrix(noiseMap, width, height, face); }
+
+        noiseMaps.Add(face, noiseMap);
+    }
+
+    private void MixNoiseMaps()
+    {
+        int width = gridSize + 1;
+        int height = gridSize + 1;
+
+        float[,] noiseMapXZY = noiseMaps["xzy"];
+        float[,] noiseMapZY = noiseMaps["zy"];
+
+        for(int j=0; j<width; j++)
+        {
+            float medium = (noiseMapXZY[0, j] + noiseMapZY[j, height - 1]) / 2;
+            noiseMapXZY[0, j] = medium;
+            noiseMapZY[j, height - 1] = medium;
+            for (int prof=1; prof<15; prof++)
+            {   
+                float mediumXZY = (noiseMapXZY[prof, j] + noiseMapXZY[prof-1, j]) / 2;
+                float mediumZY = (noiseMapZY[j, height - 1 - prof] + noiseMapZY[j, height - prof]) / 2;
+                noiseMapXZY[prof, j] = mediumXZY;
+                noiseMapZY[j, height - 1 - prof] = mediumZY;
+            }
+        }
+
+        noiseMaps["xzy"] = noiseMapXZY;
+        noiseMaps["zy"] = noiseMapZY;
     }
 
     private void GenerateChunksOfFace(List<Chunk> chunks, string face, List<VerticesData> verticesData)
@@ -462,7 +494,7 @@ public class CubeSphere : MonoBehaviour
                 }
             }
         }*/
-        if (vertices == null)
+        /*if (vertices == null)
         {
             return;
         }
@@ -475,7 +507,7 @@ public class CubeSphere : MonoBehaviour
             Gizmos.DrawRay(vertices[i], normals[i]);
             //Vector3 realVertice = vertices[i] + vertices[i] * (20 / radius);
             //Gizmos.DrawRay(new Vector3(0, 0, 0), realVertice);
-        }
+        }*/
     }
 
     public class VerticesData
@@ -683,7 +715,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[x, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, x, y, 0);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
-                            //verticesParcial[v - 1] = realVertice;
+                            verticesParcial[v - 1] = realVertice;
                             float coorX = (float)x / (float)gridSize;
                             float coorY = (float)y / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
@@ -700,7 +732,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[x, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, x, y, gridSize);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
-                            //verticesParcial[v - 1] = realVertice;
+                            verticesParcial[v - 1] = realVertice;
                             float coorX = (float)x / (float)gridSize;
                             float coorY = (float)y / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
@@ -717,7 +749,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[z, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, 0, y, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
-                            //verticesParcial[v - 1] = realVertice;
+                            verticesParcial[v - 1] = realVertice;
                             float coorX = (float)z / (float)gridSize;
                             float coorY = (float)y / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
@@ -734,7 +766,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[z, y] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, gridSize, y, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
-                            //verticesParcial[v - 1] = realVertice;
+                            verticesParcial[v - 1] = realVertice;
                             float coorX = (float)z / (float)gridSize;
                             float coorY = (float)y / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
@@ -751,7 +783,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[x, z] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, x, 0, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v - 1] * (height / radius);
-                            //verticesParcial[v - 1] = realVertice;
+                            verticesParcial[v - 1] = realVertice;
                             float coorX = (float)x / (float)gridSize;
                             float coorY = (float)z / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
@@ -768,7 +800,7 @@ public class CubeSphere : MonoBehaviour
                             float height = noiseMap[x, z] * heightMultiplier;
                             SetVertex(verticesParcial, normalsParcial, v++, x, gridSize, z);
                             Vector3 realVertice = verticesParcial[v - 1] + verticesParcial[v-1]*(height/radius);
-                            //verticesParcial[v-1] = realVertice;
+                            verticesParcial[v-1] = realVertice;
                             float coorX = (float)x / (float)gridSize;
                             float coorY = (float)z / (float)gridSize;
                             uvs[cont++] = new Vector2(coorX, coorY);
