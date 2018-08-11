@@ -238,6 +238,7 @@ public class CubeSphere : MonoBehaviour
         float[,] noiseMapZY = noiseMaps["zy"];
         float[,] noiseMapXY = noiseMaps["xy"];
         float[,] noiseMapXZ = noiseMaps["xz"];
+        float[,] noiseMapZYX = noiseMaps["zyx"];
 
         //Lateral ZY - XZY
         for(int j=0; j<width; j++)
@@ -259,7 +260,7 @@ public class CubeSphere : MonoBehaviour
             float medium;
             noiseMapXY[i, height - 1] = noiseMapXZY[i, 0];
             noiseMapXY[0, height - 1 - i] = noiseMapZY[0, height - 1 - i];
-            for (int prof=1; prof<tope; prof++)
+            for(int prof=1; prof<tope; prof++)
             {
                 if(i+prof<tope)
                 {
@@ -275,14 +276,74 @@ public class CubeSphere : MonoBehaviour
         //Lateral ZY - XZ
         for(int j=0; j<width; j++)
         {
-            noiseMapXZ[0, j] = 5;
-            noiseMapZY[j, 0] = 5;
+            float medium = (noiseMapXZ[0, j] + noiseMapZY[j, 0]) / 2;
+            noiseMapXZ[0, j] = medium;
+            noiseMapZY[j, 0] = medium;
+            for(int prof=1; prof<tope; prof++)
+            {
+                float mediumXZ = (noiseMapXZ[prof, j] + noiseMapXZ[prof - 1, j]) / 2;
+                float mediumZY = (noiseMapZY[j, prof] + noiseMapZY[j, prof - 1]) / 2;
+                noiseMapXZ[prof, j] = mediumXZ;
+                noiseMapZY[j, prof] = mediumZY;
+            }
+        }
+        //Corner ZY - XZ - XY
+        for(int i=1; i<tope; i++)
+        {
+            float medium;
+            noiseMapXY[0, i] = noiseMapZY[0, i];
+            noiseMapXY[i, 0] = noiseMapXZ[i, 0];
+            for(int prof=1; prof<tope; prof++)
+            {
+                if (i+prof<tope)
+                {
+                    medium = (noiseMapXY[prof, i + prof] + noiseMapXY[prof - 1, i + prof]) / 2;
+                    noiseMapXY[prof, i + prof] = medium;
+                    medium = (noiseMapXY[i + prof, prof] + noiseMapXY[i + prof, prof - 1]) / 2;
+                    noiseMapXY[i + prof, prof] = medium;
+                }
+            }
+            //Diagonal
+            noiseMapXY[i, i] = (noiseMapXY[i, i - 1] + noiseMapXY[i - 1, i]) / 2;
+        }
+        //Lateral ZYX - XZY
+        for(int j=0; j<width; j++)
+        {
+            float medium = (noiseMapZYX[j, height - 1] + noiseMapXZY[height - 1, j]) / 2;
+            noiseMapZYX[j, height - 1] = medium;
+            noiseMapXZY[height - 1, j] = medium;
+            for(int prof=1; prof<tope; prof++)
+            {
+                float mediumZYX = (noiseMapZYX[j, height - 1 - prof] + noiseMapZYX[j, height - prof]) / 2;
+                float mediumXZY = (noiseMapXZY[height - 1 - prof, j] + noiseMapXZY[height - prof, j]) / 2;
+                noiseMapZYX[j, height - 1 - prof] = mediumZYX;
+                noiseMapXZY[height - 1 - prof, j] = mediumXZY;
+            }
+        }
+        //Corner ZYX - XZY - XY
+        for(int i=1; i<tope; i++)
+        {
+            float medium;
+            noiseMapXY[height - i, height - 1] = noiseMapXZY[height - i, 0];
+            noiseMapXY[height - 1, height - i] = noiseMapZYX[0, height - i];
+            for(int prof=1; prof<tope; prof++)
+            {
+                if(i+prof<tope)
+                {
+                    medium = (noiseMapXY[height - 1 - prof, height - i - 1 - prof] + noiseMapXY[height - prof, height - i - 1 - prof]) / 2;
+                    noiseMapXY[height - 1 - prof, height - i - 1 - prof] = medium;
+                    medium = (noiseMapXY[height - i - 1 - prof, height - 1 - prof] + noiseMapXY[height - i - 1 - prof, height - prof]) / 2;
+                    noiseMapXY[height - i - 1 - prof, height - 1 - prof] = medium;
+                }
+            }
+            //Diagonal
         }
 
         noiseMaps["xzy"] = noiseMapXZY;
         noiseMaps["zy"] = noiseMapZY;
         noiseMaps["xy"] = noiseMapXY;
         noiseMaps["xz"] = noiseMapXZ;
+        noiseMaps["zyx"] = noiseMapZYX;
     }
 
     private void GenerateChunksOfFace(List<Chunk> chunks, string face, List<VerticesData> verticesData)
