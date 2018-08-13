@@ -13,12 +13,11 @@ public class CubeSphere : MonoBehaviour
     public Material material;
     public Transform bodyAttracted;
 
-    private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;
+    private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;    //Global
     private float radius;
     private int sqrtChunksPerFace = 5;     //25
     private static float heightMultiplier = 20;
 
-    private static float[,] noiseMap;
     private static Dictionary<string, float[,]> noiseMaps=new Dictionary<string, float[,]>();  //Face, noiseMap
     private static Color[] colourMap;
     private static int seed = 2048; //2048
@@ -179,7 +178,7 @@ public class CubeSphere : MonoBehaviour
 
         colourMap = new Color[width * height];
 
-        noiseMap = noiseMaps[face];
+        float[,] noiseMap = noiseMaps[face];
 
         for (int i = 0; i < height; i++)
         {
@@ -221,7 +220,7 @@ public class CubeSphere : MonoBehaviour
         int width = gridSize + 1;
         int height = gridSize + 1;
 
-        noiseMap = Noise.GenerateNoiseMap(width, height, seed, scale, octaves, persistance, lacunarity, offset, normalizeMode);
+        float[,] noiseMap = Noise.GenerateNoiseMap(width, height, seed, scale, octaves, persistance, lacunarity, offset, normalizeMode);
 
         if (face == "zy" || face == "xz" || face == "xyz") { noiseMap = FLipMatrix(noiseMap, width, height, face); }
 
@@ -256,7 +255,8 @@ public class CubeSphere : MonoBehaviour
             }
         }
         //Corner ZY - XZY - XY
-        for(int i=1; i<tope; i++)
+        noiseMapXY[0, height - 1]= noiseMapXZY[0, 0];
+        for (int i=1; i<tope; i++)
         {
             float medium;
             noiseMapXY[i, height - 1] = noiseMapXZY[i, 0];
@@ -289,7 +289,8 @@ public class CubeSphere : MonoBehaviour
             }
         }
         //Corner ZY - XZ - XY
-        for(int i=1; i<tope; i++)
+        noiseMapXY[0, 0] = noiseMapZY[0, 0];
+        for (int i=1; i<tope; i++)
         {
             float medium;
             noiseMapXY[0, i] = noiseMapZY[0, i];
@@ -322,7 +323,8 @@ public class CubeSphere : MonoBehaviour
             }
         }
         //Corner ZYX - XZY - XY
-        for(int i=1; i<tope; i++)
+        noiseMapXY[height - 1, height - 1] = noiseMapXZY[height - 1, 0];
+        for (int i=1; i<tope; i++)
         {
             float medium;
             noiseMapXY[height - 1 - i, height - 1] = noiseMapXZY[height - 1 - i, 0];
@@ -355,7 +357,8 @@ public class CubeSphere : MonoBehaviour
             }
         }
         //Corner XZ - ZYX - XY
-        for(int i=1; i<tope; i++)
+        noiseMapXY[height - 1, 0] = noiseMapZYX[0, 0];
+        for (int i=1; i<tope; i++)
         {
             float medium;
             noiseMapXY[height - 1, i] = noiseMapZYX[0, i];
@@ -415,6 +418,46 @@ public class CubeSphere : MonoBehaviour
                 noiseMapZYX[height - 1 - prof, height - 1 - j] = mediumZYX;
             }
         }
+        //Corner XZY - XYZ - ZY
+        noiseMapZY[height - 1, height - 1] = noiseMapXZY[0, height - 1];
+        for (int i = 1; i < tope; i++)
+        {
+            float medium;
+            noiseMapZY[height - 1 - i, height - 1] = noiseMapXZY[0, height - 1 - i];
+            noiseMapZY[height - 1, height - 1 - i] = noiseMapXYZ[0, height - 1 - i];
+            for(int prof=1; prof<tope; prof++)
+            {
+                if(i+prof<tope)
+                {
+                    medium = (noiseMapZY[height - 1 - i - prof, height - 1 - prof] + noiseMapZY[height - 1 - i - prof, height - prof]) / 2;
+                    noiseMapZY[height - 1 - i - prof, height - 1 - prof] = medium;
+                    medium = (noiseMapZY[height - 1 - prof, height - 1 - i - prof] + noiseMapZY[height - prof, height - 1 - i - prof]) / 2;
+                    noiseMapZY[height - 1 - prof, height - 1 - i - prof] = medium;
+                }
+            }
+            //Diagonal
+            noiseMapZY[height - 1 - i, height - 1 - i] = (noiseMapZY[height - i, height - 1 - i] + noiseMapZY[height - 1 - i, height - i]) / 2;
+        }
+        //Corner XYZ - XZ - ZY
+        noiseMapZY[height - 1, 0] = noiseMapXZ[0, height - 1];
+        for (int i=1; i<tope; i++)
+        {
+            float medium;
+            noiseMapZY[height - 1 - i, 0] = noiseMapXZ[0, height - 1 - i];
+            noiseMapZY[height - 1, i] = noiseMapXYZ[0, i];
+            for(int prof=1; prof<tope; prof++)
+            {
+                if(i+prof<tope)
+                {
+                    medium = (noiseMapZY[height - 1 - prof, i + prof] + noiseMapZY[height - prof, i + prof]) / 2;
+                    noiseMapZY[height - 1 - prof, i + prof] = medium;
+                    medium = (noiseMapZY[height - 1 - i - prof, prof] + noiseMapZY[height - 1 - i - prof, prof - 1]) / 2;
+                    noiseMapZY[height - 1 - i - prof, prof] = medium;
+                }
+            }
+            //Diagonal
+            noiseMapZY[height - 1 - i, i] = (noiseMapZY[height - i, i] + noiseMapZY[height - 1 - i, i - 1]) / 2;
+        }
 
         noiseMaps["xzy"] = noiseMapXZY;
         noiseMaps["zy"] = noiseMapZY;
@@ -426,7 +469,6 @@ public class CubeSphere : MonoBehaviour
 
     private void GenerateChunksOfFace(List<Chunk> chunks, string face, List<VerticesData> verticesData)
     {
-        //Texture2D faceTexture=CreateTexture();
         switch (face)
         {
             case "xy": Texture2D faceTextureXY = CreateTexture("xy");
@@ -501,7 +543,7 @@ public class CubeSphere : MonoBehaviour
                                 Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTextureXZY);
                                 chunk.Generate();
                                 chunks.Add(chunk);
-                                verticesData.Add(chunk.GetVerticesData());
+                                //verticesData.Add(chunk.GetVerticesData());
                                 //centers.Add(chunk.GetCenter());
                             }
                         } break;
@@ -767,7 +809,7 @@ public class CubeSphere : MonoBehaviour
             //Asign Colliders
             CreateVertices();
             CreateTriangles();
-            //CalculateNormals();
+            CalculateNormals(); //
             AssignCollider();
         }
 
@@ -808,7 +850,7 @@ public class CubeSphere : MonoBehaviour
 
             CreateVertices();
             CreateTriangles();
-            //CalculateNormals();
+            CalculateNormals(); //
         }
 
         public Vector3 GetCenter()
@@ -873,6 +915,7 @@ public class CubeSphere : MonoBehaviour
 
             int v;
             int cont = 0;
+            float[,] noiseMap;
             switch (face)
             {
                 case "xy":

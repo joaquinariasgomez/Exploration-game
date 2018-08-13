@@ -223,10 +223,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orbitingObject: {fileID: 2140928269}
   orbitPath:
-    xAxis: 100
-    yAxis: 100
+    xAxis: 300
+    yAxis: 220
   orbitProgress: 0
-  orbitPeriod: 10000
+  orbitPeriod: 10
   orbitActive: 1
 --- !u!4 &1141292256
 Transform:
@@ -352,7 +352,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51691b5b6b28a9a42a9874ac6886b634, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: 100
+  gridSize: 200
   gravity: -9.8
   regions:
   - name: region1
@@ -385,6 +385,12 @@ MonoBehaviour:
   - name: region10
     height: 1
     colour: {r: 0.2647059, g: 0, b: 0, a: 0}
+  - name: region11
+    height: 1.2
+    colour: {r: 0.153, g: 0.009731828, b: 0.009731828, a: 0}
+  - name: region12
+    height: 1.5
+    colour: {r: 1, g: 1, b: 1, a: 0}
   material: {fileID: 2100000, guid: f5cad4d7eaf10954c86eda135e663625, type: 2}
   bodyAttracted: {fileID: 1736508242}
 --- !u!4 &1339366653
@@ -548,7 +554,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1736508238}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 500, z: 0}
+  m_LocalPosition: {x: 0, y: 120, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 620806364}
