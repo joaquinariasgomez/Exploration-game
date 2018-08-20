@@ -226,7 +226,7 @@ MonoBehaviour:
     xAxis: 300
     yAxis: 220
   orbitProgress: 0
-  orbitPeriod: 10
+  orbitPeriod: 10000
   orbitActive: 1
 --- !u!4 &1141292256
 Transform:
@@ -352,7 +352,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51691b5b6b28a9a42a9874ac6886b634, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: 200
+  gridSize: 800
   gravity: -9.8
   regions:
   - name: region1

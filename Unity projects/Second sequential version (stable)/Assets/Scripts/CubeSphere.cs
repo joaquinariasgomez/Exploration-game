@@ -458,6 +458,26 @@ public class CubeSphere : MonoBehaviour
             //Diagonal
             noiseMapZY[height - 1 - i, i] = (noiseMapZY[height - i, i] + noiseMapZY[height - 1 - i, i - 1]) / 2;
         }
+        //Corner ZYX - XYZ - XZY
+        noiseMapXZY[height - 1, height - 1] = noiseMapXYZ[height - 1, height - 1];
+        for (int i=1; i<tope; i++)
+        {
+            float medium;
+            noiseMapXZY[height - 1 - i, height - 1] = noiseMapXYZ[height - 1 - i, height - 1];        //XYZ
+            noiseMapXZY[height - 1, height - 1 - i] = noiseMapZYX[height - 1 - i, height - 1];
+            for(int prof=1; prof<tope; prof++)
+            {
+                if(i+prof<tope)
+                {
+                    medium = (noiseMapXZY[height - 1 - i - prof, height - 1 - prof] + noiseMapXZY[height - 1 - i - prof, height - prof]) / 2;
+                    noiseMapXZY[height - 1 - i - prof, height - 1 - prof] = medium;
+                    medium = (noiseMapXZY[height - 1 - prof, height - 1 - i - prof] + noiseMapXZY[height - prof, height - 1 - i - prof]) / 2;
+                    noiseMapXZY[height - 1 - prof, height - 1 - i - prof] = medium;
+                }
+            }
+            //Diagonal
+            noiseMapXZY[height - 1 - i, height - 1 - i] = (noiseMapXZY[height - i, height - 1 - i] + noiseMapXZY[height - 1 - i, height - i]) / 2;
+        }
 
         noiseMaps["xzy"] = noiseMapXZY;
         noiseMaps["zy"] = noiseMapZY;
@@ -809,7 +829,7 @@ public class CubeSphere : MonoBehaviour
             //Asign Colliders
             CreateVertices();
             CreateTriangles();
-            CalculateNormals(); //
+            //CalculateNormals(); //
             AssignCollider();
         }
 
@@ -850,7 +870,7 @@ public class CubeSphere : MonoBehaviour
 
             CreateVertices();
             CreateTriangles();
-            CalculateNormals(); //
+            //CalculateNormals(); //
         }
 
         public Vector3 GetCenter()
