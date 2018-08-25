@@ -108,6 +108,7 @@ public class CubeSphere : MonoBehaviour
         GenerateNoiseMapOfFace("xzy");
         //Ahora mezclar los noiseMap con una funcion que coja los maps del diccionario
         MixNoiseMaps();     //Cose las brechas ocasionadas por la generación de Chunks entre diferentes caras
+        GenerateCraters();
         GenerateChunksOfFace(chunks, "xy", verticesData);
         GenerateChunksOfFace(chunks, "xyz", verticesData);
         GenerateChunksOfFace(chunks, "zy", verticesData);
@@ -477,6 +478,43 @@ public class CubeSphere : MonoBehaviour
             }
             //Diagonal
             noiseMapXZY[height - 1 - i, height - 1 - i] = (noiseMapXZY[height - i, height - 1 - i] + noiseMapXZY[height - 1 - i, height - i]) / 2;
+        }
+
+        noiseMaps["xzy"] = noiseMapXZY;
+        noiseMaps["zy"] = noiseMapZY;
+        noiseMaps["xy"] = noiseMapXY;
+        noiseMaps["xz"] = noiseMapXZ;
+        noiseMaps["zyx"] = noiseMapZYX;
+        noiseMaps["xyz"] = noiseMapXYZ;
+    }
+
+    private void GenerateCraters()
+    {
+        int width = gridSize + 1;
+        int height = gridSize + 1;
+        int craterSize = width / 3;
+        System.Random rnd = new System.Random();
+
+        float[,] noiseMapXZY = noiseMaps["xzy"];
+        float[,] noiseMapZY = noiseMaps["zy"];
+        float[,] noiseMapXY = noiseMaps["xy"];
+        float[,] noiseMapXZ = noiseMaps["xz"];
+        float[,] noiseMapZYX = noiseMaps["zyx"];
+        float[,] noiseMapXYZ = noiseMaps["xyz"];
+
+        for(int i=0; i<10; i++)
+        {
+            int fila = rnd.Next(craterSize, width-craterSize);
+            int col = rnd.Next(craterSize, height-craterSize);
+            noiseMapXY[fila, col] = noiseMapXY[fila, col] - 1;
+            noiseMapXY[fila - 1, col - 1] = noiseMapXY[fila - 1, col - 1] - 1;
+            noiseMapXY[fila - 1, col] = noiseMapXY[fila - 1, col] - 1;
+            noiseMapXY[fila, col - 1] = noiseMapXY[fila, col - 1] - 1;
+            noiseMapXY[fila + 1, col + 1] = noiseMapXY[fila + 1, col + 1] - 1;
+            noiseMapXY[fila + 1, col] = noiseMapXY[fila + 1, col] - 1;
+            noiseMapXY[fila, col + 1] = noiseMapXY[fila, col + 1] - 1;
+            noiseMapXY[fila - 1, col + 1] = noiseMapXY[fila - 1, col + 1] - 1;
+            noiseMapXY[fila + 1, col - 1] = noiseMapXY[fila + 1, col - 1] - 1;
         }
 
         noiseMaps["xzy"] = noiseMapXZY;
