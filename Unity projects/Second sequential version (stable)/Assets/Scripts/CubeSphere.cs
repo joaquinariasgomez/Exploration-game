@@ -490,10 +490,12 @@ public class CubeSphere : MonoBehaviour
 
     private void GenerateCraters()
     {
+        System.Random rnd = new System.Random();
         int width = gridSize + 1;
         int height = gridSize + 1;
-        int craterSize = width / 3;
-        System.Random rnd = new System.Random();
+        int estimatedCraterSize = 16;   //Correspondent to 1.25 radio
+        float depth = 2f;                //Maximum depth is (depth+1) times maximum height
+        float radio = 1.25f;
 
         float[,] noiseMapXZY = noiseMaps["xzy"];
         float[,] noiseMapZY = noiseMaps["zy"];
@@ -502,19 +504,18 @@ public class CubeSphere : MonoBehaviour
         float[,] noiseMapZYX = noiseMaps["zyx"];
         float[,] noiseMapXYZ = noiseMaps["xyz"];
 
-        for(int i=0; i<10; i++)
+        int fila = rnd.Next(estimatedCraterSize, width - estimatedCraterSize);
+        int col = rnd.Next(estimatedCraterSize, height - estimatedCraterSize);
+        for(int i=fila-estimatedCraterSize; i<fila+estimatedCraterSize; i++)
         {
-            int fila = rnd.Next(craterSize, width-craterSize);
-            int col = rnd.Next(craterSize, height-craterSize);
-            noiseMapXY[fila, col] = noiseMapXY[fila, col] - 1;
-            noiseMapXY[fila - 1, col - 1] = noiseMapXY[fila - 1, col - 1] - 1;
-            noiseMapXY[fila - 1, col] = noiseMapXY[fila - 1, col] - 1;
-            noiseMapXY[fila, col - 1] = noiseMapXY[fila, col - 1] - 1;
-            noiseMapXY[fila + 1, col + 1] = noiseMapXY[fila + 1, col + 1] - 1;
-            noiseMapXY[fila + 1, col] = noiseMapXY[fila + 1, col] - 1;
-            noiseMapXY[fila, col + 1] = noiseMapXY[fila, col + 1] - 1;
-            noiseMapXY[fila - 1, col + 1] = noiseMapXY[fila - 1, col + 1] - 1;
-            noiseMapXY[fila + 1, col - 1] = noiseMapXY[fila + 1, col - 1] - 1;
+            for(int j=col-estimatedCraterSize; j<col+estimatedCraterSize; j++)
+            {
+                float distanceToCenter = Mathf.Sqrt(Mathf.Pow(j-col, 2) + Mathf.Pow(i-fila, 2));
+                if(distanceToCenter<=estimatedCraterSize)
+                {
+                    noiseMapXY[i, j] = distanceToCenter / estimatedCraterSize;
+                }
+            }
         }
 
         noiseMaps["xzy"] = noiseMapXZY;
