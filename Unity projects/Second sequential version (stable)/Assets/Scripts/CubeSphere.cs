@@ -108,7 +108,7 @@ public class CubeSphere : MonoBehaviour
         GenerateNoiseMapOfFace("xzy");
         //Ahora mezclar los noiseMap con una funcion que coja los maps del diccionario
         MixNoiseMaps();     //Cose las brechas ocasionadas por la generación de Chunks entre diferentes caras
-        GenerateCraters();
+        //GenerateCraters();
         GenerateChunksOfFace(chunks, "xy", verticesData);
         GenerateChunksOfFace(chunks, "xyz", verticesData);
         GenerateChunksOfFace(chunks, "zy", verticesData);
@@ -479,6 +479,8 @@ public class CubeSphere : MonoBehaviour
             //Diagonal
             noiseMapXZY[height - 1 - i, height - 1 - i] = (noiseMapXZY[height - i, height - 1 - i] + noiseMapXZY[height - 1 - i, height - i]) / 2;
         }
+        //Corner XYZ - ZYX - XZ
+
 
         noiseMaps["xzy"] = noiseMapXZY;
         noiseMaps["zy"] = noiseMapZY;
@@ -493,9 +495,8 @@ public class CubeSphere : MonoBehaviour
         System.Random rnd = new System.Random();
         int width = gridSize + 1;
         int height = gridSize + 1;
-        int estimatedCraterSize = 16;   //Correspondent to 1.25 radio
-        float depth = 2f;                //Maximum depth is (depth+1) times maximum height
-        float radio = 1.25f;
+        float radio = 50;
+        float prof = 1.5f;
 
         float[,] noiseMapXZY = noiseMaps["xzy"];
         float[,] noiseMapZY = noiseMaps["zy"];
@@ -504,16 +505,17 @@ public class CubeSphere : MonoBehaviour
         float[,] noiseMapZYX = noiseMaps["zyx"];
         float[,] noiseMapXYZ = noiseMaps["xyz"];
 
-        int fila = rnd.Next(estimatedCraterSize, width - estimatedCraterSize);
-        int col = rnd.Next(estimatedCraterSize, height - estimatedCraterSize);
-        for(int i=fila-estimatedCraterSize; i<fila+estimatedCraterSize; i++)
+        int fila = rnd.Next((int)radio, width - (int)radio);
+        int col = rnd.Next((int)radio, height - (int)radio);
+        for(int i=fila-(int)radio; i<fila+(int)radio; i++)
         {
-            for(int j=col-estimatedCraterSize; j<col+estimatedCraterSize; j++)
+            for(int j=col-(int)radio; j<col+(int)radio; j++)
             {
                 float distanceToCenter = Mathf.Sqrt(Mathf.Pow(j-col, 2) + Mathf.Pow(i-fila, 2));
-                if(distanceToCenter<=estimatedCraterSize)
+                if(distanceToCenter<radio)
                 {
-                    noiseMapXY[i, j] = distanceToCenter / estimatedCraterSize;
+                    float realDepth = prof - Mathf.Sqrt(Mathf.Pow(radio, 2) - Mathf.Pow(distanceToCenter, 2)) / (radio/prof);
+                    noiseMapXY[i, j] = realDepth * noiseMapXY[i, j];
                 }
             }
         }
@@ -734,7 +736,7 @@ public class CubeSphere : MonoBehaviour
 
         rigidbodyAttracted = body.GetComponent<Rigidbody>();
 
-        //rigidbodyAttracted.AddForce(gravityUp * gravity);   //Comment this line for no attraction force
+        rigidbodyAttracted.AddForce(gravityUp * gravity);   //Comment this line for no attraction force
 
         Quaternion targetRotation = Quaternion.FromToRotation(bodyUp, gravityUp) * body.rotation;
         body.rotation = Quaternion.Slerp(body.rotation, targetRotation, 50 * Time.deltaTime);

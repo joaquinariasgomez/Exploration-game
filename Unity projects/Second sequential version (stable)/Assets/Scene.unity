@@ -391,6 +391,15 @@ MonoBehaviour:
   - name: region12
     height: 1.5
     colour: {r: 1, g: 1, b: 1, a: 0}
+  - name: region-1
+    height: -0.9
+    colour: {r: 0.625, g: 0.625, b: 0.625, a: 0}
+  - name: region-2
+    height: -1.9
+    colour: {r: 0.36764705, g: 0.36764705, b: 0.36764705, a: 0}
+  - name: region-3
+    height: -2.9
+    colour: {r: 0.19117647, g: 0.18977076, b: 0.18977076, a: 0}
   material: {fileID: 2100000, guid: f5cad4d7eaf10954c86eda135e663625, type: 2}
   bodyAttracted: {fileID: 1736508242}
 --- !u!4 &1339366653
