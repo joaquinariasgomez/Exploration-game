@@ -15,8 +15,9 @@ public class CubeSphere : MonoBehaviour
 
     private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;    //Global
     private float radius;
-    private int sqrtChunksPerFace = 5;     //25
+    private static int sqrtChunksPerFace = 5;     //25
     private static float heightMultiplier = 10;     //20
+    private static int id = 0;
 
     private static Dictionary<string, float[,]> noiseMaps=new Dictionary<string, float[,]>();  //Face, noiseMap
     private static Color[] colourMap;
@@ -559,7 +560,7 @@ public class CubeSphere : MonoBehaviour
                        {
                            for (int x = 0; x < sqrtChunksPerFace; x++)
                            {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, y * chunkSize, 0, gridSize, regions, faceTextureXY);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, y * chunkSize, 0, gridSize, regions, faceTextureXY, x, y, id++);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -571,7 +572,7 @@ public class CubeSphere : MonoBehaviour
                         {
                             for (int x = 0; x < sqrtChunksPerFace; x++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, y * chunkSize, 0, gridSize, regions, faceTextureXYZ);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, y * chunkSize, 0, gridSize, regions, faceTextureXYZ, x, y, id++);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -584,7 +585,7 @@ public class CubeSphere : MonoBehaviour
                         {
                             for (int z = 0; z < sqrtChunksPerFace; z++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, 0, y * chunkSize, z * chunkSize, gridSize, regions, faceTextureZY);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, 0, y * chunkSize, z * chunkSize, gridSize, regions, faceTextureZY, z, y, id++);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -597,7 +598,7 @@ public class CubeSphere : MonoBehaviour
                         {
                             for (int z = 0; z < sqrtChunksPerFace; z++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, 0, y * chunkSize, z * chunkSize, gridSize, regions, faceTextureZYX);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, 0, y * chunkSize, z * chunkSize, gridSize, regions, faceTextureZYX, z, y, id++);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -610,7 +611,7 @@ public class CubeSphere : MonoBehaviour
                         {
                             for (int x = 0; x < sqrtChunksPerFace; x++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTextureXZ);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTextureXZ, x, z, id++);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -623,7 +624,7 @@ public class CubeSphere : MonoBehaviour
                         {
                             for (int x = 0; x < sqrtChunksPerFace; x++)
                             {
-                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTextureXZY);
+                                Chunk chunk = new Chunk(transform, material, chunkSize, radius, face, x * chunkSize, 0, z * chunkSize, gridSize, regions, faceTextureXZY, x, z, id++);
                                 chunk.Generate();
                                 chunks.Add(chunk);
                                 //verticesData.Add(chunk.GetVerticesData());
@@ -643,7 +644,11 @@ public class CubeSphere : MonoBehaviour
         foreach (Chunk chunk in chunks)
         {
             chunk.AdjustBorderNormals();
-            if(cont==43) verticesData.Add(chunk.GetVerticesData());
+            VerticesData data = chunk.GetVerticesData();
+            if (data!=null && chunk.face=="xy")
+            {
+                verticesData.Add(chunk.GetVerticesData());
+            }
             ++cont;
         }
     }
@@ -712,7 +717,7 @@ public class CubeSphere : MonoBehaviour
             if(chunk.IsClosestChunk())
             {
                 closestChunk = chunk;
-                closestChunk.UpdateLOD(1);
+                closestChunk.UpdateLOD(1);  //1
             }
         }
 
@@ -721,21 +726,21 @@ public class CubeSphere : MonoBehaviour
         {
             if (adjacentCount < 3)    //150 - 149
             {
-                adjacent.UpdateLOD(1);
+                adjacent.UpdateLOD(2);      //1
                 ++adjacentCount;
             }
             else
             {
                 if (adjacentCount < 6)    //300 - 250
                 {
-                    adjacent.UpdateLOD(2);
+                    adjacent.UpdateLOD(4);      //2
                     ++adjacentCount;
                 }
                 else
                 {
                     if (adjacentCount < 9)    //600 - 500
                     {
-                        adjacent.UpdateLOD(4);
+                        adjacent.UpdateLOD(4);      //4
                         ++adjacentCount;
                     }
                     else
@@ -843,7 +848,7 @@ public class CubeSphere : MonoBehaviour
         GameObject chunkObject;
         MeshRenderer meshRenderer;
         MeshFilter meshFilter;
-        Mesh mesh;
+        public Mesh mesh;
 
         TerrainType[] regions;
 
@@ -861,15 +866,19 @@ public class CubeSphere : MonoBehaviour
         private bool isActive;
         private List<Chunk> adjacentChunks;
         private float distanceToClosestChunk;
-        private string face;
+        public string face;
         private int fromX;
         private int fromY;
         private int fromZ;
-        private int reason;
+        public int reason;
+
+        private int posX;
+        private int posY;
+        private int id;
 
         private VerticesData data;
 
-        public Chunk(Transform parent, Material material, int chunkSize, float radius, string face, int fromX, int fromY, int fromZ, int gridSize, TerrainType[] regions, Texture2D faceTexture)
+        public Chunk(Transform parent, Material material, int chunkSize, float radius, string face, int fromX, int fromY, int fromZ, int gridSize, TerrainType[] regions, Texture2D faceTexture, int posX, int posY, int id)
         {
             chunkObject = new GameObject("Chunk");
             chunkObject.transform.parent = parent;
@@ -886,6 +895,9 @@ public class CubeSphere : MonoBehaviour
             this.fromZ = fromZ;
             this.regions = regions;
             this.faceTexture = faceTexture;
+            this.posX = posX;
+            this.posY = posY;
+            this.id = id;
             isActive = true;
             reason = 1;
             distanceToClosestChunk = 0;
@@ -1194,6 +1206,8 @@ public class CubeSphere : MonoBehaviour
             chunkObject.GetComponent<MeshCollider>().sharedMesh = mesh;
         }
 
+        public int GetNumVertices() { return (chunkSize / reason + 1) * (chunkSize / reason + 1); }
+
         public void CalculateNormals()   //Esta funcion recalcula las normales y luego reasigna las
                                          //normales de los bordes del chunk en base a sus chunks adyacentes
         {
@@ -1209,9 +1223,42 @@ public class CubeSphere : MonoBehaviour
 
             for (int i = 0; i < numVertices; i++)
             {
-                if (borderVertices[i] != new Vector3(0, 0, 0))
+                if (borderVertices[i] != new Vector3(0, 0, 0))      //Las normales se modifican si son bordes
                 {
-                    borderNormals[i] = new Vector3(0, 0, 0);
+                    if (posX > 0 && posY > 0 && posX < sqrtChunksPerFace - 1 && posY < sqrtChunksPerFace - 1)   //Modificación de las normales de los chunks internos
+                    {
+                        if(face=="xy")
+                        {
+                            if (i < (chunkSize / reason + 1))      //Normales de abajo
+                            {
+                                if (chunks[id - sqrtChunksPerFace].isActive) borderNormals[i] = chunks[id - sqrtChunksPerFace].mesh.normals[GetStartingI(id - sqrtChunksPerFace, i) + chunks[id - sqrtChunksPerFace].GetNumVertices() - 1 - (chunkSize / chunks[id - sqrtChunksPerFace].reason)];
+                                if (i == 0)
+                                {
+                                    if (chunks[id - 1].isActive) chunks[id - 1].RebuildNormals(i + (chunkSize / chunks[id - 1].reason), borderNormals[i]);
+                                    if (chunks[id - sqrtChunksPerFace - 1].isActive) chunks[id - sqrtChunksPerFace - 1].RebuildNormals(chunks[id - sqrtChunksPerFace - 1].GetNumVertices() - 1 - i, borderNormals[i]);
+                                }
+                            }
+                            else
+                            {
+                                if (i % (chunkSize / reason + 1) == 0)       //Normales de la izquierda
+                                {
+                                    if (chunks[id - 1].isActive) borderNormals[i] = chunks[id - 1].mesh.normals[GetStartingI(id - 1, i) + (chunkSize / chunks[id - 1].reason)];
+                                }
+                                else
+                                {
+                                    borderNormals[i] = normals[i];
+                                }
+                            }
+                        }
+                        else
+                        {
+                            borderNormals[i] = normals[i];
+                        }
+                    }
+                    else
+                    {
+                        borderNormals[i] = normals[i];//new Vector3(0, 0, 0);
+                    }
                 }
                 else
                 {
@@ -1220,7 +1267,9 @@ public class CubeSphere : MonoBehaviour
             }
             mesh.normals = borderNormals;
 
-            Chunk extrachunk = chunks[0];
+            //data = new VerticesData(mesh.vertices, mesh.normals);
+
+            /*Chunk extrachunk = chunks[0];
             Vector3[] vertices = new Vector3[mesh.vertices.Length + extrachunk.mesh.vertices.Length];
             System.Array.Copy(mesh.vertices, vertices, mesh.vertices.Length);
             System.Array.Copy(extrachunk.mesh.vertices, 0, vertices, mesh.vertices.Length, extrachunk.mesh.vertices.Length);
@@ -1229,7 +1278,53 @@ public class CubeSphere : MonoBehaviour
             System.Array.Copy(mesh.normals, normals2, mesh.normals.Length);
             System.Array.Copy(extrachunk.mesh.normals, 0, normals2, mesh.normals.Length, extrachunk.mesh.normals.Length);
 
-            data = new VerticesData(vertices, normals2);
+            data = new VerticesData(vertices, normals2);*/
+        }
+
+        private int GetStartingI(int chunkId, int i)
+        {
+            int starting_i;
+            int relation;       //Relationship between reasons
+            if (chunks[chunkId].reason < reason)
+            {
+                relation = reason / chunks[chunkId].reason;
+                if (chunkId == id - 1)
+                {
+                    starting_i = 0;
+                }
+                else
+                {
+                    starting_i = i * relation;
+                }
+            }
+            else
+            {
+                relation = chunks[chunkId].reason / reason;
+                if (chunks[chunkId].reason == reason)
+                {
+                    starting_i = i;
+                }
+                else
+                {
+                    if(chunkId == id - 1)
+                    {
+                        starting_i = (int)Math.Round((double)(((i / relation) + 1) / relation));
+                        if (i == 0) starting_i = 0;
+                    }
+                    else
+                    {
+                        starting_i = (int)Math.Round((double)(i / relation));
+                    }
+                }
+            }
+            return starting_i;
+        }
+
+        public void RebuildNormals(int index, Vector3 content)
+        {
+            Vector3[] normals = mesh.normals;
+            normals[index] = content;
+            mesh.normals = normals;
         }
     }
 }
