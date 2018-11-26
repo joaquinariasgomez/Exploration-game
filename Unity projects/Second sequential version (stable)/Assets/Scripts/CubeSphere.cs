@@ -724,16 +724,16 @@ public class CubeSphere : MonoBehaviour
         int adjacentCount = 1;
         foreach (Chunk adjacent in closestChunk.GetAdjacentChunks())
         {
-            if (adjacentCount < 3)    //150 - 149
+            if (adjacentCount < 30)    //150 - 149
             {
-                adjacent.UpdateLOD(2);      //1
+                adjacent.UpdateLOD(1);      //1
                 ++adjacentCount;
             }
             else
             {
-                if (adjacentCount < 6)    //300 - 250
+                if (adjacentCount < 300)    //300 - 250
                 {
-                    adjacent.UpdateLOD(4);      //2
+                    adjacent.UpdateLOD(1);      //2
                     ++adjacentCount;
                 }
                 else
@@ -1290,7 +1290,13 @@ public class CubeSphere : MonoBehaviour
                 relation = reason / chunks[chunkId].reason;
                 if (chunkId == id - 1)
                 {
-                    starting_i = 0;
+                    int fila = i / (chunkSize / reason + 1);
+                    int max_fila = chunkSize / reason;
+                    int max_fila_objetivo = chunkSize / chunks[chunkId].reason;
+                    double relacion_filas = max_fila / fila;
+                    int fila_objetivo = (int)Math.Round((double)max_fila_objetivo / relacion_filas);
+
+                    starting_i = (chunkSize / chunks[chunkId].reason + 1) * fila_objetivo;
                 }
                 else
                 {
@@ -1308,8 +1314,13 @@ public class CubeSphere : MonoBehaviour
                 {
                     if(chunkId == id - 1)
                     {
-                        starting_i = (int)Math.Round((double)(((i / relation) + 1) / relation));
-                        if (i == 0) starting_i = 0;
+                        int fila = i / (chunkSize / reason + 1);
+                        int max_fila = chunkSize / reason;
+                        int max_fila_objetivo = chunkSize / chunks[chunkId].reason;
+                        double relacion_filas = max_fila / fila;
+                        int fila_objetivo = (int)Math.Round((double)max_fila_objetivo / relacion_filas);
+
+                        starting_i = (chunkSize / chunks[chunkId].reason + 1) * fila_objetivo;
                     }
                     else
                     {
