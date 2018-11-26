@@ -645,7 +645,7 @@ public class CubeSphere : MonoBehaviour
         {
             chunk.AdjustBorderNormals();
             VerticesData data = chunk.GetVerticesData();
-            if (data!=null && chunk.face=="xy")
+            if (data!=null)
             {
                 verticesData.Add(chunk.GetVerticesData());
             }
@@ -1235,7 +1235,7 @@ public class CubeSphere : MonoBehaviour
                                 if (i == 0)
                                 {
                                     if (chunks[id - 1].isActive) chunks[id - 1].RebuildNormals(i + (chunkSize / chunks[id - 1].reason), borderNormals[i]);
-                                    if (chunks[id - sqrtChunksPerFace - 1].isActive) chunks[id - sqrtChunksPerFace - 1].RebuildNormals(chunks[id - sqrtChunksPerFace - 1].GetNumVertices() - 1 - i, borderNormals[i]);
+                                    if (chunks[id - sqrtChunksPerFace - 1].isActive) chunks[id - sqrtChunksPerFace - 1].RebuildNormals(chunks[id - sqrtChunksPerFace - 1].GetNumVertices() - 1, borderNormals[i]);
                                 }
                             }
                             else
@@ -1252,7 +1252,32 @@ public class CubeSphere : MonoBehaviour
                         }
                         else
                         {
-                            borderNormals[i] = normals[i];
+                            if(face=="zy")
+                            {
+                                if (i < (chunkSize / reason + 1))      //Normales de abajo
+                                {
+                                    if (chunks[id - sqrtChunksPerFace].isActive) borderNormals[i] = chunks[id - sqrtChunksPerFace].mesh.normals[GetStartingI(id - sqrtChunksPerFace, i) + chunks[id - sqrtChunksPerFace].GetNumVertices() - 1 - (chunkSize / chunks[id - sqrtChunksPerFace].reason)];
+                                    if (i == (chunkSize / reason))
+                                    {
+                                        if (chunks[id - 1].isActive) chunks[id - 1].RebuildNormals(0, borderNormals[i]);
+                                    }
+                                }
+                                else
+                                {
+                                    if ((i+1) % (chunkSize / reason + 1) == 0)       //Normales de la derecha (ya que está invertido)
+                                    {
+                                        if (chunks[id - 1].isActive) borderNormals[i] = chunks[id - 1].mesh.normals[GetStartingI(id - 1, i - (chunkSize / reason))];
+                                    }
+                                    else
+                                    {
+                                        borderNormals[i] = normals[i];
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                borderNormals[i] = normals[i];
+                            }
                         }
                     }
                     else
@@ -1283,12 +1308,17 @@ public class CubeSphere : MonoBehaviour
 
         private int GetStartingI(int chunkId, int i)
         {
+            bool case_left = false;
+            if((chunkId == id - 1) || (chunkId == id + 1))
+            {
+                case_left = true;
+            }
             int starting_i;
             int relation;       //Relationship between reasons
             if (chunks[chunkId].reason < reason)
             {
                 relation = reason / chunks[chunkId].reason;
-                if (chunkId == id - 1)
+                if (case_left)
                 {
                     int fila = i / (chunkSize / reason + 1);
                     int max_fila = chunkSize / reason;
@@ -1312,7 +1342,7 @@ public class CubeSphere : MonoBehaviour
                 }
                 else
                 {
-                    if(chunkId == id - 1)
+                    if(case_left)
                     {
                         int fila = i / (chunkSize / reason + 1);
                         int max_fila = chunkSize / reason;
