@@ -640,16 +640,17 @@ public class CubeSphere : MonoBehaviour
         {
             chunk.CalculateNormals();
         }
-        int cont = 0;
         foreach (Chunk chunk in chunks)
         {
             chunk.AdjustBorderNormals();
+        }
+        foreach (Chunk chunk in chunks)
+        {
             VerticesData data = chunk.GetVerticesData();
-            if (data!=null)
+            if (data != null && chunk.face == "xy")
             {
                 verticesData.Add(chunk.GetVerticesData());
             }
-            ++cont;
         }
     }
 
@@ -979,7 +980,7 @@ public class CubeSphere : MonoBehaviour
             return center;
         }
 
-        public VerticesData GetVerticesData() { return data; }
+        public VerticesData GetVerticesData() { /*return data;*/ return new VerticesData(mesh.vertices, mesh.normals); }
 
         public List<Chunk> GetAdjacentChunks() { return adjacentChunks; }
 
@@ -1277,7 +1278,16 @@ public class CubeSphere : MonoBehaviour
                                     }
                                     else
                                     {
-                                        if (chunks[id + sqrtChunksPerFace].isActive) borderNormals[i] = chunks[id + sqrtChunksPerFace].mesh.normals[GetStartingI(id + sqrtChunksPerFace, i - (GetNumVertices() - 1 - chunkSize / reason))];
+                                        if(i == GetNumVertices() - 1 - chunkSize / reason)
+                                        {
+                                            if (chunks[id - 1].isActive) borderNormals[i] = chunks[id - 1].mesh.normals[GetStartingI(id - 1, i) + (chunkSize / chunks[id - 1].reason)];
+                                            if (chunks[id + sqrtChunksPerFace - 1].isActive) chunks[id + sqrtChunksPerFace - 1].RebuildNormals(chunkSize / chunks[id + sqrtChunksPerFace - 1].reason, borderNormals[i]);
+                                            if (chunks[id + sqrtChunksPerFace].isActive) chunks[id + sqrtChunksPerFace].RebuildNormals(0, borderNormals[i]);
+                                        }
+                                        else
+                                        {
+                                            if (chunks[id + sqrtChunksPerFace].isActive) borderNormals[i] = chunks[id + sqrtChunksPerFace].mesh.normals[GetStartingI(id + sqrtChunksPerFace, i - (GetNumVertices() - 1 - chunkSize / reason))];
+                                        }
                                     }
                                 }
                             }
@@ -1325,6 +1335,7 @@ public class CubeSphere : MonoBehaviour
             }
             mesh.normals = borderNormals;
 
+            if(face=="xy") data = new VerticesData(mesh.vertices, mesh.normals);
             //data = new VerticesData(mesh.vertices, mesh.normals);
 
             /*Chunk extrachunk = chunks[0];
