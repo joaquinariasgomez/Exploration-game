@@ -15,7 +15,7 @@ public class CubeSphere : MonoBehaviour
 
     private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;    //Global
     private float radius;
-    private static int sqrtChunksPerFace = 5;     //25
+    private static int sqrtChunksPerFace = 5;     //25 - 5
     private static float heightMultiplier = 10;     //20
     private static int id = 0;
 
@@ -731,7 +731,7 @@ public class CubeSphere : MonoBehaviour
             }
             else
             {
-                if (adjacentCount < 300)    //300 - 250
+                if (adjacentCount < 500)    //300 - 250
                 {
                     adjacent.UpdateLOD(1);      //2
                     ++adjacentCount;
@@ -1249,6 +1249,38 @@ public class CubeSphere : MonoBehaviour
                                     borderNormals[i] = normals[i];
                                 }
                             }
+                            if(posX == (sqrtChunksPerFace - 2))        //Si es un chunk de la última columna, dentro de los chunks internos (derecha)
+                                                                       //hacer tratamiento de las normales de esa derecha
+                            {
+                                if((i+1) % (chunkSize / reason + 1) == 0)    //Normales de la derecha
+                                {
+                                    if(i == chunkSize / reason)
+                                    {
+                                        if (chunks[id + 1].isActive) chunks[id + 1].RebuildNormals(0, borderNormals[i]);
+                                        if (chunks[id - sqrtChunksPerFace + 1].isActive) chunks[id - sqrtChunksPerFace + 1].RebuildNormals(chunks[id - sqrtChunksPerFace + 1].GetNumVertices() - 1 - (chunkSize / chunks[id - sqrtChunksPerFace + 1].reason), borderNormals[i]);
+                                    } 
+                                    else
+                                    {
+                                        if (chunks[id + 1].isActive) borderNormals[i] = chunks[id + 1].mesh.normals[GetStartingI(id + 1, i - (chunkSize / reason))];
+                                    }
+                                }
+                            }
+                            if (posY == (sqrtChunksPerFace - 2))        //Si es un chunk de la última fila, dentro de los chunks internos (arriba)
+                                                                        //hacer tratamiento de las normales de ese arriba
+                            {
+                                if (i >= ((chunkSize / reason + 1) * (chunkSize / reason)))    //Normales de arriba
+                                {
+                                    if (i == GetNumVertices() - 1)
+                                    {
+                                        if (chunks[id + sqrtChunksPerFace + 1].isActive) chunks[id + sqrtChunksPerFace + 1].RebuildNormals(0, borderNormals[i]);
+                                        if (chunks[id + sqrtChunksPerFace].isActive) chunks[id + sqrtChunksPerFace].RebuildNormals(chunkSize / chunks[id + sqrtChunksPerFace].reason, borderNormals[i]);
+                                    }
+                                    else
+                                    {
+                                        if (chunks[id + sqrtChunksPerFace].isActive) borderNormals[i] = chunks[id + sqrtChunksPerFace].mesh.normals[GetStartingI(id + sqrtChunksPerFace, i - (GetNumVertices() - 1 - chunkSize / reason))];
+                                    }
+                                }
+                            }
                         }
                         else
                         {
@@ -1260,6 +1292,7 @@ public class CubeSphere : MonoBehaviour
                                     if (i == (chunkSize / reason))
                                     {
                                         if (chunks[id - 1].isActive) chunks[id - 1].RebuildNormals(0, borderNormals[i]);
+                                        if (chunks[id - sqrtChunksPerFace - 1].isActive) chunks[id - sqrtChunksPerFace - 1].RebuildNormals(chunks[id - sqrtChunksPerFace - 1].GetNumVertices() - 1 - (chunkSize / chunks[id - sqrtChunksPerFace - 1].reason), borderNormals[i]);
                                     }
                                 }
                                 else
@@ -1321,6 +1354,7 @@ public class CubeSphere : MonoBehaviour
                 if (case_left)
                 {
                     int fila = i / (chunkSize / reason + 1);
+                    if (fila == 0) { return 0; }
                     int max_fila = chunkSize / reason;
                     int max_fila_objetivo = chunkSize / chunks[chunkId].reason;
                     double relacion_filas = max_fila / fila;
@@ -1345,6 +1379,7 @@ public class CubeSphere : MonoBehaviour
                     if(case_left)
                     {
                         int fila = i / (chunkSize / reason + 1);
+                        if (fila == 0) { return 0; }
                         int max_fila = chunkSize / reason;
                         int max_fila_objetivo = chunkSize / chunks[chunkId].reason;
                         double relacion_filas = max_fila / fila;
