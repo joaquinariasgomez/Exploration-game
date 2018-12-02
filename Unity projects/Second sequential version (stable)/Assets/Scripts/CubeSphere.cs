@@ -20,6 +20,7 @@ public class CubeSphere : MonoBehaviour
     private static int id = 0;
 
     private static Dictionary<string, float[,]> noiseMaps=new Dictionary<string, float[,]>();  //Face, noiseMap
+    private static Dictionary<string, string> faceMap = new Dictionary<string, string>();
     private static Color[] colourMap;
     private static int seed = 2048; //2048
     private static float scale = 30f;
@@ -41,7 +42,7 @@ public class CubeSphere : MonoBehaviour
     private float secondsCounter = 0;
     private float secondsToCount = 0.25f;
 
-    const float viewerMoveThreshholdForChunkUpdate = 10f;
+    const float viewerMoveThreshholdForChunkUpdate = 0.5f;   //10f;
     const float sqrViewerMoveThresholdForChunkUpdate = viewerMoveThreshholdForChunkUpdate * viewerMoveThreshholdForChunkUpdate;
     private int closestChunkNumber = 0;
 
@@ -61,13 +62,21 @@ public class CubeSphere : MonoBehaviour
         radius = gridSize / 2;
         chunkSize = gridSize / sqrtChunksPerFace;
 
-        GenerateChunks();     //DECOMMENT
+        InitiateFaceMap();
+        GenerateChunks();
+    }
+
+    private void InitiateFaceMap()
+    {
+        faceMap["xy,up"] = "xzy";
+        faceMap["xy,left"] = "zy";
+        faceMap["xy,right"] = "zyx";
     }
 
     private void Start()
     {
-        ClosestChunkHasChanged();   //Set variables for UpdateChunks()    //DECOMMENT
-        StartCoroutine(UpdateChunks());                                   //DECOMMENT
+        ClosestChunkHasChanged();   //Set variables for UpdateChunks()
+        StartCoroutine(UpdateChunks());
     }
 
     private void Update()
@@ -638,20 +647,20 @@ public class CubeSphere : MonoBehaviour
     {
         foreach(Chunk chunk in chunks)
         {
-            chunk.CalculateNormals();
+            chunk.GenerateNormals();
         }
-        foreach (Chunk chunk in chunks)
+        /*foreach (Chunk chunk in chunks)
         {
             chunk.AdjustBorderNormals();
-        }
-        foreach (Chunk chunk in chunks)
+        }*/
+        /*foreach (Chunk chunk in chunks)
         {
             VerticesData data = chunk.GetVerticesData();
             if (data != null && chunk.face == "xy")
             {
                 verticesData.Add(chunk.GetVerticesData());
             }
-        }
+        }*/
     }
 
     private bool ClosestChunkHasChanged()
@@ -725,37 +734,37 @@ public class CubeSphere : MonoBehaviour
         int adjacentCount = 1;
         foreach (Chunk adjacent in closestChunk.GetAdjacentChunks())
         {
-            if (adjacentCount < 30)    //150 - 149
+            if (adjacentCount < 10)    //150 - 149
             {
                 adjacent.UpdateLOD(1);      //1
                 ++adjacentCount;
             }
             else
             {
-                if (adjacentCount < 500)    //300 - 250
+                if (adjacentCount < 1000)    //300 - 250
                 {
                     adjacent.UpdateLOD(1);      //2
                     ++adjacentCount;
                 }
                 else
                 {
-                    if (adjacentCount < 9)    //600 - 500
+                    if (adjacentCount < 1)    //600 - 500
                     {
                         adjacent.UpdateLOD(1);      //4
                         ++adjacentCount;
                     }
                     else
                     {
-                        if(adjacentCount < 12)     //900 - 650
+                        if(adjacentCount < 1)     //900 - 650
                         {
-                            adjacent.UpdateLOD(4);      //8
+                            adjacent.UpdateLOD(1);      //8
                             ++adjacentCount;
                         }
                         else
                         {
-                            if(adjacentCount < 24)    //1200 - 900
+                            if(adjacentCount < 1)    //1200 - 900
                             {
-                                adjacent.UpdateLOD(4);      //8
+                                adjacent.UpdateLOD(1);      //8
                                 ++adjacentCount;
                             }
                             else
@@ -786,8 +795,71 @@ public class CubeSphere : MonoBehaviour
         body.rotation = Quaternion.Slerp(body.rotation, targetRotation, 50 * Time.deltaTime);
     }
 
+    public static int GetRelativeChunkId(int relativeID, string face)
+    {
+        int orden = 0;
+        if (face == "xy") orden = 1;
+        if (face == "xyz") orden = 2;
+        if (face == "zy") orden = 3;
+        if (face == "zyx") orden = 4;
+        if (face == "xz") orden = 5;
+        if (face == "xzy") orden = 6;
+        
+        int startingChunk = (sqrtChunksPerFace * sqrtChunksPerFace * orden) - (sqrtChunksPerFace * sqrtChunksPerFace);
+        return relativeID - startingChunk;
+    }
+
+    public static int GetChunkId(int id, string direction, string face)
+    {
+        string objectiveFace = faceMap[face + "," + direction];
+
+        int orden = 0;
+        if (objectiveFace == "xy") orden = 1;
+        if (objectiveFace == "xyz") orden = 2;
+        if (objectiveFace == "zy") orden = 3;
+        if (objectiveFace == "zyx") orden = 4;
+        if (objectiveFace == "xz") orden = 5;
+        if (objectiveFace == "xzy") orden = 6;
+        
+        int startingChunk = (sqrtChunksPerFace * sqrtChunksPerFace * orden) - (sqrtChunksPerFace * sqrtChunksPerFace);
+
+        switch(direction)
+        {
+            case "up":
+                if(face == "xy")
+                {
+                    return startingChunk + (id - (sqrtChunksPerFace * (sqrtChunksPerFace - 1)));
+                }
+                break;
+            case "left":
+                if(face == "xy")
+                {
+                    return startingChunk + id;
+                }
+                break;
+            case "right":
+                if(face == "xy")
+                {
+                    return startingChunk + (id - (sqrtChunksPerFace - 1));
+                }
+                break;
+            case "down":
+                if(face == "xy")
+                {
+                    return startingChunk + id;
+                }
+                break;
+            default: return 0;
+        }
+        return 0;
+    }
+
     private void OnDrawGizmos()
     {
+        /*VerticesData finalData = CollectData(verticesData);
+        vertices = finalData.verticesP();
+        normals = finalData.normalsP();*/
+
         /*Gizmos.color = Color.blue;
         Gizmos.DrawSphere(viewerPositionOld, 1f);*/
 
@@ -918,18 +990,6 @@ public class CubeSphere : MonoBehaviour
             //Asign Colliders
             CreateVertices();
             CreateTriangles();
-            //GenerateNormals();
-
-            /*timer.Start();
-            
-            CalculateNormals();
-            
-            timer.Stop();
-            print(timer.ElapsedMilliseconds);
-            timer.Reset();*/
-
-            //data = new VerticesData(mesh.vertices, mesh.normals);
-            //data = new VerticesData(borderVertices, new Vector3[borderVertices.Length]);
             AssignCollider();
         }
 
@@ -961,8 +1021,10 @@ public class CubeSphere : MonoBehaviour
 
         public void UpdateLOD(int reason)
         {
+            //if (face == "xy") { verticesData.Add(GetVerticesData()); }
+            if (face != "xy") { return; }
             if (!isActive) { SetActive(true); }
-            if (this.reason == reason) { return; }     //Update only if reason is different
+            //if (this.reason == reason) { return; }     //Update only if reason is different   //DECOMMENT
             this.reason = reason;
 
             mesh = meshFilter.mesh;
@@ -970,7 +1032,8 @@ public class CubeSphere : MonoBehaviour
 
             CreateVertices();
             CreateTriangles();
-            GenerateNormals();
+            GenerateNormals2();
+            //GenerateNormals();
         }
 
         public Vector3 GetCenter()
@@ -1144,7 +1207,6 @@ public class CubeSphere : MonoBehaviour
 
             vertices = verticesParcial;
             mesh.vertices = verticesParcial;
-            mesh.normals = normalsParcial;
             mesh.uv = uvs;
 
             //data = new VerticesData(verticesParcial, normalsParcial);
@@ -1212,6 +1274,233 @@ public class CubeSphere : MonoBehaviour
         {
             mesh.RecalculateNormals();
         }
+
+        public void AdjustBorderNormals2()  //Modificar todas las normales de los bordes
+        {
+            Vector3[] normals = mesh.normals;
+
+            int numVertices = GetNumVertices();
+            Vector3[] borderNormals = new Vector3[numVertices];
+
+            for(int i=0; i<numVertices; i++)
+            {
+                borderNormals[i] = normals[i];
+
+                if(borderVertices[i] != new Vector3(0,0,0))
+                {
+                    if(posX > 0 && posY > 0 && posX < sqrtChunksPerFace - 1 && posY < sqrtChunksPerFace - 1)    //Chunks internos
+                    {
+                        if (i < (chunkSize / reason + 1))    //Normales de abajo
+                        {
+                            if (chunks[id - sqrtChunksPerFace].isActive) borderNormals[i] = chunks[id - sqrtChunksPerFace].mesh.normals[GetStartingI(id - sqrtChunksPerFace, i) + chunks[id - sqrtChunksPerFace].GetNumVertices() - 1 - (chunkSize / chunks[id - sqrtChunksPerFace].reason)];
+                        }
+                        else
+                        {
+                            if (i >= ((chunkSize / reason + 1) * (chunkSize / reason)))    //Normales de arriba
+                            {
+                                if (chunks[id + sqrtChunksPerFace].isActive) borderNormals[i] = chunks[id + sqrtChunksPerFace].mesh.normals[GetStartingI(id + sqrtChunksPerFace, i - (GetNumVertices() - 1 - chunkSize / reason))];
+                            }
+                            else
+                            {
+                                if (i % (chunkSize / reason + 1) == 0)    //Normales de la izquierda
+                                {
+                                    if (chunks[id - 1].isActive) borderNormals[i] = chunks[id - 1].mesh.normals[GetStartingI(id - 1, i) + (chunkSize / chunks[id - 1].reason)];
+                                }
+                                else    //Normales de la derecha
+                                {
+                                    if (chunks[id + 1].isActive) borderNormals[i] = chunks[id + 1].mesh.normals[GetStartingI(id + 1, i - (chunkSize / reason))];
+                                }
+                            }
+                        }
+                        //Esquinas
+                        if (i == 0)
+                        {
+                            if (chunks[id - 1].isActive) chunks[id - 1].RebuildNormals(i + (chunkSize / chunks[id - 1].reason), borderNormals[i]);
+                            if (chunks[id - sqrtChunksPerFace - 1].isActive) chunks[id - sqrtChunksPerFace - 1].RebuildNormals(chunks[id - sqrtChunksPerFace - 1].GetNumVertices() - 1, borderNormals[i]);
+                        }
+                        if (i == (chunkSize / reason))
+                        {
+                            if (chunks[id + 1].isActive) chunks[id + 1].RebuildNormals(0, borderNormals[i]);
+                            if (chunks[id - sqrtChunksPerFace + 1].isActive) chunks[id - sqrtChunksPerFace + 1].RebuildNormals(chunks[id - sqrtChunksPerFace + 1].GetNumVertices() - 1 - (chunkSize / chunks[id - sqrtChunksPerFace + 1].reason), borderNormals[i]);
+                        }
+                        if (i == ((chunkSize / reason + 1) * (chunkSize / reason)))
+                        {
+                            if (chunks[id + sqrtChunksPerFace - 1].isActive) chunks[id + sqrtChunksPerFace - 1].RebuildNormals(chunkSize / chunks[id + sqrtChunksPerFace - 1].reason, borderNormals[i]);
+                            if (chunks[id - 1].isActive) chunks[id - 1].RebuildNormals((chunkSize / chunks[id - 1].reason + 1) * (chunkSize / chunks[id - 1].reason + 1) - 1, borderNormals[i]);
+                        }
+                        if (i == ((chunkSize / reason + 1) * (chunkSize / reason + 1) - 1))
+                        {
+                            if (chunks[id + sqrtChunksPerFace + 1].isActive) chunks[id + sqrtChunksPerFace + 1].RebuildNormals(0, borderNormals[i]);
+                            if (chunks[id + 1].isActive) chunks[id + 1].RebuildNormals((chunkSize / chunks[id + 1].reason + 1) * (chunkSize / chunks[id + 1].reason), borderNormals[i]);
+                        }
+                    }
+                    else    //Chunks externos
+                    {
+                        //Normales de arriba
+                        if(GetRelativeChunkId(id, face) >= (sqrtChunksPerFace * (sqrtChunksPerFace - 1)))    //Chunk de arriba
+                        {
+                            if (i >= ((chunkSize / reason + 1) * (chunkSize / reason)))    //Normales de arriba deben de ser de otra cara
+                            {
+                                if (chunks[GetChunkId(id, "up", face)].isActive) borderNormals[i] = chunks[GetChunkId(id, "up", face)].mesh.normals[GetStartingI(GetChunkId(id, "up", face), i - (GetNumVertices() - 1 - chunkSize / reason))];
+                            }
+                            //Esquinas de arriba
+                            if(GetRelativeChunkId(id, face) == (sqrtChunksPerFace * (sqrtChunksPerFace - 1)))   //Chunk de arriba a la izquierda
+                            {
+                                if (i == ((chunkSize / reason + 1) * (chunkSize / reason)))  //Esquina arriba izquierda
+                                {
+                                    if (chunks[GetChunkId(id, "left", face)].isActive) chunks[GetChunkId(id, "left", face)].RebuildNormals((chunkSize / chunks[GetChunkId(id, "left", face)].reason + 1) * (chunkSize / chunks[GetChunkId(id, "left", face)].reason + 1) - 1, borderNormals[i]);
+                                }
+                                if (i == ((chunkSize / reason + 1) * (chunkSize / reason + 1) - 1))  //Esquina arriba derecha
+                                {
+                                    if (chunks[GetChunkId(id, "up", face) + 1].isActive) chunks[GetChunkId(id, "up", face) + 1].RebuildNormals(0, borderNormals[i]);
+                                    if (chunks[id + 1].isActive) chunks[id + 1].RebuildNormals((chunkSize / reason + 1) * (chunkSize / reason), borderNormals[i]);
+                                }
+                            }
+                            else
+                            {
+                                if(GetRelativeChunkId(id, face) == (sqrtChunksPerFace * sqrtChunksPerFace - 1))    //Chunk de arriba a la derecha
+                                {
+                                    if (i == ((chunkSize / reason + 1) * (chunkSize / reason + 1) - 1))  //Esquina arriba derecha
+                                    {
+                                        if (chunks[GetChunkId(id, "right", face)].isActive) chunks[GetChunkId(id, "right", face)].RebuildNormals((chunkSize / chunks[GetChunkId(id, "right", face)].reason + 1) * (chunkSize / chunks[GetChunkId(id, "right", face)].reason), borderNormals[i]);
+                                    }
+                                    if (i == ((chunkSize / reason + 1) * (chunkSize / reason)))         //Esquina arriba izquierda
+                                    {
+                                        if (chunks[GetChunkId(id, "up", face) - 1].isActive) chunks[GetChunkId(id, "up", face) - 1].RebuildNormals((chunkSize / chunks[GetChunkId(id, "up", face) - 1].reason), borderNormals[i]);
+                                        if (chunks[id - 1].isActive) chunks[id - 1].RebuildNormals((chunkSize / chunks[id - 1].reason + 1) * (chunkSize / chunks[id - 1].reason + 1) - 1, borderNormals[i]);
+                                    }
+                                }
+                                else    //Chunk de arriba sin hacer esquina con nada
+                                {
+                                    if (i == ((chunkSize / reason + 1) * (chunkSize / reason + 1) - 1))  //Esquina arriba derecha
+                                    {
+                                        if (chunks[GetChunkId(id, "up", face) + 1].isActive) chunks[GetChunkId(id, "up", face) + 1].RebuildNormals(0, borderNormals[i]);
+                                        if (chunks[id + 1].isActive) chunks[id + 1].RebuildNormals((chunkSize / reason + 1) * (chunkSize / reason), borderNormals[i]);
+                                    }
+                                    if (i == ((chunkSize / reason + 1) * (chunkSize / reason)))         //Esquina arriba izquierda
+                                    {
+                                        if (chunks[GetChunkId(id, "up", face) - 1].isActive) chunks[GetChunkId(id, "up", face) - 1].RebuildNormals((chunkSize / chunks[GetChunkId(id, "up", face) - 1].reason), borderNormals[i]);
+                                        if (chunks[id - 1].isActive) chunks[id - 1].RebuildNormals((chunkSize / chunks[id - 1].reason + 1) * (chunkSize / chunks[id - 1].reason + 1) - 1, borderNormals[i]);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (i >= ((chunkSize / reason + 1) * (chunkSize / reason)))    //Normales de arriba
+                            {
+                                if (chunks[id + sqrtChunksPerFace].isActive) borderNormals[i] = chunks[id + sqrtChunksPerFace].mesh.normals[GetStartingI(id + sqrtChunksPerFace, i - (GetNumVertices() - 1 - chunkSize / reason))];
+                            }
+                            //Esquinas de arriba
+                            if (GetRelativeChunkId(id, face) == 0)   //Chunk de abajo a la izquierda
+                            {
+                                if (i == ((chunkSize / reason + 1) * (chunkSize / reason)))  //Esquina arriba izquierda
+                                {
+                                    if (chunks[GetChunkId(id, "left", face)].isActive) chunks[GetChunkId(id, "left", face)].RebuildNormals((chunkSize / chunks[GetChunkId(id, "left", face)].reason + 1) * (chunkSize / chunks[GetChunkId(id, "left", face)].reason + 1) - 1, borderNormals[i]);
+                                    if (chunks[GetChunkId(id, "left", face) + sqrtChunksPerFace].isActive) chunks[GetChunkId(id, "left", face) + sqrtChunksPerFace].RebuildNormals(chunkSize / chunks[GetChunkId(id, "left", face) + sqrtChunksPerFace].reason, borderNormals[i]);
+                                }
+                                if (i == ((chunkSize / reason + 1) * (chunkSize / reason + 1) - 1))  //Esquina arriba derecha
+                                {
+                                    if (chunks[id + sqrtChunksPerFace + 1].isActive) chunks[id + sqrtChunksPerFace + 1].RebuildNormals(0, borderNormals[i]);
+                                    if (chunks[id + 1].isActive) chunks[id + 1].RebuildNormals((chunkSize / reason + 1) * (chunkSize / reason), borderNormals[i]);
+                                }
+                            }
+                            else
+                            {
+                                if (GetRelativeChunkId(id, face) == (sqrtChunksPerFace - 1))    //Chunk de abajo a la derecha
+                                {
+                                    if (i == ((chunkSize / reason + 1) * (chunkSize / reason + 1) - 1))  //Esquina arriba derecha
+                                    {
+                                        if (chunks[GetChunkId(id, "right", face)].isActive) chunks[GetChunkId(id, "right", face)].RebuildNormals((chunkSize / chunks[GetChunkId(id, "right", face)].reason + 1) * (chunkSize / chunks[GetChunkId(id, "right", face)].reason), borderNormals[i]);
+                                        if (chunks[GetChunkId(id, "right", face) + sqrtChunksPerFace].isActive) chunks[GetChunkId(id, "right", face) + sqrtChunksPerFace].RebuildNormals(0, borderNormals[i]);
+                                    }
+                                    if (i == ((chunkSize / reason + 1) * (chunkSize / reason)))         //Esquina arriba izquierda
+                                    {
+                                        if (chunks[id - 1].isActive) chunks[id - 1].RebuildNormals((chunkSize / reason + 1) * (chunkSize / reason + 1) - 1, borderNormals[i]);
+                                        if (chunks[id + sqrtChunksPerFace - 1].isActive) chunks[id + sqrtChunksPerFace - 1].RebuildNormals(chunkSize / reason, borderNormals[i]);
+                                    }
+                                }
+                                else
+                                {
+                                    if(GetRelativeChunkId(id, face) < (sqrtChunksPerFace - 1) && GetRelativeChunkId(id, face) > 0)  //Chunk de abajo sin hacer esquina con nada
+                                    {
+                                        if (i == ((chunkSize / reason + 1) * (chunkSize / reason + 1) - 1))  //Esquina arriba derecha
+                                        {
+                                            if (chunks[id + 1].isActive) chunks[id + 1].RebuildNormals((chunkSize / reason + 1) * (chunkSize / reason), borderNormals[i]);
+                                            if (chunks[id + sqrtChunksPerFace + 1].isActive) chunks[id + sqrtChunksPerFace + 1].RebuildNormals(0, borderNormals[i]);
+                                        }
+                                        if (i == ((chunkSize / reason + 1) * (chunkSize / reason)))         //Esquina arriba izquierda
+                                        {
+                                            if (chunks[id - 1].isActive) chunks[id - 1].RebuildNormals((chunkSize / reason + 1) * (chunkSize / reason + 1) - 1, borderNormals[i]);
+                                            if (chunks[id + sqrtChunksPerFace - 1].isActive) chunks[id + sqrtChunksPerFace - 1].RebuildNormals(chunkSize / reason, borderNormals[i]);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if(GetRelativeChunkId(id, face) % sqrtChunksPerFace == 0)    //Chunk de la izquierda
+                                        {
+                                            print("Chunk izq: " + id);
+                                        }
+                                        else    //Chunk de la derecha
+                                        {
+                                            print("Chunk der: " + id);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        //Normales de abajo
+                        if(GetRelativeChunkId(id, face) < sqrtChunksPerFace)      //Chunk de abajo
+                        {
+                            if (i < (chunkSize / reason + 1))    //Normales de abajo deben de ser de otra cara
+                            {
+                                //if (chunks[id - sqrtChunksPerFace].isActive) borderNormals[i] = chunks[id - sqrtChunksPerFace].mesh.normals[GetStartingI(id - sqrtChunksPerFace, i) + chunks[id - sqrtChunksPerFace].GetNumVertices() - 1 - (chunkSize / chunks[id - sqrtChunksPerFace].reason)];
+                            }
+                        }
+                        else
+                        {
+                            if (i < (chunkSize / reason + 1))    //Normales de abajo
+                            {
+                                if (chunks[id - sqrtChunksPerFace].isActive) borderNormals[i] = chunks[id - sqrtChunksPerFace].mesh.normals[GetStartingI(id - sqrtChunksPerFace, i) + chunks[id - sqrtChunksPerFace].GetNumVertices() - 1 - (chunkSize / chunks[id - sqrtChunksPerFace].reason)];
+                            }
+                            //Esquinas de abajo
+                            //TODO
+                        }
+                        //Normales de la izquierda
+                        if(GetRelativeChunkId(id, face) % sqrtChunksPerFace == 0)
+                        {
+                            if (i % (chunkSize / reason + 1) == 0)    //Normales de la izquierda deben de ser de otra cara
+                            {
+                                //if (chunks[id - 1].isActive) borderNormals[i] = chunks[id - 1].mesh.normals[GetStartingI(id - 1, i) + (chunkSize / chunks[id - 1].reason)];
+                            }
+                        }
+                        else
+                        {
+                            if (i % (chunkSize / reason + 1) == 0)    //Normales de la izquierda
+                            {
+                                if (chunks[id - 1].isActive) borderNormals[i] = chunks[id - 1].mesh.normals[GetStartingI(id - 1, i) + (chunkSize / chunks[id - 1].reason)];
+                            }
+                        }
+                        //Normales de la derecha
+                        if((GetRelativeChunkId(id, face) + 1) % sqrtChunksPerFace == 0)
+                        {
+                            if ((i + 1) % (chunkSize / reason + 1) == 0)    //Normales de la derecha deben de ser de otra cara
+                            {
+                                //if (chunks[id + 1].isActive) borderNormals[i] = chunks[id + 1].mesh.normals[GetStartingI(id + 1, i - (chunkSize / reason))];
+                            }
+                        }
+                        else
+                        {
+                            if ((i + 1) % (chunkSize / reason + 1) == 0)    //Normales de la derecha
+                            {
+                                if (chunks[id + 1].isActive) borderNormals[i] = chunks[id + 1].mesh.normals[GetStartingI(id + 1, i - (chunkSize / reason))];
+                            }
+                        }
+                    }
+                }
+            }
+            mesh.normals = borderNormals;
+        }
         
         public void AdjustBorderNormals()
         {
@@ -1222,6 +1511,7 @@ public class CubeSphere : MonoBehaviour
 
             for (int i = 0; i < numVertices; i++)
             {
+                borderNormals[i] = normals[i];
                 if (borderVertices[i] != new Vector3(0, 0, 0))      //Las normales se modifican si son bordes
                 {
                     if (posX > 0 && posY > 0 && posX < sqrtChunksPerFace - 1 && posY < sqrtChunksPerFace - 1)   //Modificación de las normales de los chunks internos
@@ -1345,7 +1635,7 @@ public class CubeSphere : MonoBehaviour
                             }
                             else
                             {
-                                if(id == sqrtChunksPerFace - 1) //Modificar arriba
+                                if(id == sqrtChunksPerFace - 1)
                                 {
                                     if (i >= ((chunkSize / reason + 1) * (chunkSize / reason)) && i != GetNumVertices() - 1)  //Puntos de arriba excepto el último
                                     {
@@ -1356,15 +1646,36 @@ public class CubeSphere : MonoBehaviour
                                         borderNormals[i] = normals[i];
                                     }
                                 }
-                                else            //Modificar derecha
+                                else
                                 {
-                                    if((i+1) % (chunkSize / reason + 1) == 0 && i!=GetNumVertices() - 1)    //Puntos de la derecha excepto el último
+                                    if((id > 0 && id < sqrtChunksPerFace - 1) || (id >= (sqrtChunksPerFace * (sqrtChunksPerFace-1)) && id < ((sqrtChunksPerFace * sqrtChunksPerFace)-1)))    //Chunks de abajo y arriba que no sean esquinas
                                     {
-                                        if (chunks[id + 1].isActive) borderNormals[i] = chunks[id + 1].mesh.normals[GetStartingI(id + 1, i - chunkSize / reason)];
+                                        if ((i + 1) % (chunkSize / reason + 1) == 0 && i != GetNumVertices() - 1)    //Puntos de la derecha excepto el último
+                                        {
+                                            if (chunks[id + 1].isActive) borderNormals[i] = chunks[id + 1].mesh.normals[GetStartingI(id + 1, i - chunkSize / reason)];
+                                        }
+                                        else
+                                        {
+                                            borderNormals[i] = normals[i];
+                                        }
                                     }
                                     else
                                     {
-                                        borderNormals[i] = normals[i];
+                                        if((id % sqrtChunksPerFace == 0 || (id + 1) % sqrtChunksPerFace == 0) && (id != (sqrtChunksPerFace * (sqrtChunksPerFace - 1)) && id != (sqrtChunksPerFace * sqrtChunksPerFace) - 1))    //Chunks de la izquierda y derecha que no sean esquinas
+                                        {
+                                            if (i >= ((chunkSize / reason + 1) * (chunkSize / reason)) && i != GetNumVertices() - 1)  //Puntos de arriba excepto el último
+                                            {
+                                                if (chunks[id + sqrtChunksPerFace].isActive) borderNormals[i] = chunks[id + sqrtChunksPerFace].mesh.normals[GetStartingI(id + sqrtChunksPerFace, i - (GetNumVertices() - 1 - chunkSize / reason))];
+                                            }
+                                            else
+                                            {
+                                                borderNormals[i] = normals[i];
+                                            }
+                                        }
+                                        else
+                                        {
+                                            borderNormals[i] = normals[i];
+                                        }
                                     }
                                 }
                             }
@@ -1382,7 +1693,6 @@ public class CubeSphere : MonoBehaviour
             }
             mesh.normals = borderNormals;
 
-            if(face=="xy") data = new VerticesData(mesh.vertices, mesh.normals);
             //data = new VerticesData(mesh.vertices, mesh.normals);
 
             /*Chunk extrachunk = chunks[0];
@@ -1461,10 +1771,16 @@ public class CubeSphere : MonoBehaviour
             mesh.normals = normals;
         }
 
-        private void GenerateNormals()
+        public void GenerateNormals()
         {
             CalculateNormals();
-            AdjustBorderNormals();
+            //AdjustBorderNormals();
+        }
+
+        private void GenerateNormals2()
+        {
+            CalculateNormals();
+            AdjustBorderNormals2();
         }
     }
 }
