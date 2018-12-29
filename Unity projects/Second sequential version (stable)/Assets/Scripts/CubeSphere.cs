@@ -72,12 +72,17 @@ public class CubeSphere : MonoBehaviour
         faceMap["xy,left"] = "zy";
         faceMap["xy,right"] = "zyx";
         faceMap["xy,down"] = "xz";
+
+        faceMap["xzy,up"] = "xyz";
+        faceMap["xzy,left"] = "zy";
+        faceMap["xzy,right"] = "zyx";
+        faceMap["xzy,down"] = "xy";
     }
 
     private void Start()
     {
         ClosestChunkHasChanged();   //Set variables for UpdateChunks()
-        StartCoroutine(UpdateChunks());
+        //StartCoroutine(UpdateChunks());
     }
 
     private void Update()
@@ -102,7 +107,7 @@ public class CubeSphere : MonoBehaviour
             if (ClosestChunkHasChanged())
             {
                 timer.Start();
-                StartCoroutine(UpdateChunks());       //DECOMMENT
+                //StartCoroutine(UpdateChunks());       //DECOMMENT
                 timer.Stop();
                 print("Tiempo " + timer.ElapsedMilliseconds);
                 timer.Reset();
@@ -734,23 +739,23 @@ public class CubeSphere : MonoBehaviour
         int adjacentCount = 1;
         foreach (Chunk adjacent in closestChunk.GetAdjacentChunks())
         {
-            if (adjacentCount < 7)    //150 - 149
+            if (adjacentCount < 1000)    //150 - 149
             {
-                adjacent.UpdateLOD(1000);      //1
+                adjacent.UpdateLOD(1);      //1
                 ++adjacentCount;
             }
             else
             {
-                if (adjacentCount < 20)    //300 - 250
+                if (adjacentCount < 7)    //300 - 250
                 {
-                    adjacent.UpdateLOD(1);      //2
+                    adjacent.UpdateLOD(2);      //2
                     ++adjacentCount;
                 }
                 else
                 {
-                    if (adjacentCount < 1)    //600 - 500
+                    if (adjacentCount < 15)    //600 - 500
                     {
-                        adjacent.UpdateLOD(1);      //4
+                        adjacent.UpdateLOD(4);      //4
                         ++adjacentCount;
                     }
                     else
@@ -820,33 +825,46 @@ public class CubeSphere : MonoBehaviour
         if (objectiveFace == "zyx") orden = 4;
         if (objectiveFace == "xz") orden = 5;
         if (objectiveFace == "xzy") orden = 6;
-        
-        int startingChunk = (sqrtChunksPerFace * sqrtChunksPerFace * orden) - (sqrtChunksPerFace * sqrtChunksPerFace);
 
-        switch(direction)
+        int thisOrden = 0;
+        if (face == "xy") thisOrden = 1;
+        if (face == "xyz") thisOrden = 2;
+        if (face == "zy") thisOrden = 3;
+        if (face == "zyx") thisOrden = 4;
+        if (face == "xz") thisOrden = 5;
+        if (face == "xzy") thisOrden = 6;
+
+        int startingChunk = (sqrtChunksPerFace * sqrtChunksPerFace * orden) - (sqrtChunksPerFace * sqrtChunksPerFace);
+        int thisStartingChunk = (sqrtChunksPerFace * sqrtChunksPerFace * thisOrden) - (sqrtChunksPerFace * sqrtChunksPerFace);
+
+        switch (direction)
         {
             case "up":
-                if(face == "xy")
+                switch(face)
                 {
-                    return startingChunk + (id - (sqrtChunksPerFace * (sqrtChunksPerFace - 1)));
+                    case "xy": return startingChunk + (id - (sqrtChunksPerFace * (sqrtChunksPerFace - 1)));
+                    case "xzy": return (startingChunk + (sqrtChunksPerFace * (sqrtChunksPerFace - 1))) + (id - (thisStartingChunk + (sqrtChunksPerFace * (sqrtChunksPerFace - 1))));
                 }
                 break;
             case "left":
-                if(face == "xy")
+                switch(face)
                 {
-                    return startingChunk + id;
+                    case "xy": return startingChunk + id;
+                    case "xzy": return (startingChunk + (sqrtChunksPerFace * (sqrtChunksPerFace - 1))) + (id - thisStartingChunk) / sqrtChunksPerFace;
                 }
                 break;
             case "right":
-                if(face == "xy")
+                switch(face)
                 {
-                    return startingChunk + (id - (sqrtChunksPerFace - 1));
+                    case "xy": return startingChunk + (id - (sqrtChunksPerFace - 1));
+                    case "xzy": return (startingChunk + (sqrtChunksPerFace * (sqrtChunksPerFace - 1))) + (id - (sqrtChunksPerFace - 1) - thisStartingChunk) / sqrtChunksPerFace;
                 }
                 break;
             case "down":
-                if(face == "xy")
+                switch(face)
                 {
-                    return startingChunk + id;
+                    case "xy": return startingChunk + id;
+                    case "xzy": return (startingChunk + (sqrtChunksPerFace * (sqrtChunksPerFace - 1))) + (id - thisStartingChunk);
                 }
                 break;
             default: return 0;
@@ -1021,7 +1039,6 @@ public class CubeSphere : MonoBehaviour
 
         public void UpdateLOD(int reason)
         {
-            if(face!="xy") { return; }
             if (!isActive) { SetActive(true); GenerateNormals2(); }
             //if (this.reason == reason) { return; }     //Update only if reason is different   //DECOMMENT
             this.reason = reason;
@@ -1275,7 +1292,7 @@ public class CubeSphere : MonoBehaviour
             mesh.RecalculateNormals();
         }
 
-        public void AdjustBorderNormals2()  //Modificar todas las normales de los bordes
+        /*public void AdjustBorderNormals2()  //Modificar todas las normales de los bordes
         {
             Vector3[] normals = mesh.normals;
 
@@ -1568,11 +1585,10 @@ public class CubeSphere : MonoBehaviour
                 }
             }
             mesh.normals = borderNormals;
-        }
+        }*/
 
-        public int GetStartingI(int chunkId, int i)
+        public int GetStartingI(int chunkId, int i, bool case_left=false)
         {
-            bool case_left = false;
             if((chunkId == id - 1) || (chunkId == id + 1))
             {
                 case_left = true;
@@ -1650,8 +1666,21 @@ public class CubeSphere : MonoBehaviour
                 //case "zy": StaticTerrainFunctions.AdjustBorderNormalsZY(this, sqrtChunksPerFace, chunks); break;
                 //case "zyx": StaticTerrainFunctions.AdjustBorderNormalsZYX(this, sqrtChunksPerFace, chunks); break;
                 //case "xz": StaticTerrainFunctions.AdjustBorderNormalsXZ(this, sqrtChunksPerFace, chunks); break;
-                //case "xzy": StaticTerrainFunctions.AdjustBorderNormalsXZY(this, sqrtChunksPerFace, chunks); break;
+                case "xzy": StaticTerrainFunctions.AdjustBorderNormalsXZY(this, sqrtChunksPerFace, chunks); break;
             }
+            /*if(face=="xyz")
+            {
+                if(id==27)
+                {
+                    int numVertices = GetNumVertices();
+                    Vector3[] borderNormals = new Vector3[numVertices];
+                    borderNormals = mesh.normals;
+                    borderNormals[0] = new Vector3(0, 0, 0);
+                    borderNormals[1] = new Vector3(0, 0, 0);
+                    borderNormals[2] = new Vector3(0, 0, 0);
+                    mesh.normals = borderNormals;
+                }
+            }*/
             //AdjustBorderNormals2();
         }
     }
