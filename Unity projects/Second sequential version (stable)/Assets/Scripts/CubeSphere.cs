@@ -11,7 +11,7 @@ public class CubeSphere : MonoBehaviour
     public float gravity = -9.8f;
     public TerrainType[] regions;
     public Material material;
-    public Transform bodyAttracted;
+    public Transform cameraAttracted;
 
     private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;    //Global
     private float radius;
@@ -57,7 +57,7 @@ public class CubeSphere : MonoBehaviour
 
     public void Awake()
     {
-        viewerPositionOld = viewerPosition = bodyAttracted.position;
+        viewerPositionOld = viewerPosition = cameraAttracted.position;
 
         radius = gridSize / 2;
         chunkSize = gridSize / sqrtChunksPerFace;
@@ -98,7 +98,7 @@ public class CubeSphere : MonoBehaviour
             }
         }*/
 
-        viewerPosition = bodyAttracted.position;
+        viewerPosition = cameraAttracted.position;
 
         if((viewerPositionOld-viewerPosition).sqrMagnitude > sqrViewerMoveThresholdForChunkUpdate)
         {
@@ -678,7 +678,7 @@ public class CubeSphere : MonoBehaviour
 
         foreach(Chunk chunk in chunks)
         {
-            float distance = Vector3.Distance(bodyAttracted.position, chunk.GetCenter());
+            float distance = Vector3.Distance(cameraAttracted.position, chunk.GetCenter());
             if (distance < min_distance)
             {
                 min_distance = distance;
@@ -787,7 +787,7 @@ public class CubeSphere : MonoBehaviour
 
     public void Attract(Transform body)
     {
-        bodyAttracted = body;
+        cameraAttracted = body;
 
         Vector3 gravityUp = (body.position - transform.position).normalized;
         Vector3 bodyUp = body.up;

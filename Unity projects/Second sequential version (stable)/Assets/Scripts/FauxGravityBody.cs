@@ -14,6 +14,6 @@ public class FauxGravityBody : MonoBehaviour {
 	}
 	
 	void Update () {
-        attractor.Attract(transform);
+        //attractor.Attract(transform);
 	}
 }
