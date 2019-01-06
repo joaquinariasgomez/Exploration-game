@@ -505,6 +505,19 @@ Light:
 GameObject:
   m_PrefabParentObject: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
   m_PrefabInternal: {fileID: 1479655281}
+--- !u!114 &1735169017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1735169016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 630b4e0b31ddbe641bb8baa3164f1482, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  viewRadius: 3.97
+  viewAngle: 76
 --- !u!54 &1735169018
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -541,18 +554,6 @@ MonoBehaviour:
 Transform:
   m_PrefabParentObject: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
   m_PrefabInternal: {fileID: 1479655281}
---- !u!114 &1735169021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1735169016}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 646eb81bf4d009144a6ea9386423aec3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attractor: {fileID: 1339366652}
 --- !u!136 &1735169022
 CapsuleCollider:
   m_ObjectHideFlags: 0
