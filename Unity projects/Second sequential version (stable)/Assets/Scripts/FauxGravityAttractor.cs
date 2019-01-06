@@ -31,6 +31,7 @@ public class FauxGravityAttractor : MonoBehaviour {
 
         Quaternion targetRotation = Quaternion.FromToRotation(bodyUp, gravityUp) * body.rotation;
         body.rotation = Quaternion.Slerp(body.rotation, targetRotation, 50 * Time.deltaTime);
+        //QUIZAS PARA QUE ROTE AL INSTANTE Y NO DE PROBLEMAS, USAR 1000 * TIME.DELTATIME O Quartenion.SlerpUnclamped
     }
 
     void Update()

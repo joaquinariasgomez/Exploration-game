@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
+    public CubeSphere attractor;
     public float walkSpeed = 2;
     public float runSpeed = 6;
-    public float gravity = -12;
+    public float gravity = -9.8f;
 
     public float turnSmoothTime = 0.2f;
     float turnSmoothVelocity;
@@ -16,13 +17,28 @@ public class PlayerController : MonoBehaviour {
     float currentSpeed;
     float velocityY;
 
+    float distToGround;
+
     Animator animator;
-    CharacterController controller;
+    //CharacterController controller;
+    CapsuleCollider collider;
+    Rigidbody rigidbody;
 
 	void Start () {
         animator = GetComponent<Animator>();
-        controller = GetComponent<CharacterController>();
-	}
+        //controller = GetComponent<CharacterController>();
+        collider = GetComponent<CapsuleCollider>();
+        rigidbody = GetComponent<Rigidbody>();
+        rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+        rigidbody.useGravity = false;
+
+        distToGround = collider.bounds.extents.y;
+    }
+
+    bool isGrounded()
+    {
+        return Physics.Raycast(transform.position, -Vector3.up, distToGround + 0.1f);
+    }
 
     void Update()
     {
@@ -31,8 +47,8 @@ public class PlayerController : MonoBehaviour {
 
         if (inputDir != Vector2.zero)
         {
-            float targetRotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg;
-            transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, turnSmoothTime);
+            float targetDirection = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg;
+            transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetDirection, ref turnSmoothVelocity, turnSmoothTime);
         }
 
         bool running = Input.GetKey(KeyCode.LeftShift);     //Shift izquierdo para correr
@@ -41,19 +57,30 @@ public class PlayerController : MonoBehaviour {
 
         velocityY += Time.deltaTime * gravity;
 
-        //transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
-        Vector3 velocity = transform.forward * currentSpeed + Vector3.up * velocityY;
-        
-        controller.Move(velocity * Time.deltaTime);
-        //La rotacion se hace tambn con Move (?)
+        Vector3 gravityDirection = (transform.position - attractor.transform.position).normalized;  //Vector3.up;  //Hacia arriba (estándar)
 
-        //Character standing on the ground
-        if(controller.isGrounded)
+        transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
+        Vector3 velocity = transform.forward * currentSpeed + gravityDirection * velocityY;
+
+        rigidbody.AddForce(gravityDirection * velocityY);
+
+        //controller.Move(velocity * Time.deltaTime);
+
+        Quaternion targetRotation = Quaternion.FromToRotation(transform.up, gravityDirection) * transform.rotation;
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 1000000 * Time.deltaTime);
+
+        float animationSpeedPercent = (running ? 1 : 0.5f) * inputDir.magnitude;
+        animator.SetFloat("speedPercent", animationSpeedPercent, speedSmoothTime, Time.deltaTime);
+
+        if (isGrounded())
         {
             velocityY = 0;
         }
 
-        float animationSpeedPercent = (running ? 1 : 0.5f) * inputDir.magnitude;
-        animator.SetFloat("speedPercent", animationSpeedPercent, speedSmoothTime, Time.deltaTime);
+        //Character standing on the ground
+        /*if (controller.isGrounded)
+        {
+            velocityY = 0;
+        }*/
     }
 }

@@ -5,12 +5,13 @@ using UnityEngine;
 public class FauxGravityBody : MonoBehaviour {
 
     public CubeSphere attractor;
-    Rigidbody rigidbody;
+    //Rigidbody rigidbody;
 
 	void Start () {
-        rigidbody = GetComponent<Rigidbody>();
+        /*rigidbody = GetComponent<Rigidbody>();
         rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-        rigidbody.useGravity = false;
+        rigidbody.useGravity = false;*/
+
 	}
 	
 	void Update () {

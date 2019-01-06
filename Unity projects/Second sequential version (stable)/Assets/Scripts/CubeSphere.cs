@@ -16,7 +16,7 @@ public class CubeSphere : MonoBehaviour
     private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;    //Global
     private float radius;
     private static int sqrtChunksPerFace = 5;     //25 - 5
-    private static float heightMultiplier = 10;     //20
+    private static float heightMultiplier = 20;     //20
     private static int id = 0;
 
     private static Dictionary<string, float[,]> noiseMaps=new Dictionary<string, float[,]>();  //Face, noiseMap
@@ -106,11 +106,11 @@ public class CubeSphere : MonoBehaviour
             //DO THINGS EACH TIME VIEWER MOVE viewerMoveThreshHoldForChunkUpdate UNITS
             if (ClosestChunkHasChanged())
             {
-                timer.Start();
+                //timer.Start();
                 //StartCoroutine(UpdateChunks());       //DECOMMENT
                 timer.Stop();
-                print("Tiempo " + timer.ElapsedMilliseconds);
-                timer.Reset();
+                //print("Tiempo " + timer.ElapsedMilliseconds);
+                //timer.Reset();
             }
         }
     }
@@ -786,6 +786,21 @@ public class CubeSphere : MonoBehaviour
     }
 
     public void Attract(Transform body)
+    {
+        cameraAttracted = body;
+
+        Vector3 gravityUp = (body.position - transform.position).normalized;
+        Vector3 bodyUp = body.up;
+
+        rigidbodyAttracted = body.GetComponent<Rigidbody>();
+
+        rigidbodyAttracted.AddForce(gravityUp * gravity);   //Comment this line for no attraction force
+
+        Quaternion targetRotation = Quaternion.FromToRotation(bodyUp, gravityUp) * body.rotation;
+        body.rotation = Quaternion.Slerp(body.rotation, targetRotation, 50 * Time.deltaTime);
+    }
+
+    public void AttractCamera(Transform body)
     {
         cameraAttracted = body;
 
