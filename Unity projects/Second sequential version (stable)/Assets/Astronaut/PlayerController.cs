@@ -45,6 +45,8 @@ public class PlayerController : MonoBehaviour {
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         Vector2 inputDir = input.normalized;
 
+        //print("Vector3: " + Vector3.up + " Transform: " + transform.up);
+
         if (inputDir != Vector2.zero)
         {
             float targetDirection = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg;
