@@ -29,13 +29,52 @@ public class PlayerController : MonoBehaviour {
     CapsuleCollider collider;
     Rigidbody rigidbody;
 
-    public float rotX
+    private void PerformCorrectRotation()
     {
-        get { return transform.rotation.eulerAngles.x; }
-        set
+        Vector3 point = new Vector3(transform.position.x, attractor.transform.position.y, transform.position.z);
+        pointDirection = (point - attractor.transform.position).normalized;
+
+        float x = transform.position.x;
+        float y = transform.position.y;
+        float z = transform.position.z;
+
+        if(y >= 0)
         {
-            Vector3 v = transform.rotation.eulerAngles;
-            transform.rotation = Quaternion.Euler(value, v.y, v.z);
+            if(y == 0)
+            {
+                if(z >= 0)
+                {
+                    cross = new Vector3(-1, 0, 0);
+                    gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
+                    transform.rotation = Quaternion.LookRotation(gravityDirectionRotated);
+                }
+                else
+                {
+                    cross = new Vector3(1, 0, 0);
+                    gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
+                    transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, Vector3.down);
+                }
+            }
+            else
+            {
+                cross = -Vector3.Cross(gravityDirection, pointDirection).normalized;
+                gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
+                transform.rotation = Quaternion.LookRotation(gravityDirectionRotated);
+            }
+        }
+        else
+        {
+            if(y == 0)
+            {
+                cross = Vector3.Cross(gravityDirection, pointDirection).normalized;
+                gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
+            }
+            else
+            {
+                cross = Vector3.Cross(gravityDirection, pointDirection).normalized;
+                gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
+            }
+            transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, Vector3.down);
         }
     }
 
@@ -75,87 +114,30 @@ public class PlayerController : MonoBehaviour {
 
         //controller.Move(velocity * Time.deltaTime);
 
-        Vector3 currentRotation = transform.rotation.eulerAngles;
-        //Quaternion gravityRotation = Quaternion.FromToRotation(transform.up, gravityDirection);
-        float gravityRotation = Vector3.Angle(Vector3.up, gravityDirection);
-        //print(Quaternion.AngleAxis(gravityRotation, new Vector3(1, 0, 0)).eulerAngles);
-        //print(Quaternion.LookRotation(gravityDirection, Vector3.down).eulerAngles);
-
-        Vector3 rotation = transform.rotation.eulerAngles;
-        float targetDirection = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg;
-        rotation.y = -90;//Mathf.SmoothDampAngle(transform.eulerAngles.y, targetDirection, ref turnSmoothVelocity, turnSmoothTime);
-        rotation.z = 0;
-
-        if(transform.position.y >= 0)
+        PerformCorrectRotation();
+        /*if(transform.position.y >= 0)
         {
-            //gravityDirectionRotated = Quaternion.Euler(90, 0, 0) * gravityDirection;
             Vector3 point = new Vector3(transform.position.x, attractor.transform.position.y, transform.position.z);
             pointDirection = (point - attractor.transform.position).normalized;
-            cross = Vector3.Cross(gravityDirection, pointDirection).normalized;
-            Quaternion rotationQuaternion = Quaternion.Euler(Quaternion.FromToRotation(gravityDirection, pointDirection).eulerAngles * 2);
-            //print(Quaternion.FromToRotation(gravityDirection, pointDirection).eulerAngles);
+            //cross = Vector3.Cross(gravityDirection, pointDirection).normalized;
+            cross = PerformCorrectCross(gravityDirection, pointDirection);
+
             //gravityDirectionRotated = Quaternion.Euler(cross * 90) * gravityDirection;
-            gravityDirectionRotated = rotationQuaternion * gravityDirection;
+            gravityDirectionRotated = Vector3.Cross(gravityDirection, -cross);
 
-            //gravityDirectionRotated = new Vector3(Mathf.Cos(90) * gravityDirection.x, 0, Mathf.Sin(90) * gravityDirection.x).normalized;
-            //Quaternion rotationQuaternion = Quaternion.Euler(new Vector3(Mathf.Atan2(gravityDirectionRotated.z, gravityDirectionRotated.y), Mathf.Atan2(gravityDirectionRotated.x, gravityDirectionRotated.z), Mathf.Atan2(gravityDirectionRotated.y, gravityDirectionRotated.x)));
-            //gravityDirectionRotated = rotationQuaternion * gravityDirectionRotated;
-
-            //transform.rotation = Quaternion.LookRotation(gravityDirectionRotated);
+            transform.rotation = Quaternion.LookRotation(gravityDirectionRotated);
         }
         else
         {
-            //gravityDirectionRotated = Quaternion.Euler(90, 0, 0) * gravityDirection;
-            //transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, Vector3.down);
-        }
+            Vector3 point = new Vector3(transform.position.x, attractor.transform.position.y, transform.position.z);
+            pointDirection = (point - attractor.transform.position).normalized;
+            cross = Vector3.Cross(gravityDirection, pointDirection).normalized;
 
-        //print("X: " + transform.position.x + " Y: " + transform.position.y + " Z: " + transform.position.z);
-        
-        
+            //gravityDirectionRotated = Quaternion.Euler(cross * 90) * gravityDirection;
 
-
-
-        //print(Vector3.Angle(gravityDirection, transform.up));
-        /*if(transform.position.z >= 0f && transform.position.y >= 0f)
-        {
-            ++ocurrencias;
-            //print("RESTANDO POR PRIMERA VEZ A "+currentRotation.x+" "+Vector3.Angle(gravityDirection, transform.up)+" QUEDA "+ (currentRotation.x - Vector3.Angle(gravityDirection, transform.up)));
-            currentRotation.x = currentRotation.x + Mathf.Round(Vector3.Angle(gravityDirection, transform.up) * 100f) / 100f;
-            transform.rotation = Quaternion.Euler(currentRotation);
-            print("ANGULO RESTANTE " + Vector3.Angle(gravityDirection, transform.up));
-        }
-        if (transform.position.z < 0f && transform.position.y >= 0f)
-        {
-            ++ocurrencias;
-            print("CASO 2");
-            currentRotation.x = currentRotation.x + Vector3.Angle(gravityDirection, transform.up);
-        }
-        if (transform.position.z >= 0f && transform.position.y < 0f)
-        {
-            ++ocurrencias;
-            //if(Vector3.Angle(gravityDirection, transform.up)!=0f)
-            //{
-                currentRotation.x = currentRotation.x + 1f;//+ Mathf.Floor(Vector3.Angle(gravityDirection, transform.up));
-                transform.rotation = Quaternion.Euler(currentRotation);
-            //}
-            //print("ACABO DE SUMAR " + Mathf.Floor(Vector3.Angle(gravityDirection, transform.up)));
-            //currentRotation.x = currentRotation.x - Vector3.Angle(gravityDirection, transform.up);
-        }
-        if (transform.position.z < 0f && transform.position.y < 0f)
-        {
-            ++ocurrencias;
-            print("CASO 4");
-            currentRotation.x = currentRotation.x - Vector3.Angle(gravityDirection, transform.up);
+            gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
+            transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, Vector3.down);
         }*/
-        //print("con "+ocurrencias+" ocurrencias");
-
-        //Quaternion.LookRotation(gravityDirection).eulerAngles.x;
-        //currentRotation.y = 0f;//Quaternion.LookRotation(gravityDirection).eulerAngles.y;// currentRotation.y + gravityRotation.eulerAngles.y;
-        //currentRotation.z = 0f;//gravityRotation.z + gravityRotation.eulerAngles.z;
-        //transform.rotation = Quaternion.Euler(currentRotation);
-
-        //Quaternion targetRotation = Quaternion.FromToRotation(transform.up, gravityDirection) * transform.rotation;
-        //transform.rotation = targetRotation; //transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 1000000 * Time.deltaTime);
 
         if (inputDir != Vector2.zero)
         {
