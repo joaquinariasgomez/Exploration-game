@@ -39,7 +39,7 @@ public class FieldOfView : MonoBehaviour {
 
     private void Update()
     {
-        DrawFieldOfView();
+        //DrawFieldOfView();
     }
 
     void FindVisibleTargets()

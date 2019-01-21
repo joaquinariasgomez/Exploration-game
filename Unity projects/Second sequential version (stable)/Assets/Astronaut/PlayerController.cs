@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour {
     private Vector3 cross;
     private Vector3 pointDirection;
 
+    //Test
+    private float latestTargetDirection = 0.0f;
+
     float distToGround;
 
     Animator animator;
@@ -29,7 +32,7 @@ public class PlayerController : MonoBehaviour {
     CapsuleCollider collider;
     Rigidbody rigidbody;
 
-    private void PerformCorrectRotation()
+    private void PerformGravityRotation()
     {
         Vector3 point = new Vector3(transform.position.x, attractor.transform.position.y, transform.position.z);
         pointDirection = (point - attractor.transform.position).normalized;
@@ -46,13 +49,17 @@ public class PlayerController : MonoBehaviour {
                 {
                     cross = new Vector3(-1, 0, 0);
                     gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
-                    transform.rotation = Quaternion.LookRotation(gravityDirectionRotated);
+                    //Personalized Upwards to mock cross between gravityDirectionRotated and it.
+                    Vector3 personalizedUpwards = new Vector3(0, 1, 1);
+                    transform.rotation = Quaternion.LookRotation(gravityDirectionRotated.normalized, personalizedUpwards);
                 }
                 else
                 {
                     cross = new Vector3(1, 0, 0);
                     gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
-                    transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, Vector3.down);
+                    //Personalized Upwards to mock cross between gravityDirectionRotated and it.
+                    Vector3 personalizedUpwards = new Vector3(0, 1, -1);
+                    transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, personalizedUpwards);
                 }
             }
             else
@@ -64,17 +71,18 @@ public class PlayerController : MonoBehaviour {
         }
         else
         {
-            if(y == 0)
+            if(x == 0 && z == 0)
             {
-                cross = Vector3.Cross(gravityDirection, pointDirection).normalized;
+                cross = new Vector3(1, 0, 0);
                 gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
+                transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, Vector3.down);
             }
             else
             {
                 cross = Vector3.Cross(gravityDirection, pointDirection).normalized;
                 gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
+                transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, Vector3.down);
             }
-            transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, Vector3.down);
         }
     }
 
@@ -107,46 +115,29 @@ public class PlayerController : MonoBehaviour {
 
         gravityDirection = (transform.position - attractor.transform.position).normalized;  //Vector3 ..
 
-        transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
+        //transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
+        //UPDATE TRASLATION
+        transform.position += transform.forward * currentSpeed * Time.deltaTime;
         Vector3 velocity = transform.forward * currentSpeed + gravityDirection * velocityY;
 
-        //rigidbody.AddForce(gravityDirection * velocityY);
+        rigidbody.AddForce(gravityDirection * velocityY);
 
         //controller.Move(velocity * Time.deltaTime);
 
-        PerformCorrectRotation();
-        /*if(transform.position.y >= 0)
-        {
-            Vector3 point = new Vector3(transform.position.x, attractor.transform.position.y, transform.position.z);
-            pointDirection = (point - attractor.transform.position).normalized;
-            //cross = Vector3.Cross(gravityDirection, pointDirection).normalized;
-            cross = PerformCorrectCross(gravityDirection, pointDirection);
-
-            //gravityDirectionRotated = Quaternion.Euler(cross * 90) * gravityDirection;
-            gravityDirectionRotated = Vector3.Cross(gravityDirection, -cross);
-
-            transform.rotation = Quaternion.LookRotation(gravityDirectionRotated);
-        }
-        else
-        {
-            Vector3 point = new Vector3(transform.position.x, attractor.transform.position.y, transform.position.z);
-            pointDirection = (point - attractor.transform.position).normalized;
-            cross = Vector3.Cross(gravityDirection, pointDirection).normalized;
-
-            //gravityDirectionRotated = Quaternion.Euler(cross * 90) * gravityDirection;
-
-            gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
-            transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, Vector3.down);
-        }*/
+        PerformGravityRotation();
+        Vector3 rotationVector1 = transform.localRotation.eulerAngles;  //rotation
+        //transform.localRotation = Quaternion.Euler(rotationVector1);    //rotation
+        rotationVector1.y = latestTargetDirection;
+        transform.RotateAround(transform.position, transform.up, latestTargetDirection);
 
         if (inputDir != Vector2.zero)
         {
-            //float targetDirection = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg;
-                        //transform.rotation = Quaternion.AngleAxis(Mathf.SmoothDampAngle(transform.eulerAngles.y, targetDirection, ref turnSmoothVelocity, turnSmoothTime), new Vector3(0, 1, 0));
+            float targetDirection = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg;
+            latestTargetDirection = targetDirection;
+            print("Target direction " + targetDirection);
             //Vector3 rotationVector = transform.rotation.eulerAngles;
-            //rotationVector.y = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetDirection, ref turnSmoothVelocity, turnSmoothTime);
+            //rotationVector.y = targetDirection;//Mathf.SmoothDampAngle(transform.eulerAngles.y, targetDirection, ref turnSmoothVelocity, turnSmoothTime);
             //transform.rotation = Quaternion.Euler(rotationVector);
-            //transform.eulerAngles = new Vector3(0, Mathf.SmoothDampAngle(transform.eulerAngles.y, targetDirection, ref turnSmoothVelocity, turnSmoothTime), 0);
         }
 
         float animationSpeedPercent = (running ? 1 : 0.5f) * inputDir.magnitude;
@@ -166,13 +157,13 @@ public class PlayerController : MonoBehaviour {
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
+        /*Gizmos.color = Color.red;
         Gizmos.DrawRay(new Vector3(0, 0, 0), gravityDirection*100);
         Gizmos.color = Color.green;
         Gizmos.DrawRay(new Vector3(0, 0, 0), pointDirection * 100);
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(new Vector3(0, 0, 0), cross*100);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawRay(new Vector3(0, 0, 0), gravityDirectionRotated * 100);
+        Gizmos.DrawRay(new Vector3(0, 0, 0), gravityDirectionRotated * 100);*/
     }
 }
