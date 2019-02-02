@@ -867,7 +867,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51691b5b6b28a9a42a9874ac6886b634, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: 400
+  gridSize: 20
   gravity: -9.8
   regions:
   - name: region1
@@ -939,15 +939,15 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -99
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 196
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 41
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalRotation.x

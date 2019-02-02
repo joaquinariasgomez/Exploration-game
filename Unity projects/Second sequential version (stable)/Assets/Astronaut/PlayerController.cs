@@ -63,8 +63,12 @@ public class PlayerController : MonoBehaviour {
                 }
             }
             else
-            {
+            {   //y>0
                 cross = -Vector3.Cross(gravityDirection, pointDirection).normalized;
+                if (cross == Vector3.zero)
+                {
+                    cross = new Vector3(-1, 0, 0).normalized;
+                }
                 gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
                 transform.rotation = Quaternion.LookRotation(gravityDirectionRotated);
             }
@@ -81,7 +85,50 @@ public class PlayerController : MonoBehaviour {
             {
                 cross = Vector3.Cross(gravityDirection, pointDirection).normalized;
                 gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
+                if (gravityDirectionRotated==Vector3.zero)
+                {
+                    gravityDirectionRotated = new Vector3(0, -1, 0);
+                }
                 transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, Vector3.down);
+            }
+        }
+    }
+
+    void PerformControllerRotation()
+    {
+        //Averiguar el angulo a girar para ir recto
+        Vector3 referenceDirection = (new Vector3(0, 0, 1) - attractor.transform.position).normalized;
+        Vector3 situatorDirection = new Vector3(transform.position.x, 0, transform.position.z).normalized;
+        float forwardAngle = Vector3.Angle(referenceDirection, situatorDirection);
+        if (situatorDirection == Vector3.zero)
+        {
+            forwardAngle = 0f;
+        }
+
+        float x = transform.position.x;
+        float y = transform.position.y;
+        float z = transform.position.z;
+        //print("FORWARD ANGLE: " + forwardAngle);
+        if (y >= 0)
+        {
+            if (x >= 0)
+            {
+                transform.RotateAround(transform.position, transform.up, latestTargetDirection - forwardAngle);
+            }
+            else
+            {
+                transform.RotateAround(transform.position, transform.up, latestTargetDirection + forwardAngle);
+            }
+        }
+        else
+        {
+            if (x >= 0)
+            {
+                transform.RotateAround(transform.position, transform.up, latestTargetDirection + forwardAngle);
+            }
+            else
+            {
+                transform.RotateAround(transform.position, transform.up, latestTargetDirection - forwardAngle);
             }
         }
     }
@@ -120,21 +167,27 @@ public class PlayerController : MonoBehaviour {
         transform.position += transform.forward * currentSpeed * Time.deltaTime;
         Vector3 velocity = transform.forward * currentSpeed + gravityDirection * velocityY;
 
-        rigidbody.AddForce(gravityDirection * velocityY);
+        //rigidbody.AddForce(gravityDirection * velocityY);
 
         //controller.Move(velocity * Time.deltaTime);
 
         PerformGravityRotation();
+        PerformControllerRotation();
+
         Vector3 rotationVector1 = transform.localRotation.eulerAngles;  //rotation
-        //transform.localRotation = Quaternion.Euler(rotationVector1);    //rotation
+                                                                        //transform.localRotation = Quaternion.Euler(rotationVector1);    //rotation
         rotationVector1.y = latestTargetDirection;
-        transform.RotateAround(transform.position, transform.up, latestTargetDirection);
+        //transform.LookAt(rotationVector1);
+            //Hacer que lookAt mire a un vector que vaya cambiando con el tiempo
+            //Este vector sería normal al mundo (se puede sacar de PerformGravityRotation seguro)
+            //Este vector cambiará dependiendo de latestTargetDirection
 
         if (inputDir != Vector2.zero)
         {
             float targetDirection = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg;
             latestTargetDirection = targetDirection;
-            print("Target direction " + targetDirection);
+            //print("Target direction " + targetDirection);
+
             //Vector3 rotationVector = transform.rotation.eulerAngles;
             //rotationVector.y = targetDirection;//Mathf.SmoothDampAngle(transform.eulerAngles.y, targetDirection, ref turnSmoothVelocity, turnSmoothTime);
             //transform.rotation = Quaternion.Euler(rotationVector);

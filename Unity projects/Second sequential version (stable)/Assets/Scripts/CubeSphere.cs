@@ -1258,7 +1258,7 @@ public class CubeSphere : MonoBehaviour
             verticesParcial[i] = normalsParcial[i] * radius;
 
             Vector3 realVertice = verticesParcial[i] + verticesParcial[i] * (height / radius);
-            verticesParcial[i] = realVertice;
+            //verticesParcial[i] = realVertice;     //COMMENT for sphere instead of mountains
 
             //Assign border vertice if it is
             if (i <= (chunkSize / reason) || i % (chunkSize / reason + 1) == 0 || (i+1) % (chunkSize / reason + 1) == 0 || i >= (chunkSize / reason + 1) * (chunkSize / reason))
