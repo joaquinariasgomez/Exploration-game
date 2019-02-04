@@ -45,30 +45,18 @@ public class PlayerController : MonoBehaviour {
         {
             if(y == 0)
             {
-                if(z >= 0)
-                {
-                    cross = new Vector3(-1, 0, 0);
-                    gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
-                    //Personalized Upwards to mock cross between gravityDirectionRotated and it.
-                    Vector3 personalizedUpwards = new Vector3(0, 1, 1);
-                    transform.rotation = Quaternion.LookRotation(gravityDirectionRotated.normalized, personalizedUpwards);
-                }
-                else
-                {
-                    cross = new Vector3(1, 0, 0);
-                    gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
-                    //Personalized Upwards to mock cross between gravityDirectionRotated and it.
-                    Vector3 personalizedUpwards = new Vector3(0, 1, -1);
-                    transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, personalizedUpwards);
-                }
+                Vector3 forward = new Vector3(0, -1, 0).normalized;
+                Vector3 upwards = gravityDirection.normalized;
+                transform.rotation = Quaternion.LookRotation(forward, upwards);
             }
             else
             {   //y>0
                 cross = -Vector3.Cross(gravityDirection, pointDirection).normalized;
-                if (cross == Vector3.zero)
+                if(cross==Vector3.zero)
                 {
-                    cross = new Vector3(-1, 0, 0).normalized;
+                    cross = new Vector3(-1, 0, 0);
                 }
+
                 gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
                 transform.rotation = Quaternion.LookRotation(gravityDirectionRotated);
             }
@@ -78,17 +66,15 @@ public class PlayerController : MonoBehaviour {
             if(x == 0 && z == 0)
             {
                 cross = new Vector3(1, 0, 0);
+
                 gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
                 transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, Vector3.down);
             }
             else
             {
                 cross = Vector3.Cross(gravityDirection, pointDirection).normalized;
+
                 gravityDirectionRotated = Vector3.Cross(gravityDirection, cross);
-                if (gravityDirectionRotated==Vector3.zero)
-                {
-                    gravityDirectionRotated = new Vector3(0, -1, 0);
-                }
                 transform.rotation = Quaternion.LookRotation(gravityDirectionRotated, Vector3.down);
             }
         }
@@ -98,7 +84,7 @@ public class PlayerController : MonoBehaviour {
     {
         //Averiguar el angulo a girar para ir recto
         Vector3 referenceDirection = (new Vector3(0, 0, 1) - attractor.transform.position).normalized;
-        Vector3 situatorDirection = new Vector3(transform.position.x, 0, transform.position.z).normalized;
+        Vector3 situatorDirection = new Vector3(transform.position.x, attractor.transform.position.y, transform.position.z).normalized;
         float forwardAngle = Vector3.Angle(referenceDirection, situatorDirection);
         if (situatorDirection == Vector3.zero)
         {
@@ -108,7 +94,7 @@ public class PlayerController : MonoBehaviour {
         float x = transform.position.x;
         float y = transform.position.y;
         float z = transform.position.z;
-        //print("FORWARD ANGLE: " + forwardAngle);
+
         if (y >= 0)
         {
             if (x >= 0)
@@ -122,20 +108,22 @@ public class PlayerController : MonoBehaviour {
         }
         else
         {
+            transform.RotateAround(transform.position, transform.up, 180);
+            referenceDirection = (new Vector3(0, 0, -1) - attractor.transform.position).normalized;
+            forwardAngle = Vector3.Angle(referenceDirection, situatorDirection);
             if (x >= 0)
             {
-                transform.RotateAround(transform.position, transform.up, latestTargetDirection + forwardAngle);
+                transform.RotateAround(transform.position, transform.up, 360 - latestTargetDirection - forwardAngle); //-
             }
             else
             {
-                transform.RotateAround(transform.position, transform.up, latestTargetDirection - forwardAngle);
+                transform.RotateAround(transform.position, transform.up, 360 - latestTargetDirection + forwardAngle); //+
             }
         }
     }
 
 	void Start () {
         animator = GetComponent<Animator>();
-        //controller = GetComponent<CharacterController>();
         collider = GetComponent<CapsuleCollider>();
         rigidbody = GetComponent<Rigidbody>();
         rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
@@ -162,35 +150,19 @@ public class PlayerController : MonoBehaviour {
 
         gravityDirection = (transform.position - attractor.transform.position).normalized;  //Vector3 ..
 
-        //transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
+        PerformGravityRotation();
+        PerformControllerRotation();
+
         //UPDATE TRASLATION
         transform.position += transform.forward * currentSpeed * Time.deltaTime;
         Vector3 velocity = transform.forward * currentSpeed + gravityDirection * velocityY;
 
-        //rigidbody.AddForce(gravityDirection * velocityY);
-
-        //controller.Move(velocity * Time.deltaTime);
-
-        PerformGravityRotation();
-        PerformControllerRotation();
-
-        Vector3 rotationVector1 = transform.localRotation.eulerAngles;  //rotation
-                                                                        //transform.localRotation = Quaternion.Euler(rotationVector1);    //rotation
-        rotationVector1.y = latestTargetDirection;
-        //transform.LookAt(rotationVector1);
-            //Hacer que lookAt mire a un vector que vaya cambiando con el tiempo
-            //Este vector sería normal al mundo (se puede sacar de PerformGravityRotation seguro)
-            //Este vector cambiará dependiendo de latestTargetDirection
+        rigidbody.AddForce(gravityDirection * velocityY);
 
         if (inputDir != Vector2.zero)
         {
             float targetDirection = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg;
             latestTargetDirection = targetDirection;
-            //print("Target direction " + targetDirection);
-
-            //Vector3 rotationVector = transform.rotation.eulerAngles;
-            //rotationVector.y = targetDirection;//Mathf.SmoothDampAngle(transform.eulerAngles.y, targetDirection, ref turnSmoothVelocity, turnSmoothTime);
-            //transform.rotation = Quaternion.Euler(rotationVector);
         }
 
         float animationSpeedPercent = (running ? 1 : 0.5f) * inputDir.magnitude;
@@ -213,10 +185,10 @@ public class PlayerController : MonoBehaviour {
         /*Gizmos.color = Color.red;
         Gizmos.DrawRay(new Vector3(0, 0, 0), gravityDirection*100);
         Gizmos.color = Color.green;
-        Gizmos.DrawRay(new Vector3(0, 0, 0), pointDirection * 100);
+        Gizmos.DrawRay(new Vector3(0, 0, 0), pointDirection * 100);*/
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(new Vector3(0, 0, 0), cross*100);
-        Gizmos.color = Color.yellow;
+        /*Gizmos.color = Color.yellow;
         Gizmos.DrawRay(new Vector3(0, 0, 0), gravityDirectionRotated * 100);*/
     }
 }
