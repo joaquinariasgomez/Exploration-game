@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
 
     public CubeSphere attractor;
-    public float walkSpeed = 2;
+    public float walkSpeed = 3;
     public float runSpeed = 6;
     public float gravity = -9.8f;
 
@@ -22,7 +22,6 @@ public class PlayerController : MonoBehaviour {
     private Vector3 cross;
     private Vector3 pointDirection;
 
-    //Test
     private float latestTargetDirection = 0.0f;
 
     float distToGround;
@@ -122,7 +121,8 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-	void Start () {
+    public void Initialize()
+    {
         animator = GetComponent<Animator>();
         collider = GetComponent<CapsuleCollider>();
         rigidbody = GetComponent<Rigidbody>();
@@ -132,12 +132,57 @@ public class PlayerController : MonoBehaviour {
         distToGround = collider.bounds.extents.y;
     }
 
+    public void Move(float direction, bool running, bool move)      //If move equals false, it will stop
+    {
+        float targetSpeed = running ? runSpeed : walkSpeed;
+        currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, speedSmoothTime);
+
+        gravityDirection = (transform.position - attractor.transform.position).normalized;  //Vector3 ..
+
+        //PERFORM ROTATIONS
+        PerformGravityRotation();
+        if(move) { PerformControllerRotation(); }
+
+        //UPDATE HORIZONTAL TRANSLATION
+        if(move) { transform.position += transform.forward * currentSpeed * Time.deltaTime; }
+        //UPDATE VERTICAL TRANSLATION
+        velocityY += Time.deltaTime * gravity;
+        rigidbody.AddForce(gravityDirection * velocityY);
+
+        if (move)
+        {
+            float targetDirection = direction;
+            latestTargetDirection = targetDirection;
+            float animationSpeedPercent = running ? 1 : 0.5f;
+            animator.SetFloat("speedPercent", animationSpeedPercent, speedSmoothTime, Time.deltaTime);
+        }
+        else
+        {
+            animator.SetFloat("speedPercent", 0f, speedSmoothTime, Time.deltaTime);
+        }
+
+        if (isGrounded())
+        {
+            velocityY = 0;
+        }
+    }
+
+	/*void Start () {
+        animator = GetComponent<Animator>();
+        collider = GetComponent<CapsuleCollider>();
+        rigidbody = GetComponent<Rigidbody>();
+        rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+        rigidbody.useGravity = false;
+
+        distToGround = collider.bounds.extents.y;
+    }*/
+
     bool isGrounded()
     {
         return Physics.Raycast(transform.position, -Vector3.up, distToGround + 0.1f);
     }
 
-    void Update()
+    /*void Update()
     {
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         Vector2 inputDir = input.normalized;
@@ -155,7 +200,7 @@ public class PlayerController : MonoBehaviour {
 
         //UPDATE TRASLATION
         transform.position += transform.forward * currentSpeed * Time.deltaTime;
-        Vector3 velocity = transform.forward * currentSpeed + gravityDirection * velocityY;
+        //Vector3 velocity = transform.forward * currentSpeed + gravityDirection * velocityY;
 
         rigidbody.AddForce(gravityDirection * velocityY);
 
@@ -171,24 +216,24 @@ public class PlayerController : MonoBehaviour {
         if (isGrounded())
         {
             velocityY = 0;
-        }
+        }*/
 
         //Character standing on the ground
         /*if (controller.isGrounded)
         {
             velocityY = 0;
-        }*/
-    }
+        }
+    }*/
 
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
-        /*Gizmos.color = Color.red;
+        Gizmos.color = Color.red;
         Gizmos.DrawRay(new Vector3(0, 0, 0), gravityDirection*100);
         Gizmos.color = Color.green;
-        Gizmos.DrawRay(new Vector3(0, 0, 0), pointDirection * 100);*/
+        Gizmos.DrawRay(new Vector3(0, 0, 0), pointDirection * 100);
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(new Vector3(0, 0, 0), cross*100);
-        /*Gizmos.color = Color.yellow;
-        Gizmos.DrawRay(new Vector3(0, 0, 0), gravityDirectionRotated * 100);*/
-    }
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawRay(new Vector3(0, 0, 0), gravityDirectionRotated * 100);
+    }*/
 }

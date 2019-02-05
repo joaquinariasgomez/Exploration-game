@@ -340,6 +340,47 @@ Transform:
   m_Father: {fileID: 1611478667}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &411203582
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 411203584}
+  - component: {fileID: 411203583}
+  m_Layer: 0
+  m_Name: PSOController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &411203583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 411203582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f872bb7f5560f684c9d0b9b94c42e340, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  astronaut: {fileID: 1735169016}
+--- !u!4 &411203584
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 411203582}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -101.25935, y: 214.71782, z: 72.4086}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &578843119
 GameObject:
   m_ObjectHideFlags: 0
@@ -445,12 +486,12 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 620806360}
-  m_LocalRotation: {x: -0.06627396, y: -0, z: 0, w: -0.99780154}
-  m_LocalPosition: {x: 0, y: 23.5, z: -50}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalRotation: {x: -0.06627396, y: -0, z: -0, w: -0.99780154}
+  m_LocalPosition: {x: 0, y: 2.350006, z: -102.1}
+  m_LocalScale: {x: 0.2, y: 0.20000003, z: 0.20000003}
   m_Children: []
-  m_Father: {fileID: 1735169020}
-  m_RootOrder: 3
+  m_Father: {fileID: 1736508242}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 172.4, y: -180, z: 180}
 --- !u!1 &683323036
 GameObject:
@@ -480,7 +521,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1735169020}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &683323038
 MeshRenderer:
@@ -867,7 +908,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51691b5b6b28a9a42a9874ac6886b634, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: 400
+  gridSize: 40
   gravity: -9.8
   regions:
   - name: region1
@@ -943,7 +984,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 220
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1261,7 +1302,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 220, z: 97.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 620806364}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
