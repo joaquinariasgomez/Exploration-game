@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour {
     float speedSmoothVelocity;
     float currentSpeed;
     float velocityY;
+    //private float trajectory;
 
     private Vector3 gravityDirection;
     private Vector3 gravityDirectionRotated;
@@ -23,6 +24,18 @@ public class PlayerController : MonoBehaviour {
     private Vector3 pointDirection;
 
     private float latestTargetDirection = 0.0f;
+
+    //STUCK
+    private float secondsCounter = 0;
+    private float secondsToCount = 0.5f;
+    private float latestX = 0f;
+    private float latestZ = 0f;
+    //END_STUCK
+
+    //PSO
+    private float trajectory;
+
+    //END_PSO
 
     float distToGround;
 
@@ -132,8 +145,57 @@ public class PlayerController : MonoBehaviour {
         distToGround = collider.bounds.extents.y;
     }
 
-    public void Move(float direction, bool running, bool move)      //If move equals false, it will stop
+    public void SetInPlace(float x, float z, float angle)
     {
+        float radius = (float)attractor.gridSize / 2f + 15f;
+        transform.Translate(new Vector3(x, radius, z));
+        transform.RotateAround(transform.position, transform.up, angle);
+        trajectory = angle;
+        //STUCK
+        latestX = transform.position.x;
+        latestZ = transform.position.z;
+    }
+
+    private bool TransformHasNotChanged()
+    {
+        float currentX = transform.position.x;
+        float currentZ = transform.position.z;
+        float distanceTravelled = Mathf.Sqrt(Mathf.Pow(currentX-latestX, 2) + Mathf.Pow(currentZ-latestZ, 2));
+        latestX = currentX;
+        latestZ = currentZ;
+        if(distanceTravelled <= 0.1f)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private bool ItIsStuck()
+    {
+        bool stuck = false;
+        secondsCounter += Time.deltaTime;
+        if (secondsCounter > secondsToCount)
+        {
+            secondsCounter = 0;
+            //DO THINGS EVERY secondsToCount SECONDS
+            if(TransformHasNotChanged())
+            {
+                stuck = true;
+            }
+        }
+        return stuck;
+    }
+
+    public void Move(bool running, bool move)      //If move equals false, it will stop
+    {
+        //CHECK IF IT IS STUCK
+        if(ItIsStuck() && move) {
+            trajectory += 180;  //Media vuelta
+        }
+
         float targetSpeed = running ? runSpeed : walkSpeed;
         currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, speedSmoothTime);
 
@@ -151,7 +213,7 @@ public class PlayerController : MonoBehaviour {
 
         if (move)
         {
-            float targetDirection = direction;
+            float targetDirection = trajectory;
             latestTargetDirection = targetDirection;
             float animationSpeedPercent = running ? 1 : 0.5f;
             animator.SetFloat("speedPercent", animationSpeedPercent, speedSmoothTime, Time.deltaTime);
