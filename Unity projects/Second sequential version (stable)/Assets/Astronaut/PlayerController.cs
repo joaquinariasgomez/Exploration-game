@@ -251,11 +251,25 @@ public class PlayerController : MonoBehaviour {
             float leftAngle = Vector3.Angle(-transform.right, projectedDestination);
             if (rightAngle > leftAngle)
             {
-                trajectory -= angle;
+                if (transform.position.y >= 0)
+                {
+                    trajectory -= angle;
+                }
+                else
+                {
+                    trajectory += angle;
+                }
             }
             else
             {
-                trajectory += angle;
+                if (transform.position.y >= 0)
+                {
+                    trajectory += angle;
+                }
+                else
+                {
+                    trajectory -= angle;
+                }
             }
         }
     }
