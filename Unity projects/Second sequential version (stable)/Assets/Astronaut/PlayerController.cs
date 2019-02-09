@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour {
     public CubeSphere attractor;
     public float walkSpeed = 3;
     public float runSpeed = 6;
-    public float gravity = -9.8f;
+    private float gravity = 9.8f;
 
     public float turnSmoothTime = 0.2f;
     float turnSmoothVelocity;
@@ -15,7 +15,8 @@ public class PlayerController : MonoBehaviour {
     public float speedSmoothTime = 0.1f;
     float speedSmoothVelocity;
     float currentSpeed;
-    float velocityY;
+    float maxVelocityCteY = 3f;
+    float velocityCteY;
     //private float trajectory;
 
     private Vector3 gravityDirection;
@@ -24,20 +25,35 @@ public class PlayerController : MonoBehaviour {
     private Vector3 pointDirection;
 
     private float latestTargetDirection = 0.0f;
+    private int id;
 
     //STUCK
-    private float secondsCounter = 0;
+    private float secondsCounter = 0f;
     private float secondsToCount = 0.5f;
     private float latestX = 0f;
+    private float latestY = 0f;
     private float latestZ = 0f;
     //END_STUCK
 
     //PSO
-    private float trajectory;
+    public float trajectory;
+    public float personalBestScore;
+    public Vector3 personalBestPosition;
+    public float globalBestScore;
+    public Vector3 globalBestPosition;
 
+    public Vector3 directionToGlobal;
+    public Vector3 directionToPersonal;
+    public Vector3 destination;
+    public Vector3 projectedDestination;
+
+    private float Wcurrent;
+    private float c1;
+    private float c2;
     //END_PSO
 
     float distToGround;
+    bool setted = false;
 
     Animator animator;
     //CharacterController controller;
@@ -134,8 +150,9 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    public void Initialize()
+    public void Initialize(int id)
     {
+        this.id = id;
         animator = GetComponent<Animator>();
         collider = GetComponent<CapsuleCollider>();
         rigidbody = GetComponent<Rigidbody>();
@@ -143,34 +160,33 @@ public class PlayerController : MonoBehaviour {
         rigidbody.useGravity = false;
 
         distToGround = collider.bounds.extents.y;
+        personalBestScore = 0f;
+        personalBestPosition = new Vector3(0, 0, 0);    //No tener en cuenta si personalBestScore es 0f
+        velocityCteY = maxVelocityCteY;
     }
 
     public void SetInPlace(float x, float z, float angle)
     {
-        float radius = (float)attractor.gridSize / 2f + 15f;
+        float radius = (float)attractor.gridSize / 2f + CubeSphere.heightMultiplier;
         transform.Translate(new Vector3(x, radius, z));
         transform.RotateAround(transform.position, transform.up, angle);
         trajectory = angle;
         //STUCK
         latestX = transform.position.x;
         latestZ = transform.position.z;
+        setted = true;
     }
 
     private bool TransformHasNotChanged()
     {
         float currentX = transform.position.x;
+        float currentY = transform.position.y;
         float currentZ = transform.position.z;
-        float distanceTravelled = Mathf.Sqrt(Mathf.Pow(currentX-latestX, 2) + Mathf.Pow(currentZ-latestZ, 2));
+        float distanceTravelled = Mathf.Sqrt(Mathf.Pow(currentX-latestX, 2) + Mathf.Pow(currentY - latestY, 2) + Mathf.Pow(currentZ-latestZ, 2));
         latestX = currentX;
+        latestY = currentY;
         latestZ = currentZ;
-        if(distanceTravelled <= 0.1f)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return distanceTravelled <= 0.1f;
     }
 
     private bool ItIsStuck()
@@ -189,9 +205,64 @@ public class PlayerController : MonoBehaviour {
         return stuck;
     }
 
+    public void UpdatePersonalScore()
+    {
+        if(isGrounded())
+        {
+            float actualScore = Vector3.Distance(attractor.transform.position, transform.position);
+            if (actualScore > personalBestScore)
+            {
+                personalBestScore = actualScore;
+                personalBestPosition = transform.position;
+            }
+        }
+    }
+
+    public void UpdateGlobalScore(float globalBestScore, Vector3 globalBestPosition)
+    {
+        this.globalBestScore = globalBestScore;
+        this.globalBestPosition = globalBestPosition;
+    }
+
+    public void UpdateTrajectory(float Wcurrent, float c1, float c2)
+    {
+        //Update weights
+        this.Wcurrent = Wcurrent;
+        this.c1 = c1;
+        this.c2 = c2;
+        print(Wcurrent);
+
+        //Update direction vectors
+        /*directionToGlobal = (globalBestPosition - transform.position).normalized;
+        directionToPersonal = (personalBestPosition - transform.position).normalized;
+        destination = transform.forward + directionToGlobal + directionToPersonal;
+        projectedDestination = Vector3.ProjectOnPlane(destination, transform.up).normalized;*/
+        directionToGlobal = (globalBestPosition - transform.position).normalized;
+        directionToPersonal = (personalBestPosition - transform.position).normalized;
+        destination = Wcurrent * transform.forward + c1 * directionToPersonal + c2 * directionToGlobal;
+        projectedDestination = Vector3.ProjectOnPlane(destination, transform.up);
+
+        //Update trajectory
+        float angle = Vector3.Angle(transform.forward, projectedDestination);
+        if (isGrounded())
+        {
+            //- => Izquierda
+            float rightAngle = Vector3.Angle(transform.right, projectedDestination);
+            float leftAngle = Vector3.Angle(-transform.right, projectedDestination);
+            if (rightAngle > leftAngle)
+            {
+                trajectory -= angle;
+            }
+            else
+            {
+                trajectory += angle;
+            }
+        }
+    }
+
     public void Move(bool running, bool move)      //If move equals false, it will stop
     {
-        //CHECK IF IT IS STUCK
+        //CHECK IF IT IS STUCK AND ITS ALSO MOVING
         if(ItIsStuck() && move) {
             trajectory += 180;  //Media vuelta
         }
@@ -206,15 +277,16 @@ public class PlayerController : MonoBehaviour {
         if(move) { PerformControllerRotation(); }
 
         //UPDATE HORIZONTAL TRANSLATION
-        if(move) { transform.position += transform.forward * currentSpeed * Time.deltaTime; }
+        if(move && isGrounded()) { transform.position += transform.forward * currentSpeed * Time.deltaTime; }
         //UPDATE VERTICAL TRANSLATION
-        velocityY += Time.deltaTime * gravity;
-        rigidbody.AddForce(gravityDirection * velocityY);
+        //velocityY += Time.deltaTime * gravity;
+        rigidbody.AddForce(-gravityDirection * velocityCteY);
 
-        if (move)
+        float targetDirection = trajectory;
+        latestTargetDirection = targetDirection;
+
+        if (move && isGrounded())
         {
-            float targetDirection = trajectory;
-            latestTargetDirection = targetDirection;
             float animationSpeedPercent = running ? 1 : 0.5f;
             animator.SetFloat("speedPercent", animationSpeedPercent, speedSmoothTime, Time.deltaTime);
         }
@@ -225,77 +297,45 @@ public class PlayerController : MonoBehaviour {
 
         if (isGrounded())
         {
-            velocityY = 0;
+            velocityCteY = 0;
+        }
+        else
+        {
+            velocityCteY = maxVelocityCteY;
         }
     }
-
-	/*void Start () {
-        animator = GetComponent<Animator>();
-        collider = GetComponent<CapsuleCollider>();
-        rigidbody = GetComponent<Rigidbody>();
-        rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-        rigidbody.useGravity = false;
-
-        distToGround = collider.bounds.extents.y;
-    }*/
 
     bool isGrounded()
     {
-        return Physics.Raycast(transform.position, -Vector3.up, distToGround + 0.1f);
+        return Physics.Raycast(collider.bounds.center, -gravityDirection, distToGround + distToGround / 4);
     }
 
-    /*void Update()
+    private void OnDrawGizmos()
     {
-        Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        Vector2 inputDir = input.normalized;
-
-        bool running = Input.GetKey(KeyCode.LeftShift);     //Shift izquierdo para correr
-        float targetSpeed = (running ? runSpeed : walkSpeed) * inputDir.magnitude;
-        currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, speedSmoothTime);
-
-        velocityY += Time.deltaTime * gravity;
-
-        gravityDirection = (transform.position - attractor.transform.position).normalized;  //Vector3 ..
-
-        PerformGravityRotation();
-        PerformControllerRotation();
-
-        //UPDATE TRASLATION
-        transform.position += transform.forward * currentSpeed * Time.deltaTime;
-        //Vector3 velocity = transform.forward * currentSpeed + gravityDirection * velocityY;
-
-        rigidbody.AddForce(gravityDirection * velocityY);
-
-        if (inputDir != Vector2.zero)
+        
+        Gizmos.color = Color.black;
+        if(setted)
         {
-            float targetDirection = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg;
-            latestTargetDirection = targetDirection;
+            Gizmos.DrawSphere(personalBestPosition, 0.5f);
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(globalBestPosition, 0.7f);
         }
-
-        float animationSpeedPercent = (running ? 1 : 0.5f) * inputDir.magnitude;
-        animator.SetFloat("speedPercent", animationSpeedPercent, speedSmoothTime, Time.deltaTime);
-
-        if (isGrounded())
-        {
-            velocityY = 0;
-        }*/
-
-        //Character standing on the ground
-        /*if (controller.isGrounded)
-        {
-            velocityY = 0;
-        }
-    }*/
-
-    /*private void OnDrawGizmos()
-    {
+        
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawRay(transform.position, directionToGlobal * c2);
+        Gizmos.color = Color.black;
+        Gizmos.DrawRay(transform.position, directionToPersonal * c1);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(transform.position, transform.forward * Wcurrent);
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(new Vector3(0, 0, 0), gravityDirection*100);
+        Gizmos.DrawRay(transform.position, destination);
         Gizmos.color = Color.green;
+        Gizmos.DrawRay(transform.position, projectedDestination);
+        /*Gizmos.color = Color.green;
         Gizmos.DrawRay(new Vector3(0, 0, 0), pointDirection * 100);
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(new Vector3(0, 0, 0), cross*100);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawRay(new Vector3(0, 0, 0), gravityDirectionRotated * 100);
-    }*/
+        Gizmos.DrawRay(new Vector3(0, 0, 0), gravityDirectionRotated * 100);*/
+    }
 }

@@ -211,7 +211,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 205321650}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.96, y: -1.4216919, z: 0.96}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 578843120}
@@ -405,7 +405,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 210234959}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 544.3617, y: 296.05542, z: 354.5842}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5117159, y: 0.5117159, z: 0.5117159}
   m_Children: []
   m_Father: {fileID: 1611478667}
@@ -421,7 +421,7 @@ GameObject:
   - component: {fileID: 411203584}
   - component: {fileID: 411203583}
   m_Layer: 0
-  m_Name: PSOController
+  m_Name: AntronautController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -482,9 +482,17 @@ MonoBehaviour:
   attractor: {fileID: 1339366652}
   walkSpeed: 3
   runSpeed: 6
-  gravity: -20
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  trajectory: 0
+  personalBestScore: 0
+  personalBestPosition: {x: 0, y: 0, z: 0}
+  globalBestScore: 0
+  globalBestPosition: {x: 0, y: 0, z: 0}
+  directionToGlobal: {x: 0, y: 0, z: 0}
+  directionToPersonal: {x: 0, y: 0, z: 0}
+  destination: {x: 0, y: 0, z: 0}
+  projectedDestination: {x: 0, y: 0, z: 0}
 --- !u!114 &467501369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -544,7 +552,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.67
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.y
@@ -552,7 +560,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -6.15
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalRotation.x
@@ -631,7 +639,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 578843119}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.32416406, y: 222.6617, z: 2.3211281}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 205321651}
@@ -730,7 +738,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.48
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.y
@@ -738,7 +746,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalRotation.x
@@ -875,7 +883,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.y
@@ -883,7 +891,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.53
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalRotation.x
@@ -1048,7 +1056,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 739836650}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 542.1417, y: 296.05542, z: 359.0142}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5117159, y: 0.5117159, z: 0.5117159}
   m_Children: []
   m_Father: {fileID: 1611478667}
@@ -1063,7 +1071,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.76
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1071,7 +1079,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.8
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalRotation.x
@@ -1150,9 +1158,17 @@ MonoBehaviour:
   attractor: {fileID: 1339366652}
   walkSpeed: 3
   runSpeed: 6
-  gravity: -20
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  trajectory: 0
+  personalBestScore: 0
+  personalBestPosition: {x: 0, y: 0, z: 0}
+  globalBestScore: 0
+  globalBestPosition: {x: 0, y: 0, z: 0}
+  directionToGlobal: {x: 0, y: 0, z: 0}
+  directionToPersonal: {x: 0, y: 0, z: 0}
+  destination: {x: 0, y: 0, z: 0}
+  projectedDestination: {x: 0, y: 0, z: 0}
 --- !u!114 &803664064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1230,7 +1246,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 818564231}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5.56, y: -1.4216919, z: 1.77}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 578843120}
@@ -1409,9 +1425,17 @@ MonoBehaviour:
   attractor: {fileID: 1339366652}
   walkSpeed: 3
   runSpeed: 6
-  gravity: -20
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  trajectory: 0
+  personalBestScore: 0
+  personalBestPosition: {x: 0, y: 0, z: 0}
+  globalBestScore: 0
+  globalBestPosition: {x: 0, y: 0, z: 0}
+  directionToGlobal: {x: 0, y: 0, z: 0}
+  directionToPersonal: {x: 0, y: 0, z: 0}
+  destination: {x: 0, y: 0, z: 0}
+  projectedDestination: {x: 0, y: 0, z: 0}
 --- !u!114 &969685387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1471,7 +1495,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.51
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1479,7 +1503,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalRotation.x
@@ -1565,8 +1589,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orbitingObject: {fileID: 2140928269}
   orbitPath:
-    xAxis: 300
-    yAxis: 220
+    xAxis: 1000
+    yAxis: 700
   orbitProgress: 0
   orbitPeriod: 10000
   orbitActive: 1
@@ -1664,7 +1688,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.24
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1672,7 +1696,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.24
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalRotation.x
@@ -1905,7 +1929,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51691b5b6b28a9a42a9874ac6886b634, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: 20
+  gridSize: 100
   gravity: -9.8
   regions:
   - name: region1
@@ -1990,9 +2014,17 @@ MonoBehaviour:
   attractor: {fileID: 1339366652}
   walkSpeed: 3
   runSpeed: 6
-  gravity: -20
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  trajectory: 0
+  personalBestScore: 0
+  personalBestPosition: {x: 0, y: 0, z: 0}
+  globalBestScore: 0
+  globalBestPosition: {x: 0, y: 0, z: 0}
+  directionToGlobal: {x: 0, y: 0, z: 0}
+  directionToPersonal: {x: 0, y: 0, z: 0}
+  destination: {x: 0, y: 0, z: 0}
+  projectedDestination: {x: 0, y: 0, z: 0}
 --- !u!114 &1392822239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2052,7 +2084,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.6086636
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2060,7 +2092,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.7773051
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalRotation.x
@@ -2275,7 +2307,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1611478666}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -534.2617, y: -76.055435, z: -351.6842}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 210234965}
@@ -2294,7 +2326,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2302,7 +2334,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.02
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalRotation.x
@@ -2381,9 +2413,17 @@ MonoBehaviour:
   attractor: {fileID: 1339366652}
   walkSpeed: 3
   runSpeed: 6
-  gravity: -20
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  trajectory: 0
+  personalBestScore: 0
+  personalBestPosition: {x: 0, y: 0, z: 0}
+  globalBestScore: 0
+  globalBestPosition: {x: 0, y: 0, z: 0}
+  directionToGlobal: {x: 0, y: 0, z: 0}
+  directionToPersonal: {x: 0, y: 0, z: 0}
+  destination: {x: 0, y: 0, z: 0}
+  projectedDestination: {x: 0, y: 0, z: 0}
 --- !u!114 &1710232645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2489,9 +2529,17 @@ MonoBehaviour:
   attractor: {fileID: 1339366652}
   walkSpeed: 3
   runSpeed: 6
-  gravity: -20
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  trajectory: 0
+  personalBestScore: 0
+  personalBestPosition: {x: 0, y: 0, z: 0}
+  globalBestScore: 0
+  globalBestPosition: {x: 0, y: 0, z: 0}
+  directionToGlobal: {x: 0, y: 0, z: 0}
+  directionToPersonal: {x: 0, y: 0, z: 0}
+  destination: {x: 0, y: 0, z: 0}
+  projectedDestination: {x: 0, y: 0, z: 0}
 --- !u!4 &1735169020 stripped
 Transform:
   m_PrefabParentObject: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
@@ -2742,9 +2790,17 @@ MonoBehaviour:
   attractor: {fileID: 1339366652}
   walkSpeed: 3
   runSpeed: 6
-  gravity: -20
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  trajectory: 0
+  personalBestScore: 0
+  personalBestPosition: {x: 0, y: 0, z: 0}
+  globalBestScore: 0
+  globalBestPosition: {x: 0, y: 0, z: 0}
+  directionToGlobal: {x: 0, y: 0, z: 0}
+  directionToPersonal: {x: 0, y: 0, z: 0}
+  destination: {x: 0, y: 0, z: 0}
+  projectedDestination: {x: 0, y: 0, z: 0}
 --- !u!114 &1830797019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2903,7 +2959,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2000114426}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 536.8917, y: 296.05542, z: 345.7442}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5117159, y: 0.5117159, z: 0.5117159}
   m_Children: []
   m_Father: {fileID: 1611478667}
@@ -2936,7 +2992,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2024616628}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.31916407, y: -1.4216919, z: 1.3218718}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 578843120}
@@ -3130,7 +3186,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2053243645}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 530.6117, y: 296.05542, z: 354.5142}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5117159, y: 0.5117159, z: 0.5117159}
   m_Children: []
   m_Father: {fileID: 1611478667}
@@ -3158,9 +3214,17 @@ MonoBehaviour:
   attractor: {fileID: 1339366652}
   walkSpeed: 3
   runSpeed: 6
-  gravity: -20
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  trajectory: 0
+  personalBestScore: 0
+  personalBestPosition: {x: 0, y: 0, z: 0}
+  globalBestScore: 0
+  globalBestPosition: {x: 0, y: 0, z: 0}
+  directionToGlobal: {x: 0, y: 0, z: 0}
+  directionToPersonal: {x: 0, y: 0, z: 0}
+  destination: {x: 0, y: 0, z: 0}
+  projectedDestination: {x: 0, y: 0, z: 0}
 --- !u!114 &2133979771
 MonoBehaviour:
   m_ObjectHideFlags: 0
