@@ -15,9 +15,10 @@ public class PlayerController : MonoBehaviour {
     public float speedSmoothTime = 0.1f;
     float speedSmoothVelocity;
     float currentSpeed;
-    float maxVelocityCteY = 3f;
+    float maxVelocityCteY = 5f;
     float velocityCteY;
-    //private float trajectory;
+    bool running;
+    bool move;
 
     private Vector3 gravityDirection;
     private Vector3 gravityDirectionRotated;
@@ -37,6 +38,7 @@ public class PlayerController : MonoBehaviour {
 
     //PSO
     public float trajectory;
+    private float actualScore;
     public float personalBestScore;
     public Vector3 personalBestPosition;
     public float globalBestScore;
@@ -51,6 +53,11 @@ public class PlayerController : MonoBehaviour {
     private float c1;
     private float c2;
     //END_PSO
+
+    //LOGS
+    FileWriter actualScoreLogs;
+    FileWriter personalBestScoreLogs;
+    //END LOGS
 
     float distToGround;
     bool setted = false;
@@ -163,6 +170,13 @@ public class PlayerController : MonoBehaviour {
         personalBestScore = 0f;
         personalBestPosition = new Vector3(0, 0, 0);    //No tener en cuenta si personalBestScore es 0f
         velocityCteY = maxVelocityCteY;
+        this.move = true;
+
+        actualScore = attractor.gridSize / 2f;  //Minimum score
+
+        //FileWriter
+        actualScoreLogs = new FileWriter("Assets/Logs/Astronaut_" + this.id + "ActualScore.txt");
+        personalBestScoreLogs = new FileWriter("Assets/Logs/Astronaut_" + this.id + "PersonalBestScore.txt");
     }
 
     public void SetInPlace(float x, float z, float angle)
@@ -209,7 +223,7 @@ public class PlayerController : MonoBehaviour {
     {
         if(isGrounded())
         {
-            float actualScore = Vector3.Distance(attractor.transform.position, transform.position);
+            actualScore = Vector3.Distance(attractor.transform.position, transform.position);
             if (actualScore > personalBestScore)
             {
                 personalBestScore = actualScore;
@@ -222,6 +236,10 @@ public class PlayerController : MonoBehaviour {
     {
         this.globalBestScore = globalBestScore;
         this.globalBestPosition = globalBestPosition;
+
+        //Logs
+        actualScoreLogs.Write(actualScore);
+        personalBestScoreLogs.Write(personalBestScore);
     }
 
     public void UpdateTrajectory(float Wcurrent, float c1, float c2)
@@ -230,16 +248,15 @@ public class PlayerController : MonoBehaviour {
         this.Wcurrent = Wcurrent;
         this.c1 = c1;
         this.c2 = c2;
+
         print(Wcurrent);
 
         //Update direction vectors
-        /*directionToGlobal = (globalBestPosition - transform.position).normalized;
-        directionToPersonal = (personalBestPosition - transform.position).normalized;
-        destination = transform.forward + directionToGlobal + directionToPersonal;
-        projectedDestination = Vector3.ProjectOnPlane(destination, transform.up).normalized;*/
+        float r1 = Random.Range(1f, 1.5f);
+        float r2 = Random.Range(1f, 1.5f);
         directionToGlobal = (globalBestPosition - transform.position).normalized;
         directionToPersonal = (personalBestPosition - transform.position).normalized;
-        destination = Wcurrent * transform.forward + c1 * directionToPersonal + c2 * directionToGlobal;
+        destination = Wcurrent * transform.forward + r1 * c1 * directionToPersonal + r2 * c2 * directionToGlobal;
         projectedDestination = Vector3.ProjectOnPlane(destination, transform.up);
 
         //Update trajectory
@@ -274,14 +291,16 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    public void Move(bool running, bool move)      //If move equals false, it will stop
+    public void Move()      //If move equals false, it will stop
     {
         //CHECK IF IT IS STUCK AND ITS ALSO MOVING
         if(ItIsStuck() && move) {
             trajectory += 180;  //Media vuelta
         }
 
-        float targetSpeed = running ? runSpeed : walkSpeed;
+        float targetSpeed = (projectedDestination.magnitude > walkSpeed) ? runSpeed : walkSpeed;
+        running = (targetSpeed==runSpeed);
+
         currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, speedSmoothTime);
 
         gravityDirection = (transform.position - attractor.transform.position).normalized;  //Vector3 ..
@@ -293,7 +312,6 @@ public class PlayerController : MonoBehaviour {
         //UPDATE HORIZONTAL TRANSLATION
         if(move && isGrounded()) { transform.position += transform.forward * currentSpeed * Time.deltaTime; }
         //UPDATE VERTICAL TRANSLATION
-        //velocityY += Time.deltaTime * gravity;
         rigidbody.AddForce(-gravityDirection * velocityCteY);
 
         float targetDirection = trajectory;
@@ -319,6 +337,30 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    public void Stop()
+    {
+        this.move = false;
+        animator.SetFloat("speedPercent", 0f, speedSmoothTime, Time.deltaTime);
+
+        gravityDirection = (transform.position - attractor.transform.position).normalized;
+        //PERFORM ROTATIONS
+        PerformGravityRotation();
+        rigidbody.AddForce(-gravityDirection * velocityCteY);
+
+        if (isGrounded())
+        {
+            velocityCteY = 0;
+        }
+        else
+        {
+            velocityCteY = maxVelocityCteY;
+        }
+
+        //Logs
+        this.actualScoreLogs.End();
+        this.personalBestScoreLogs.End();
+    }
+
     bool isGrounded()
     {
         return Physics.Raycast(collider.bounds.center, -gravityDirection, distToGround + distToGround / 4);
@@ -327,7 +369,7 @@ public class PlayerController : MonoBehaviour {
     private void OnDrawGizmos()
     {
         
-        Gizmos.color = Color.black;
+        /*Gizmos.color = Color.black;
         if(setted)
         {
             Gizmos.DrawSphere(personalBestPosition, 0.5f);
@@ -335,7 +377,7 @@ public class PlayerController : MonoBehaviour {
             Gizmos.DrawSphere(globalBestPosition, 0.7f);
         }
         
-        Gizmos.color = Color.yellow;
+        /*Gizmos.color = Color.yellow;
         Gizmos.DrawRay(transform.position, directionToGlobal * c2);
         Gizmos.color = Color.black;
         Gizmos.DrawRay(transform.position, directionToPersonal * c1);

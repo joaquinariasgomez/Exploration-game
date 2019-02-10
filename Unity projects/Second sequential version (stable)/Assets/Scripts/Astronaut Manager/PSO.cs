@@ -11,10 +11,17 @@ public class PSO
     private float Wmin;
     private float Wmax;
     private float Wcurrent;
+    private float magicNumber;
     private float c1;
     private float c2;
 
-    private float rate = 0.5f;
+    private float caida = 0.15f;
+    private int iteration = 1;
+
+    //LOGS
+    FileWriter globalBestScoreLogs;
+    FileWriter testLog;
+    //END LOGS
 
     public PSO(List<PlayerController> astronautControllers, float Wmin, float Wmax, float c1, float c2)
     {
@@ -24,8 +31,12 @@ public class PSO
         this.Wcurrent = Wmax;
         this.c1 = c1;
         this.c2 = c2;
-        globalBestScore = 0f;
+        globalBestScore = astronautControllers[0].attractor.gridSize / 2f;  //Minimum best score
         globalBestPosition = Vector3.zero;
+
+        //FileWriter
+        globalBestScoreLogs = new FileWriter("Assets/Logs/GlobalBestScore.txt");
+        testLog = new FileWriter("Assets/Logs/testLog.txt");
     }
 
     private void UpdateGlobalScore()
@@ -39,6 +50,8 @@ public class PSO
             }
             controller.UpdateGlobalScore(globalBestScore, globalBestPosition);
         }
+        //Logs
+        globalBestScoreLogs.Write(globalBestScore);
     }
 
     private void UpdateTrajectory(float Wcurrent, float c1, float c2)
@@ -53,23 +66,51 @@ public class PSO
     {
         if(Wcurrent > Wmin)
         {
-            Wcurrent -= this.rate;
-            if(Wcurrent <= 0)
+            Wcurrent -= this.caida;
+            if(Wcurrent < Wmin)
             {
                 Wcurrent = Wmin;
             }
         }
+        magicNumber = Wcurrent;//Mathf.Log(iteration, 24);      //Después de 2870 iteraciones llega a casi 6
+        //TestLog
+        testLog.Write(this.caida);
+        float caida_variable = this.caida - 0.005f;
+        if(caida_variable>=0f)
+        {
+            this.caida = caida_variable;
+        }
     }
 
-    public void UpdateAstronauts()
+    private void Stop()
     {
         foreach (PlayerController controller in astronautControllers)
         {
-            controller.Move(false, true);
-            controller.UpdatePersonalScore();
+            controller.Stop();
         }
-        UpdateGlobalScore();
-        UpdateTrajectory(Wcurrent, c1, c2);
-        UpdateWeights();
+        //Logs
+        globalBestScoreLogs.End();
+        testLog.End();
+    }
+
+    //Main loop
+    public void UpdateAstronauts()
+    {
+        if(Wcurrent <= Wmin)
+        {
+            Stop();
+        }
+        else
+        {
+            foreach (PlayerController controller in astronautControllers)
+            {
+                controller.Move();
+                controller.UpdatePersonalScore();
+            }
+            UpdateGlobalScore();
+            UpdateTrajectory(Wcurrent, c1, c2);
+            UpdateWeights();
+            ++iteration;
+        }
     }
 }

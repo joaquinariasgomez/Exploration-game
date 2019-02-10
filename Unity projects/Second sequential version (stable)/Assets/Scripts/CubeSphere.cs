@@ -16,13 +16,13 @@ public class CubeSphere : MonoBehaviour
     private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;    //Global
     private float radius;
     private static int sqrtChunksPerFace = 5;     //25 - 5
-    public static float heightMultiplier = 10;     //20
+    public static float heightMultiplier = 12;     //20
     private static int id = 0;
 
     private static Dictionary<string, float[,]> noiseMaps=new Dictionary<string, float[,]>();  //Face, noiseMap
     private static Dictionary<string, string> faceMap = new Dictionary<string, string>();
     private static Color[] colourMap;
-    private static int seed = 2048; //2048
+    private static int seed = 512; //2048
     private static float scale = 30f;
     private static int octaves = 4;
     private static float persistance = 0.36f;
