@@ -26,22 +26,13 @@ public class AstronautManager : MonoBehaviour {
         }
 
         SetAstronautsInPlace();
-        InitPSO();
-    }
-
-    void InitPSO()
-    {
-        float Wmin = 0.4f;
-        float Wmax = 4f;
-        float c1 = 2f;  //Personal
-        float c2 = 2f;  //Global
-        pso = new PSO(astronautControllers, Wmin, Wmax, c1, c2);
+        pso = new PSO(astronautControllers);
     }
 
     void SetAstronautsInPlace()
     {
         //Set Astronauts in place forming a circle, for example
-        float radius = 20f;
+        float radius = 5f;
 
         astronautControllers[0].SetInPlace(-radius, 0f, -90f);
         astronautControllers[1].SetInPlace(-radius * 3f / 4f, radius * 3f / 4f, -45f);
@@ -55,12 +46,6 @@ public class AstronautManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        //bool running = Random.Range(0, 1) == 0 ? true : false;
         pso.UpdateAstronauts();
-        //Update every Astronaut
-        /*foreach (PlayerController controller in astronautControllers)
-        {
-            controller.PSOupdate(false, true);
-        }*/
     }
 }

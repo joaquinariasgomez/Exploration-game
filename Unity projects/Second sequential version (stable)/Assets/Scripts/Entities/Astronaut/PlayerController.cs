@@ -46,6 +46,7 @@ public class PlayerController : MonoBehaviour {
 
     public Vector3 directionToGlobal;
     public Vector3 directionToPersonal;
+    public Vector3 directionToForward;
     public Vector3 destination;
     public Vector3 projectedDestination;
 
@@ -167,7 +168,7 @@ public class PlayerController : MonoBehaviour {
         rigidbody.useGravity = false;
 
         distToGround = collider.bounds.extents.y;
-        personalBestScore = 0f;
+        personalBestScore = attractor.gridSize / 2f;  //Minimum score
         personalBestPosition = new Vector3(0, 0, 0);    //No tener en cuenta si personalBestScore es 0f
         velocityCteY = maxVelocityCteY;
         this.move = true;
@@ -249,14 +250,15 @@ public class PlayerController : MonoBehaviour {
         this.c1 = c1;
         this.c2 = c2;
 
-        print(Wcurrent);
+        //print(Wcurrent);
 
         //Update direction vectors
-        float r1 = Random.Range(1f, 1.5f);
-        float r2 = Random.Range(1f, 1.5f);
-        directionToGlobal = (globalBestPosition - transform.position).normalized;
-        directionToPersonal = (personalBestPosition - transform.position).normalized;
-        destination = Wcurrent * transform.forward + r1 * c1 * directionToPersonal + r2 * c2 * directionToGlobal;
+        float r1 = 1f;// Random.Range(1f, 1.5f);
+        float r2 = 1f;// Random.Range(1f, 1.5f);
+        directionToGlobal = r2 * c2 * (globalBestPosition - transform.position).normalized;
+        directionToPersonal = r1 * c1 * (personalBestPosition - transform.position).normalized;
+        directionToForward = Wcurrent * transform.forward;
+        destination = directionToForward + directionToPersonal + directionToGlobal;
         projectedDestination = Vector3.ProjectOnPlane(destination, transform.up);
 
         //Update trajectory
@@ -377,15 +379,15 @@ public class PlayerController : MonoBehaviour {
             Gizmos.DrawSphere(globalBestPosition, 0.7f);
         }
         
-        /*Gizmos.color = Color.yellow;
-        Gizmos.DrawRay(transform.position, directionToGlobal * c2);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawRay(transform.position, directionToGlobal);
         Gizmos.color = Color.black;
-        Gizmos.DrawRay(transform.position, directionToPersonal * c1);
+        Gizmos.DrawRay(transform.position, directionToPersonal);
         Gizmos.color = Color.blue;
-        Gizmos.DrawRay(transform.position, transform.forward * Wcurrent);
+        Gizmos.DrawRay(transform.position, directionToForward);
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position, destination);
-        Gizmos.color = Color.green;
+        //Gizmos.DrawRay(transform.position, destination);
+        //Gizmos.color = Color.green;
         Gizmos.DrawRay(transform.position, projectedDestination);
         /*Gizmos.color = Color.green;
         Gizmos.DrawRay(new Vector3(0, 0, 0), pointDirection * 100);

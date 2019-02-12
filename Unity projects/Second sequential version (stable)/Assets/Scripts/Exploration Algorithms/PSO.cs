@@ -8,29 +8,29 @@ public class PSO
     public float globalBestScore;
     public Vector3 globalBestPosition;
 
-    private float Wmin;
-    private float Wmax;
+    private float Wmin = 1;
+    private float Wmax = 200;
     private float Wcurrent;
-    private float magicNumber;
-    private float c1;
-    private float c2;
+    private float c1 = 1.5f;
+    private float c2 = 2;
 
-    private float caida = 0.15f;
+    private float caida;
+
     private int iteration = 1;
+    private int maxIterations = 3000;
+    private int maxIterWithWmin = 400;
 
     //LOGS
     FileWriter globalBestScoreLogs;
     FileWriter testLog;
     //END LOGS
 
-    public PSO(List<PlayerController> astronautControllers, float Wmin, float Wmax, float c1, float c2)
+    public PSO(List<PlayerController> astronautControllers)
     {
         this.astronautControllers = astronautControllers;
-        this.Wmin = Wmin;
-        this.Wmax = Wmax;
         this.Wcurrent = Wmax;
-        this.c1 = c1;
-        this.c2 = c2;
+        this.caida = (Wmax - Wmin) / maxIterations;
+
         globalBestScore = astronautControllers[0].attractor.gridSize / 2f;  //Minimum best score
         globalBestPosition = Vector3.zero;
 
@@ -72,14 +72,8 @@ public class PSO
                 Wcurrent = Wmin;
             }
         }
-        magicNumber = Wcurrent;//Mathf.Log(iteration, 24);      //Después de 2870 iteraciones llega a casi 6
         //TestLog
-        testLog.Write(this.caida);
-        float caida_variable = this.caida - 0.005f;
-        if(caida_variable>=0f)
-        {
-            this.caida = caida_variable;
-        }
+        testLog.Write(Wcurrent);
     }
 
     private void Stop()
@@ -96,7 +90,7 @@ public class PSO
     //Main loop
     public void UpdateAstronauts()
     {
-        if(Wcurrent <= Wmin)
+        if(iteration == (maxIterations + maxIterWithWmin))
         {
             Stop();
         }
