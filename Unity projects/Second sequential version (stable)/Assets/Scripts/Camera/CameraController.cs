@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour {
 
-    public float moveSpeed = 15;
     public CubeSphere attractor;
 
     private float cameraAltitude = 40;
@@ -13,6 +12,13 @@ public class CameraController : MonoBehaviour {
     private float minZoom = -40;
     private float maxZoom = 100;
     private float zoomChangeAmount = 80f;
+
+    private bool astronautMovement = false;
+
+    //Mouse
+    private float dragSpeed;
+    private Vector3 dragOrigin;
+    //private float lastMouseY = 0;     FUTURE IMPLEMENTATION
 
     private Vector3 moveDir;
 
@@ -29,6 +35,41 @@ public class CameraController : MonoBehaviour {
 
         Quaternion targetRotation = Quaternion.FromToRotation(cameraUp, gravityUp) * transform.rotation;
         transform.rotation = targetRotation;
+    }
+
+    private void PerformHorizontalTranslation()
+    {
+        float zoomTravel = maxZoom + Mathf.Abs(minZoom);
+        float distanceToMinZoom = zoom - minZoom;
+        float zoomPercentage = (distanceToMinZoom / zoomTravel) * 100;
+        dragSpeed = 0.7f + zoomPercentage / 6f;
+
+        //Keyboard
+        moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
+        transform.position += transform.TransformDirection(moveDir) * dragSpeed * 2 * Time.deltaTime;
+
+        //Mouse
+        /*if (Input.GetMouseButton(1))
+        {
+            transform.RotateAround(transform.position, transform.up, lastMouseY);
+            lastMouseY = -Input.GetAxis("Mouse Y") * dragSpeed;
+        }*/
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            dragOrigin = Input.mousePosition;
+        }
+        else
+        {
+            if(Input.GetMouseButton(0))
+            {
+                Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - dragOrigin);
+                pos = -pos;
+                Vector3 move = new Vector3(pos.x * dragSpeed, 0, pos.y * dragSpeed);
+
+                transform.position += transform.TransformDirection(move);
+            }
+        }
     }
 
     private void PerformZoom()
@@ -50,23 +91,33 @@ public class CameraController : MonoBehaviour {
         transform.position += gravityUp * zoom;
     }
 
+    public void SetAstronautMovement()
+    {
+        this.astronautMovement = true;
+    }
+
+    public void SetCameraMovement()
+    {
+        this.astronautMovement = false;
+    }
+
     void Update()
     {
-        //PERFORM ROTATIONS
-        PerformGravityRotation();
-
-        //UPDATE HORIZONTAL TRANSLATION
-        moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
-        transform.position += transform.TransformDirection(moveDir) * moveSpeed * Time.deltaTime;
-        //UPDATE VERTICAL TRANSLATION
-
-        /*if(Input.GetMouseButton(0))
+        if(astronautMovement)
         {
-            xDisplacement = Input.GetAxis("Mouse X") * moveSpeed * Time.deltaTime;
-            yDisplacement = Input.GetAxis("Mouse Y") * moveSpeed * Time.deltaTime;
-        }*/
-
-        PerformZoom();
+            //OTHER actions (like letting camera not roll)
+            //UPDATE VERTICAL TRANSLATION
+            PerformZoom();
+        }
+        else
+        {
+            //PERFORM ROTATIONS
+            PerformGravityRotation();
+            //UPDATE HORIZONTAL TRANSLATION
+            PerformHorizontalTranslation();
+            //UPDATE VERTICAL TRANSLATION
+            PerformZoom();
+        }
     }
 
     private void OnDrawGizmos()
