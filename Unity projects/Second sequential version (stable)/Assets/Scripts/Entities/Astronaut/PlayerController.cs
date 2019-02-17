@@ -5,9 +5,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
 
     public CubeSphere attractor;
-    public float walkSpeed = 3;
-    public float runSpeed = 6;
+    private float maxSpeed = 5;
+    private float minSpeed = 0;
     private float gravity = 9.8f;
+
+    //public Renderer myRenderer;
 
     public float turnSmoothTime = 0.2f;
     float turnSmoothVelocity;
@@ -26,7 +28,8 @@ public class PlayerController : MonoBehaviour {
     private Vector3 pointDirection;
 
     private float latestTargetDirection = 0.0f;
-    private int id;
+    [HideInInspector]
+    public int id;
 
     //STUCK
     private float secondsCounter = 0f;
@@ -54,6 +57,17 @@ public class PlayerController : MonoBehaviour {
     private float c1;
     private float c2;
     //END_PSO
+
+    //STEPS
+    int stepId = 0; //0 -> Right    1 -> Left
+    private float timeBetweenStepsCounter = 0f;
+    private float timeBetweenStepsToCount;   //THIS WILL DEPEND on astronaut's speed
+    //END_STEPS
+
+    //STATUS
+    private float life;
+    private float speed; 
+    //END_STATUS
 
     //LOGS
     FileWriter actualScoreLogs;
@@ -164,6 +178,7 @@ public class PlayerController : MonoBehaviour {
         animator = GetComponent<Animator>();
         collider = GetComponent<CapsuleCollider>();
         rigidbody = GetComponent<Rigidbody>();
+        //myRenderer = GetComponent<Renderer>();
         rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
         rigidbody.useGravity = false;
 
@@ -175,10 +190,27 @@ public class PlayerController : MonoBehaviour {
 
         actualScore = attractor.gridSize / 2f;  //Minimum score
 
+        speed = Random.Range(3, maxSpeed);
+        life = Random.Range(50, 100);
+
+        float slowTime = 0.5f;
+        float fastTime = 0.1f;
+        float difTime = slowTime - fastTime;
+        float difSpeed = maxSpeed - 3;
+
+        float timeIncrease = ((speed - 3) / difSpeed) * difTime;
+
+        timeBetweenStepsToCount = slowTime - timeIncrease;
+
         //FileWriter
         actualScoreLogs = new FileWriter("Assets/Logs/Astronaut_" + this.id + "ActualScore.txt");
         personalBestScoreLogs = new FileWriter("Assets/Logs/Astronaut_" + this.id + "PersonalBestScore.txt");
     }
+
+    /*public bool isVisibleByCamera()
+    {
+        return gameObject.GetComponentInChildren<Renderer>().isVisible;
+    }*/
 
     public void SetInPlace(float x, float z, float angle)
     {
@@ -293,17 +325,51 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    public void Move()      //If move equals false, it will stop
+    private void ManageStepSound()
     {
+        if(move && isGrounded())
+        {
+            //Continue steping
+            if (!FindObjectOfType<AudioManager>().isPlayingStep(id, stepId))
+            {
+                timeBetweenStepsCounter += Time.deltaTime;
+                if (timeBetweenStepsCounter > timeBetweenStepsToCount)
+                {
+                    timeBetweenStepsCounter = 0;
+                    //DO THINGS EVERY minimumTimeInState SECONDS
+                    if (stepId == 0)
+                    {
+                        stepId = 1;
+                    }
+                    else
+                    {
+                        stepId = 0;
+                    }
+                    FindObjectOfType<AudioManager>().PlayStep(id, stepId);
+                }
+            }
+        }
+        else
+        {
+            //Stop steps
+            FindObjectOfType<AudioManager>().StopStep(id, 0);
+            FindObjectOfType<AudioManager>().StopStep(id, 1);
+        }
+    }
+
+    public void Move()
+    {
+        ManageStepSound();
+
         //CHECK IF IT IS STUCK AND ITS ALSO MOVING
         if(ItIsStuck() && move) {
             trajectory += 180;  //Media vuelta
         }
 
-        float targetSpeed = (projectedDestination.magnitude > walkSpeed) ? runSpeed : walkSpeed;
-        running = (targetSpeed==runSpeed);
+        //float targetSpeed = (projectedDestination.magnitude > walkSpeed) ? runSpeed : walkSpeed;
+        //running = (targetSpeed==runSpeed);
 
-        currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, speedSmoothTime);
+        currentSpeed = Mathf.SmoothDamp(currentSpeed, speed, ref speedSmoothVelocity, speedSmoothTime);
 
         gravityDirection = (transform.position - attractor.transform.position).normalized;  //Vector3 ..
 
@@ -312,7 +378,9 @@ public class PlayerController : MonoBehaviour {
         if(move) { PerformControllerRotation(); }
 
         //UPDATE HORIZONTAL TRANSLATION
-        if(move && isGrounded()) { transform.position += transform.forward * currentSpeed * Time.deltaTime; }
+        if(move && isGrounded()) {
+            transform.position += transform.forward * currentSpeed * Time.deltaTime;
+        }
         //UPDATE VERTICAL TRANSLATION
         rigidbody.AddForce(-gravityDirection * velocityCteY);
 
@@ -321,7 +389,7 @@ public class PlayerController : MonoBehaviour {
 
         if (move && isGrounded())
         {
-            float animationSpeedPercent = running ? 1 : 0.5f;
+            float animationSpeedPercent = (10f / maxSpeed) * currentSpeed / 10f;              //running ? 1 : 0.5f;
             animator.SetFloat("speedPercent", animationSpeedPercent, speedSmoothTime, Time.deltaTime);
         }
         else

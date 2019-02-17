@@ -676,7 +676,7 @@ RectTransform:
   - {fileID: 795261228}
   - {fileID: 1388097673}
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -692,8 +692,9 @@ GameObject:
   m_Component:
   - component: {fileID: 364470345}
   - component: {fileID: 364470346}
+  - component: {fileID: 364470347}
   m_Layer: 0
-  m_Name: MouseSkin
+  m_Name: Mouse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -710,7 +711,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &364470346
 MonoBehaviour:
@@ -728,6 +729,20 @@ MonoBehaviour:
   Right_hand: {fileID: 2800000, guid: 96450263675d5ab42a41781ec79ffad8, type: 3}
   Up_hand: {fileID: 2800000, guid: 30c8f77550bd9414b8bf76fa943e1568, type: 3}
   Down_hand: {fileID: 2800000, guid: 3fdac4a380acd814d9fce16e42474a9d, type: 3}
+  Point_hand: {fileID: 2800000, guid: bd1b3fa41993db549b64585cf72c812e, type: 3}
+--- !u!114 &364470347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 364470344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5eb15d43ebf95a246958475c7ab3afd9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myCamera: {fileID: 1082157257}
+  astronautManager: {fileID: 411203583}
 --- !u!1 &383934525
 GameObject:
   m_ObjectHideFlags: 0
@@ -849,7 +864,63 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &455392671
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 455392674}
+  - component: {fileID: 455392672}
+  m_Layer: 0
+  m_Name: Audio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &455392672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 455392671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa69e90ab18ceb34d98bf918cc1034ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sounds:
+  - type: Step
+    name: RightStep0
+    clip: {fileID: 8300000, guid: d7e44129a38e7b048bbd9aa0028d4c62, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - type: Step
+    name: LeftStep0
+    clip: {fileID: 8300000, guid: 74872b7b82771474db89cee49c1e85d8, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  astronautManager: {fileID: 411203583}
+--- !u!4 &455392674
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 455392671}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &467501366 stripped
 GameObject:
@@ -871,10 +942,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  walkSpeed: 3
-  runSpeed: 6
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
@@ -1405,7 +1475,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &683323036
 GameObject:
@@ -1869,10 +1939,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  walkSpeed: 3
-  runSpeed: 6
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
@@ -2246,10 +2315,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  walkSpeed: 3
-  runSpeed: 6
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
@@ -3094,7 +3162,7 @@ Transform:
   - {fileID: 1710232643}
   - {fileID: 803664062}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1331832881
 GameObject:
@@ -3236,7 +3304,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51691b5b6b28a9a42a9874ac6886b634, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: 100
+  gridSize: 200
   regions:
   - name: region1
     height: 0.1
@@ -3440,10 +3508,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  walkSpeed: 3
-  runSpeed: 6
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
@@ -3914,10 +3981,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  walkSpeed: 3
-  runSpeed: 6
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
@@ -4031,10 +4097,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  walkSpeed: 3
-  runSpeed: 6
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
@@ -4301,10 +4366,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  walkSpeed: 3
-  runSpeed: 6
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
@@ -5053,10 +5117,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  walkSpeed: 3
-  runSpeed: 6
   turnSmoothTime: 0.2
   speedSmoothTime: 0.1
+  id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
