@@ -724,12 +724,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c545e35a90761d40acd1e2c3af97920, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Center_hand: {fileID: 2800000, guid: 89beb9e4f2eb44049986d36b3cf6b319, type: 3}
+  Center_hand: {fileID: 2800000, guid: 9890586e36cebb244a2e0f8143d42609, type: 3}
   Left_hand: {fileID: 2800000, guid: 414928a3269f4a149901f5834fa0df2e, type: 3}
   Right_hand: {fileID: 2800000, guid: 96450263675d5ab42a41781ec79ffad8, type: 3}
   Up_hand: {fileID: 2800000, guid: 30c8f77550bd9414b8bf76fa943e1568, type: 3}
   Down_hand: {fileID: 2800000, guid: 3fdac4a380acd814d9fce16e42474a9d, type: 3}
   Point_hand: {fileID: 2800000, guid: bd1b3fa41993db549b64585cf72c812e, type: 3}
+  Grab_hand: {fileID: 2800000, guid: d5ef7f4a49a7221488e66a7a9c0cdcef, type: 3}
 --- !u!114 &364470347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -905,6 +906,41 @@ MonoBehaviour:
     name: LeftStep0
     clip: {fileID: 8300000, guid: 74872b7b82771474db89cee49c1e85d8, type: 3}
     volume: 1
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - type: Soundtrack
+    name: CalmedSoundtrack0
+    clip: {fileID: 8300000, guid: 4591b9b17ee9c094ba81992235843265, type: 3}
+    volume: 0.35
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - type: Soundtrack
+    name: CalmedSoundtrack1
+    clip: {fileID: 8300000, guid: 6c75690e6408c4d4bad52cd4110d4200, type: 3}
+    volume: 0.35
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - type: Soundtrack
+    name: CalmedSoundtrack2
+    clip: {fileID: 8300000, guid: 1a61654b7d70d7e43b1158040f3d8b49, type: 3}
+    volume: 0.412
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - type: Soundtrack
+    name: CalmedSoundtrack3
+    clip: {fileID: 8300000, guid: 0d95362ce876d74409730eec38dbf35b, type: 3}
+    volume: 0.3
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - type: SoundtrackBattle
+    name: BattleSoundtrack0
+    clip: {fileID: 8300000, guid: 4c099be9f9b787a499752b1d08ec4a35, type: 3}
+    volume: 0.3
     pitch: 1
     loop: 0
     source: {fileID: 0}
@@ -2184,6 +2220,7 @@ GameObject:
   - component: {fileID: 883506392}
   - component: {fileID: 883506391}
   - component: {fileID: 883506390}
+  - component: {fileID: 883506393}
   m_Layer: 5
   m_Name: ChangeCameraButton
   m_TagString: Untagged
@@ -2295,6 +2332,53 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 883506388}
+--- !u!114 &883506393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 883506388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerEnter
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerExit
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  delegates: []
 --- !u!1 &969685384 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
@@ -2557,19 +2641,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
+  astronautManager: {fileID: 411203583}
+  zoomPercentage: 0
 --- !u!4 &1082157259
 Transform:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1082157257}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 620806364}
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_Father: {fileID: 1894543445}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1082157260
 MonoBehaviour:
@@ -3352,7 +3438,7 @@ MonoBehaviour:
     height: -2.9
     colour: {r: 0.19117647, g: 0.18977076, b: 0.18977076, a: 0}
   material: {fileID: 2100000, guid: f5cad4d7eaf10954c86eda135e663625, type: 2}
-  cameraAttracted: {fileID: 1082157259}
+  camera: {fileID: 1082157257}
 --- !u!4 &1339366653
 Transform:
   m_ObjectHideFlags: 0
@@ -3758,7 +3844,7 @@ Light:
   serializedVersion: 8
   m_Type: 1
   m_Color: {r: 1, g: 0.9804111, b: 0.52205884, a: 1}
-  m_Intensity: 0.5
+  m_Intensity: 0.62
   m_Range: 10
   m_SpotAngle: 30
   m_CookieSize: 10
@@ -4551,6 +4637,35 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1869251840}
+--- !u!1 &1894543444
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1894543445}
+  m_Layer: 0
+  m_Name: Father Camera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1894543445
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1894543444}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1082157259}
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2000114426
 GameObject:
   m_ObjectHideFlags: 0

@@ -8,7 +8,6 @@ public class FileWriter {
     private string path;
     StreamWriter writer;
 
-
     public FileWriter(string path)
     {
         this.path = path;

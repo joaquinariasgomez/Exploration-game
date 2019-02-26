@@ -579,7 +579,7 @@ public class StaticTerrainFunctions : MonoBehaviour {
                     {
                         if (i % (chunkSize / reason + 1) == 0)    //Normales de la izquierda deben de ser de otra cara
                         {
-                            print((chunkSize / chunks[CubeSphere.GetChunkId(id, "left", face)].reason + 1) * (chunkSize / chunks[CubeSphere.GetChunkId(id, "left", face)].reason) + thisChunk.GetStartingI(CubeSphere.GetChunkId(id, "left", face), i, true) / (chunkSize / chunks[CubeSphere.GetChunkId(id, "left", face)].reason + 1));
+                            //print((chunkSize / chunks[CubeSphere.GetChunkId(id, "left", face)].reason + 1) * (chunkSize / chunks[CubeSphere.GetChunkId(id, "left", face)].reason) + thisChunk.GetStartingI(CubeSphere.GetChunkId(id, "left", face), i, true) / (chunkSize / chunks[CubeSphere.GetChunkId(id, "left", face)].reason + 1));
                             if (chunks[CubeSphere.GetChunkId(id, "left", face)].isActive && reason >= chunks[CubeSphere.GetChunkId(id, "left", face)].reason) borderNormals[i] = chunks[CubeSphere.GetChunkId(id, "left", face)].mesh.normals[(chunkSize / chunks[CubeSphere.GetChunkId(id, "left", face)].reason + 1) * (chunkSize / chunks[CubeSphere.GetChunkId(id, "left", face)].reason) + thisChunk.GetStartingI(CubeSphere.GetChunkId(id, "left", face), i, true) / (chunkSize / chunks[CubeSphere.GetChunkId(id, "left", face)].reason + 1)];
                         }
                     }

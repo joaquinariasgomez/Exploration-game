@@ -10,6 +10,7 @@ public class MouseSkinManager : MonoBehaviour {
     public Texture2D Up_hand;
     public Texture2D Down_hand;
     public Texture2D Point_hand;
+    public Texture2D Grab_hand;
     private Texture2D drawTexture;
 
     private Vector2 mousePosition;
@@ -19,6 +20,9 @@ public class MouseSkinManager : MonoBehaviour {
     private float minimumTimeInState = 0.3f;
 
     private float variationBorderline = 3f;
+
+    private bool isPointing = false;
+    private bool isButton = false;
 
     private void Start()
     {
@@ -36,18 +40,38 @@ public class MouseSkinManager : MonoBehaviour {
         mousePosition = newMousePosition;
     }
 
-    public void SetTexture(string type)
+    public void SetTexture(string type, bool isButton = false)
     {
         if(type == "point")
         {
+            this.isButton = isButton;
+            isPointing = true;
             drawTexture = Point_hand;
         }
         Cursor.SetCursor(drawTexture, Vector2.zero, CursorMode.Auto);
     }
 
+    public void UnsetTextureButton()
+    {
+        drawTexture = Center_hand;
+        if(Input.GetMouseButton(0))
+        {
+            drawTexture = Grab_hand;
+        }
+        //Cursor.SetCursor(drawTexture, Vector2.zero, CursorMode.Auto);
+        //Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+    }
+
     public void UnsetTexture()
     {
-        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+        if(isButton) { return; }
+        drawTexture = Center_hand;
+        if (Input.GetMouseButton(0))
+        {
+            drawTexture = Grab_hand;
+        }
+        isPointing = false;
+        //Cursor.SetCursor(drawTexture, Vector2.zero, CursorMode.Auto);
     }
 
     private void TextureUpdate()
@@ -104,7 +128,17 @@ public class MouseSkinManager : MonoBehaviour {
     private void Update()
     {
         UpdateMousePosition();
-        TextureUpdate();
+        if(Input.GetMouseButton(0))
+        {
+            Cursor.SetCursor(Grab_hand, Vector2.zero, CursorMode.Auto);
+        }
+        else
+        {
+            if (!isPointing)
+            {
+                TextureUpdate();
+            }
+        }
     }
 
     private void OnDrawGizmos()

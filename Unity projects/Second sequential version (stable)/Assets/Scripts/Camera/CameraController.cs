@@ -5,6 +5,9 @@ using UnityEngine;
 public class CameraController : MonoBehaviour {
 
     public CubeSphere attractor;
+    public AstronautManager astronautManager;
+
+    GameObject[] astronauts;
 
     private float cameraAltitude = 40;
     private float initialAltitude;
@@ -12,8 +15,11 @@ public class CameraController : MonoBehaviour {
     private float minZoom = -40;
     private float maxZoom = 100;
     private float zoomChangeAmount = 80f;
+    [HideInInspector]
+    public float zoomPercentage;
 
     private bool astronautMovement = false;
+    private int selectedAstronaut;
 
     //Mouse
     private float dragSpeed;
@@ -26,6 +32,11 @@ public class CameraController : MonoBehaviour {
     {
         initialAltitude = attractor.gridSize / 2f + CubeSphere.heightMultiplier + cameraAltitude;
         transform.position += new Vector3(0, initialAltitude, 0);
+    }
+
+    private void Start()
+    {
+        this.astronauts = astronautManager.astronauts;
     }
 
     private void PerformGravityRotation()
@@ -41,7 +52,7 @@ public class CameraController : MonoBehaviour {
     {
         float zoomTravel = maxZoom + Mathf.Abs(minZoom);
         float distanceToMinZoom = zoom - minZoom;
-        float zoomPercentage = (distanceToMinZoom / zoomTravel) * 100;
+        zoomPercentage = (distanceToMinZoom / zoomTravel) * 100;
         dragSpeed = 0.7f + zoomPercentage / 6f;
 
         //Keyboard
@@ -49,12 +60,6 @@ public class CameraController : MonoBehaviour {
         transform.position += transform.TransformDirection(moveDir) * dragSpeed * 2 * Time.deltaTime;
 
         //Mouse
-        /*if (Input.GetMouseButton(1))
-        {
-            transform.RotateAround(transform.position, transform.up, lastMouseY);
-            lastMouseY = -Input.GetAxis("Mouse Y") * dragSpeed;
-        }*/
-
         if (Input.GetMouseButtonDown(0))
         {
             dragOrigin = Input.mousePosition;
@@ -91,9 +96,49 @@ public class CameraController : MonoBehaviour {
         transform.position += gravityUp * zoom;
     }
 
-    public void SetAstronautMovement()
+    private void PerformGravityRotationFromAstronaut()
+    {
+        int childCount = astronauts[selectedAstronaut].transform.childCount;
+
+        Vector3 gravityUp = (astronauts[selectedAstronaut].transform.GetChild(childCount - 1).position - attractor.transform.position).normalized;
+        Vector3 cameraUp = astronauts[selectedAstronaut].transform.GetChild(childCount - 1).up;
+
+        Quaternion targetRotation = Quaternion.FromToRotation(cameraUp, gravityUp) * astronauts[selectedAstronaut].transform.GetChild(childCount - 1).rotation;
+        astronauts[selectedAstronaut].transform.GetChild(childCount - 1).rotation = targetRotation;
+    }
+
+    private void PerformZoomFromAstronaut()
+    {
+        //ONLY FOR SHARED DATA
+        float zoomTravel = maxZoom + Mathf.Abs(minZoom);
+        float distanceToMinZoom = zoom - minZoom;
+        zoomPercentage = (distanceToMinZoom / zoomTravel) * 100;
+        //END ONLY FOR SHARED DATA
+
+        int childCount = astronauts[selectedAstronaut].transform.childCount;
+
+        Vector3 gravityUp = (astronauts[selectedAstronaut].transform.GetChild(childCount - 1).position - attractor.transform.position).normalized;
+        if (Input.mouseScrollDelta.y > 0)   //Zoom in
+        {
+            zoom -= zoomChangeAmount * Time.deltaTime;
+        }
+        if (Input.mouseScrollDelta.y < 0)   //Zoom out
+        {
+            zoom += zoomChangeAmount * Time.deltaTime;
+        }
+        zoom = Mathf.Clamp(zoom, minZoom, maxZoom);
+
+        float distanceFromCenterToCamera = Vector3.Distance(attractor.transform.position, astronauts[selectedAstronaut].transform.GetChild(childCount - 1).position);
+        float difference = distanceFromCenterToCamera - initialAltitude;
+
+        astronauts[selectedAstronaut].transform.GetChild(childCount - 1).position -= gravityUp * difference;
+        astronauts[selectedAstronaut].transform.GetChild(childCount - 1).position += gravityUp * zoom;
+    }
+
+    public void SetAstronautMovement(int selectedAstronaut)
     {
         this.astronautMovement = true;
+        this.selectedAstronaut = selectedAstronaut;
     }
 
     public void SetCameraMovement()
@@ -105,9 +150,10 @@ public class CameraController : MonoBehaviour {
     {
         if(astronautMovement)
         {
-            //OTHER actions (like letting camera not roll)
+            //OTHER actions (like not letting camera roll)
             //UPDATE VERTICAL TRANSLATION
-            PerformZoom();
+            PerformGravityRotationFromAstronaut();
+            PerformZoomFromAstronaut();
         }
         else
         {

@@ -10,11 +10,12 @@ public class CubeSphere : MonoBehaviour
     public int gridSize;
     public TerrainType[] regions;
     public Material material;
-    public Transform cameraAttracted;
+    public GameObject camera;
+    private Transform cameraTransform;
 
     private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;    //Global
     private float radius;
-    private static int sqrtChunksPerFace = 5;     //25 - 5
+    private static int sqrtChunksPerFace = 25;     //25 - 5
     public static float heightMultiplier = 12;     //20
     private static int id = 0;
 
@@ -37,6 +38,7 @@ public class CubeSphere : MonoBehaviour
 
     private Vector3 viewerPositionOld;
     private Vector3 viewerPosition;
+    private float zoomPercentageOld;
 
     private float secondsCounter = 0;
     private float secondsToCount = 0.25f;
@@ -56,7 +58,9 @@ public class CubeSphere : MonoBehaviour
 
     public void Awake()
     {
-        viewerPositionOld = viewerPosition = cameraAttracted.position;
+        cameraTransform = camera.transform;
+
+        viewerPositionOld = viewerPosition = cameraTransform.position;
 
         radius = gridSize / 2;
         chunkSize = gridSize / sqrtChunksPerFace;
@@ -81,7 +85,7 @@ public class CubeSphere : MonoBehaviour
     private void Start()
     {
         ClosestChunkHasChanged();   //Set variables for UpdateChunks()
-        //StartCoroutine(UpdateChunks());
+        StartCoroutine(UpdateChunks());
     }
 
     private void Update()
@@ -97,17 +101,19 @@ public class CubeSphere : MonoBehaviour
             }
         }*/
 
-        viewerPosition = cameraAttracted.position;
+        viewerPosition = cameraTransform.position;
+        float zoomPercentage = camera.GetComponent<CameraController>().zoomPercentage;
 
-        if((viewerPositionOld-viewerPosition).sqrMagnitude > sqrViewerMoveThresholdForChunkUpdate)
+        if(((viewerPositionOld-viewerPosition).sqrMagnitude > sqrViewerMoveThresholdForChunkUpdate) || (zoomPercentage != zoomPercentageOld))
         {
             viewerPositionOld = viewerPosition;
+            zoomPercentageOld = zoomPercentage;
             //DO THINGS EACH TIME VIEWER MOVE viewerMoveThreshHoldForChunkUpdate UNITS
             if (ClosestChunkHasChanged())
             {
                 //timer.Start();
-                //StartCoroutine(UpdateChunks());       //DECOMMENT
-                timer.Stop();
+                StartCoroutine(UpdateChunks());       //DECOMMENT
+                //timer.Stop();
                 //print("Tiempo " + timer.ElapsedMilliseconds);
                 //timer.Reset();
             }
@@ -677,7 +683,7 @@ public class CubeSphere : MonoBehaviour
 
         foreach(Chunk chunk in chunks)
         {
-            float distance = Vector3.Distance(cameraAttracted.position, chunk.GetCenter());
+            float distance = Vector3.Distance(cameraTransform.position, chunk.GetCenter());
             if (distance < min_distance)
             {
                 min_distance = distance;
@@ -718,50 +724,121 @@ public class CubeSphere : MonoBehaviour
         }
         else
         {
-            return false;
+            return true;    //false
         }
     }
 
     private IEnumerator UpdateChunks()
     {
+        float zoomPercentage = camera.GetComponent<CameraController>().zoomPercentage;
+
+        int maxChunksToRender = 1000;
+        int minChunksToRender = 20;
+        int chunksToRender = (int)(minChunksToRender + (zoomPercentage / 100) * (maxChunksToRender - minChunksToRender));
+
+        int maxResToRender;
+        if(zoomPercentage <= 20f)
+        {
+            maxResToRender = 1;
+        }
+        else
+        {
+            if(zoomPercentage <= 40f)
+            {
+                maxResToRender = 2;
+            }
+            else
+            {
+                if(zoomPercentage <= 60f)
+                {
+                    maxResToRender = 4;
+                }
+                else
+                {
+                    maxResToRender = 8;
+                }
+            }
+        }
+        //print(maxResToRender);
+
         Chunk closestChunk = chunks[0];
 
-        foreach(Chunk chunk in chunks)
+        foreach (Chunk chunk in chunks)
         {
-            if(chunk.IsClosestChunk())
+            if (chunk.IsClosestChunk())
             {
                 closestChunk = chunk;
-                closestChunk.UpdateLOD(1);  //1
+                closestChunk.UpdateLOD(maxResToRender);  //1
             }
         }
 
         int adjacentCount = 1;
         foreach (Chunk adjacent in closestChunk.GetAdjacentChunks())
         {
-            if (adjacentCount < 1000)    //150 - 149
+            if(adjacentCount < (chunksToRender * 1 / 4))
+            {
+                adjacent.UpdateLOD(maxResToRender);
+                ++adjacentCount;
+            }
+            else
+            {
+                if(adjacentCount < (chunksToRender * 2 / 4))
+                {
+                    adjacent.UpdateLOD(maxResToRender);
+                    ++adjacentCount;
+                }
+                else
+                {
+                    if(adjacentCount < (chunksToRender * 3 / 4))
+                    {
+                        adjacent.UpdateLOD(maxResToRender);
+                        ++adjacentCount;
+                    }
+                    else
+                    {
+                        if (adjacentCount < chunksToRender)
+                        {
+                            adjacent.UpdateLOD(maxResToRender);
+                            ++adjacentCount;
+                        }
+                        else
+                        {
+                            adjacent.Render(false);
+                        }
+                    }
+                }
+            }
+        }
+
+        
+
+        /*int adjacentCount = 1;
+        foreach (Chunk adjacent in closestChunk.GetAdjacentChunks())
+        {
+            if (adjacentCount < 10)    //150 - 149
             {
                 adjacent.UpdateLOD(1);      //1
                 ++adjacentCount;
             }
             else
             {
-                if (adjacentCount < 7)    //300 - 250
+                if (adjacentCount < 20)    //300 - 250
                 {
                     adjacent.UpdateLOD(2);      //2
                     ++adjacentCount;
                 }
                 else
                 {
-                    if (adjacentCount < 15)    //600 - 500
+                    if (adjacentCount < 40)    //600 - 500
                     {
                         adjacent.UpdateLOD(4);      //4
                         ++adjacentCount;
                     }
                     else
                     {
-                        if(adjacentCount < 1)     //900 - 650
+                        if(adjacentCount < 80)     //900 - 650
                         {
-                            adjacent.UpdateLOD(1);      //8
+                            adjacent.UpdateLOD(8);      //8
                             ++adjacentCount;
                         }
                         else
@@ -779,7 +856,7 @@ public class CubeSphere : MonoBehaviour
                     }
                 }
             }
-        }
+        }*/
 
         yield return null;
     }
@@ -918,9 +995,9 @@ public class CubeSphere : MonoBehaviour
 
     public class Chunk
     {
-        GameObject chunkObject;
+        public GameObject chunkObject;
         MeshRenderer meshRenderer;
-        MeshFilter meshFilter;
+        public MeshFilter meshFilter;
         public Mesh mesh;
 
         TerrainType[] regions;
@@ -995,10 +1072,11 @@ public class CubeSphere : MonoBehaviour
             AssignCollider();
         }
 
-        public void SetActive(bool condition)
+        public void Render(bool condition)
         {
             isActive = condition;
-            chunkObject.SetActive(condition);
+            //chunkObject.SetActive(condition);
+            chunkObject.GetComponent<MeshRenderer>().enabled = condition;
         }
 
         public void SetClosestChunk(bool isClosest)
@@ -1023,8 +1101,8 @@ public class CubeSphere : MonoBehaviour
 
         public void UpdateLOD(int reason)
         {
-            if (!isActive) { SetActive(true); GenerateNormals2(); }
-            //if (this.reason == reason) { return; }     //Update only if reason is different   //DECOMMENT
+            if (!isActive) { Render(true); GenerateNormals2();/*CalculateNormals();*/ } //COMMENT/DECOMMENT     
+            if (this.reason == reason) { return; }     //Update only if reason is different
             this.reason = reason;
 
             mesh = meshFilter.mesh;
@@ -1032,7 +1110,9 @@ public class CubeSphere : MonoBehaviour
 
             CreateVertices();
             CreateTriangles();
-            GenerateNormals2();
+            //CalculateNormals();     //COMMENT
+            GenerateNormals2();   //DECOMMNENT
+
             //verticesData.Add(new VerticesData(mesh.vertices, mesh.normals));
             //GenerateNormals();
         }

@@ -43,6 +43,7 @@ public class AstronautSelector : MonoBehaviour {
         if (selectedAstronauts[0])
         {
             selectedAstronauts[0] = false;
+            selectedAstronaut = -1;
             Astronaut0Button.GetComponent<Image>().color = Color.white;
         }
         else
@@ -69,6 +70,7 @@ public class AstronautSelector : MonoBehaviour {
         if (selectedAstronauts[1])
         {
             selectedAstronauts[1] = false;
+            selectedAstronaut = -1;
             Astronaut1Button.GetComponent<Image>().color = Color.white;
         }
         else
@@ -95,6 +97,7 @@ public class AstronautSelector : MonoBehaviour {
         if (selectedAstronauts[2])
         {
             selectedAstronauts[2] = false;
+            selectedAstronaut = -1;
             Astronaut2Button.GetComponent<Image>().color = Color.white;
         }
         else
@@ -121,6 +124,7 @@ public class AstronautSelector : MonoBehaviour {
         if (selectedAstronauts[3])
         {
             selectedAstronauts[3] = false;
+            selectedAstronaut = -1;
             Astronaut3Button.GetComponent<Image>().color = Color.white;
         }
         else
@@ -147,6 +151,7 @@ public class AstronautSelector : MonoBehaviour {
         if (selectedAstronauts[4])
         {
             selectedAstronauts[4] = false;
+            selectedAstronaut = -1;
             Astronaut4Button.GetComponent<Image>().color = Color.white;
         }
         else
@@ -173,6 +178,7 @@ public class AstronautSelector : MonoBehaviour {
         if (selectedAstronauts[5])
         {
             selectedAstronauts[5] = false;
+            selectedAstronaut = -1;
             Astronaut5Button.GetComponent<Image>().color = Color.white;
         }
         else
@@ -199,6 +205,7 @@ public class AstronautSelector : MonoBehaviour {
         if (selectedAstronauts[6])
         {
             selectedAstronauts[6] = false;
+            selectedAstronaut = -1;
             Astronaut6Button.GetComponent<Image>().color = Color.white;
         }
         else
@@ -225,6 +232,7 @@ public class AstronautSelector : MonoBehaviour {
         if (selectedAstronauts[7])
         {
             selectedAstronauts[7] = false;
+            selectedAstronaut = -1;
             Astronaut7Button.GetComponent<Image>().color = Color.white;
         }
         else

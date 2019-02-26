@@ -11,53 +11,54 @@ public class SelectCameraButton : MonoBehaviour {
     public Button ChangeCameraButton;
 
     GameObject[] astronauts;
-    private List<PlayerController> astronautControllers = new List<PlayerController>();
-    private bool globalCamera = true;
+    private int latestAstronautCamera = -1;
 
     public void Start()
     {
         this.astronauts = astronautManager.astronauts;
-        foreach (GameObject astronaut in astronauts)
-        {
-            astronautControllers.Add(astronaut.GetComponent<PlayerController>());
-        }
     }
 
     public void ChangeToGlobalCamera()
     {
-        astronautSelector.SetSelectedAstronaut(-1);
+        if(latestAstronautCamera == -1) { return; }
+
         cameraController.SetCameraMovement();
-        //transform.position = cameraController.position;
-        //transform.parent = cameraController.transform;
+
+        int childCount = astronauts[latestAstronautCamera].transform.childCount;
+        astronauts[latestAstronautCamera].transform.GetChild(childCount - 1).parent = GameObject.Find("Father Camera").transform;
+
+        latestAstronautCamera = -1;
     }
 
     public void ChangeToAstronautCamera(int selectedAstronaut)
     {
-        cameraController.SetAstronautMovement();
+        latestAstronautCamera = selectedAstronaut;
+
+        cameraController.SetAstronautMovement(selectedAstronaut);
         transform.position = astronauts[selectedAstronaut].transform.position;
         transform.parent = astronauts[selectedAstronaut].transform;
     }
 
-    public void ChangeCamera()
+    public void ChangeCamera()  //It's called when Change Camera button is pressed
     {
-        //Change camera to selected astronaut's ubication, so that he will be his parent
-        globalCamera = !globalCamera;
+        int selectedAstronaut = astronautSelector.GetSelectedAstronaut();
 
-        if(globalCamera)
+        if (selectedAstronaut == -1)
         {
             ChangeToGlobalCamera();
         }
         else
         {
-            int selectedAstronaut = astronautSelector.GetSelectedAstronaut();
-            if (selectedAstronaut == -1)
-            {
-                ChangeToGlobalCamera();
-            }
-            else
-            {
-                ChangeToAstronautCamera(selectedAstronaut);
-            }
+            ChangeToAstronautCamera(selectedAstronaut);
         }
+    }
+
+    public void OnPointerEnter() {
+        GameObject.Find("Mouse").GetComponent<MouseSkinManager>().SetTexture("point", true);
+    }
+
+    public void OnPointerExit()
+    {
+        GameObject.Find("Mouse").GetComponent<MouseSkinManager>().UnsetTextureButton();
     }
 }

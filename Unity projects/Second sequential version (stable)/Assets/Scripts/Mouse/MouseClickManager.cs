@@ -12,7 +12,6 @@ public class MouseClickManager : MonoBehaviour {
     private float minimumDepthToClickAstronaut = 80;
 
     private void Update () {    //Traer coordenadas de los astronautas a 2D
-
         astronauts = astronautManager.astronauts;
         int closestAstronaut = 0;
         int astronautCounter = 0;
@@ -34,7 +33,7 @@ public class MouseClickManager : MonoBehaviour {
         }
         if(minimumDistance <= minimumDistanceToClickAstronaut && closestDepth <= minimumDepthToClickAstronaut)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonUp(0))
             {
                 SelectAstronaut(closestAstronaut);
             }
@@ -43,11 +42,20 @@ public class MouseClickManager : MonoBehaviour {
                 Point();
             }
         }
+        else
+        {
+            Unpoint();
+        }
     }
 
     private void Point()
     {
         gameObject.GetComponent<MouseSkinManager>().SetTexture("point");
+    }
+
+    private void Unpoint()
+    {
+        gameObject.GetComponent<MouseSkinManager>().UnsetTexture();
     }
 
     private void SelectAstronaut(int astronautId)

@@ -336,7 +336,7 @@ public class PlayerController : MonoBehaviour {
                 if (timeBetweenStepsCounter > timeBetweenStepsToCount)
                 {
                     timeBetweenStepsCounter = 0;
-                    //DO THINGS EVERY minimumTimeInState SECONDS
+                    //DO THINGS EVERY timeBetweenStepsToCount SECONDS
                     if (stepId == 0)
                     {
                         stepId = 1;
