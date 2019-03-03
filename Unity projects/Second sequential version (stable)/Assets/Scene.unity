@@ -113,6 +113,49 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &14532888
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 14532890}
+  - component: {fileID: 14532889}
+  m_Layer: 0
+  m_Name: Night Orbit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &14532889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 14532888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5423b27822e457b40be4a3ccd105f597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attractor: {fileID: 1339366652}
+  orbitingObject: {fileID: 301613939}
+--- !u!4 &14532890
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 14532888}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 301613939}
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &74124367
 GameObject:
   m_ObjectHideFlags: 0
@@ -195,6 +238,7 @@ GameObject:
   - component: {fileID: 97019163}
   - component: {fileID: 97019162}
   - component: {fileID: 97019161}
+  - component: {fileID: 97019164}
   m_Layer: 5
   m_Name: Astronaut4Button
   m_TagString: Untagged
@@ -306,6 +350,118 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 97019159}
+--- !u!114 &97019164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 97019159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerEnter
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerExit
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  delegates: []
+--- !u!1 &143306599
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 143306600}
+  - component: {fileID: 143306601}
+  m_Layer: 0
+  m_Name: Directional light
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &143306600
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 143306599}
+  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 150, y: 100, z: 150}
+  m_Children: []
+  m_Father: {fileID: 301613939}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!108 &143306601
+Light:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 143306599}
+  m_Enabled: 1
+  serializedVersion: 8
+  m_Type: 1
+  m_Color: {r: 0.5583164, g: 0.52205884, b: 1, a: 1}
+  m_Intensity: 0.62
+  m_Range: 10
+  m_SpotAngle: 30
+  m_CookieSize: 10
+  m_Shadows:
+    m_Type: 2
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_Lightmapping: 4
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
 --- !u!1 &205321650
 GameObject:
   m_ObjectHideFlags: 0
@@ -507,6 +663,47 @@ Transform:
   m_Father: {fileID: 1611478667}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &301613938
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 301613939}
+  - component: {fileID: 301613940}
+  m_Layer: 0
+  m_Name: Night
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &301613939
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 301613938}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 143306600}
+  m_Father: {fileID: 14532890}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &301613940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 301613938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 870a74201bb63ec4493c3cd75ac1a7f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &334366588
 GameObject:
   m_ObjectHideFlags: 0
@@ -676,7 +873,7 @@ RectTransform:
   - {fileID: 795261228}
   - {fileID: 1388097673}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -711,7 +908,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &364470346
 MonoBehaviour:
@@ -724,13 +921,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c545e35a90761d40acd1e2c3af97920, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Center_hand: {fileID: 2800000, guid: 9890586e36cebb244a2e0f8143d42609, type: 3}
-  Left_hand: {fileID: 2800000, guid: 414928a3269f4a149901f5834fa0df2e, type: 3}
-  Right_hand: {fileID: 2800000, guid: 96450263675d5ab42a41781ec79ffad8, type: 3}
-  Up_hand: {fileID: 2800000, guid: 30c8f77550bd9414b8bf76fa943e1568, type: 3}
-  Down_hand: {fileID: 2800000, guid: 3fdac4a380acd814d9fce16e42474a9d, type: 3}
-  Point_hand: {fileID: 2800000, guid: bd1b3fa41993db549b64585cf72c812e, type: 3}
-  Grab_hand: {fileID: 2800000, guid: d5ef7f4a49a7221488e66a7a9c0cdcef, type: 3}
+  Center_hand: {fileID: 2800000, guid: 40b891dc66d19c04791051059781502f, type: 3}
+  Left_hand: {fileID: 2800000, guid: 437916790a0eaec4296780c1e1d8e59f, type: 3}
+  Right_hand: {fileID: 2800000, guid: a2c9498922accc84986f6c447af9cd00, type: 3}
+  Up_hand: {fileID: 2800000, guid: 0c3d0fd829cc5ee4294c8f161996015a, type: 3}
+  Down_hand: {fileID: 2800000, guid: 60ca5e6a9b9fb3c47925e5cabd0b627f, type: 3}
+  Point_hand: {fileID: 2800000, guid: ba6bc06c1e4d4404f9f2df7a6b278569, type: 3}
+  Grab_hand: {fileID: 2800000, guid: 0c5d9e27f9bbf5445839721bf187881e, type: 3}
 --- !u!114 &364470347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -744,6 +941,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myCamera: {fileID: 1082157257}
   astronautManager: {fileID: 411203583}
+  Pointed_astronaut: {fileID: 2800000, guid: 5c01a7735de6f20409e621cf52e7bb9e, type: 3}
 --- !u!1 &383934525
 GameObject:
   m_ObjectHideFlags: 0
@@ -865,7 +1063,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &455392671
 GameObject:
@@ -956,7 +1154,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &467501366 stripped
 GameObject:
@@ -978,14 +1176,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  turnSmoothTime: 0.2
-  speedSmoothTime: 0.1
+  Exclamation: {fileID: 2800000, guid: 8fa9fadc5a0a3b6478c20cecd1664330, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
   globalBestScore: 0
   globalBestPosition: {x: 0, y: 0, z: 0}
+  foundBestPosition: {x: 0, y: 0, z: 0}
   directionToGlobal: {x: 0, y: 0, z: 0}
   directionToPersonal: {x: 0, y: 0, z: 0}
   directionToForward: {x: 0, y: 0, z: 0}
@@ -1164,15 +1362,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_Name
@@ -1218,7 +1416,7 @@ Transform:
   - {fileID: 818564232}
   - {fileID: 2024616629}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &620806360
 GameObject:
@@ -1350,15 +1548,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_Name
@@ -1511,7 +1709,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &683323036
 GameObject:
@@ -1633,15 +1831,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_Name
@@ -1808,15 +2006,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_Name
@@ -1844,6 +2042,7 @@ GameObject:
   - component: {fileID: 795261231}
   - component: {fileID: 795261230}
   - component: {fileID: 795261229}
+  - component: {fileID: 795261232}
   m_Layer: 5
   m_Name: Astronaut6Button
   m_TagString: Untagged
@@ -1955,6 +2154,53 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 795261227}
+--- !u!114 &795261232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 795261227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerEnter
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerExit
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  delegates: []
 --- !u!1 &803664061 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
@@ -1975,14 +2221,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  turnSmoothTime: 0.2
-  speedSmoothTime: 0.1
+  Exclamation: {fileID: 2800000, guid: 8fa9fadc5a0a3b6478c20cecd1664330, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
   globalBestScore: 0
   globalBestPosition: {x: 0, y: 0, z: 0}
+  foundBestPosition: {x: 0, y: 0, z: 0}
   directionToGlobal: {x: 0, y: 0, z: 0}
   directionToPersonal: {x: 0, y: 0, z: 0}
   directionToForward: {x: 0, y: 0, z: 0}
@@ -2399,14 +2645,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  turnSmoothTime: 0.2
-  speedSmoothTime: 0.1
+  Exclamation: {fileID: 2800000, guid: 8fa9fadc5a0a3b6478c20cecd1664330, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
   globalBestScore: 0
   globalBestPosition: {x: 0, y: 0, z: 0}
+  foundBestPosition: {x: 0, y: 0, z: 0}
   directionToGlobal: {x: 0, y: 0, z: 0}
   directionToPersonal: {x: 0, y: 0, z: 0}
   directionToForward: {x: 0, y: 0, z: 0}
@@ -2585,15 +2831,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_Name
@@ -2730,13 +2976,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e567f26edc0c014ca08b6699e6a27f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attractor: {fileID: 1339366652}
   orbitingObject: {fileID: 2140928269}
-  orbitPath:
-    xAxis: 1000
-    yAxis: 700
-  orbitProgress: 0
-  orbitPeriod: 10000
-  orbitActive: 1
 --- !u!4 &1141292256
 Transform:
   m_ObjectHideFlags: 0
@@ -2871,15 +3112,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_Name
@@ -2907,6 +3148,7 @@ GameObject:
   - component: {fileID: 1223911261}
   - component: {fileID: 1223911260}
   - component: {fileID: 1223911259}
+  - component: {fileID: 1223911262}
   m_Layer: 5
   m_Name: Astronaut0Button
   m_TagString: Untagged
@@ -3018,6 +3260,53 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1223911257}
+--- !u!114 &1223911262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1223911257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerEnter
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerExit
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  delegates: []
 --- !u!1 &1262801952
 GameObject:
   m_ObjectHideFlags: 0
@@ -3103,6 +3392,7 @@ GameObject:
   - component: {fileID: 1283895035}
   - component: {fileID: 1283895034}
   - component: {fileID: 1283895033}
+  - component: {fileID: 1283895036}
   m_Layer: 5
   m_Name: Astronaut3Button
   m_TagString: Untagged
@@ -3214,6 +3504,53 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1283895031}
+--- !u!114 &1283895036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1283895031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerEnter
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerExit
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  delegates: []
 --- !u!1 &1314093976
 GameObject:
   m_ObjectHideFlags: 0
@@ -3248,7 +3585,7 @@ Transform:
   - {fileID: 1710232643}
   - {fileID: 803664062}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1331832881
 GameObject:
@@ -3390,7 +3727,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51691b5b6b28a9a42a9874ac6886b634, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: 200
+  gridSize: 100
   regions:
   - name: region1
     height: 0.1
@@ -3437,6 +3774,9 @@ MonoBehaviour:
   - name: region-3
     height: -2.9
     colour: {r: 0.19117647, g: 0.18977076, b: 0.18977076, a: 0}
+  - name: region13
+    height: 2
+    colour: {r: 1, g: 1, b: 1, a: 0}
   material: {fileID: 2100000, guid: f5cad4d7eaf10954c86eda135e663625, type: 2}
   camera: {fileID: 1082157257}
 --- !u!4 &1339366653
@@ -3463,6 +3803,7 @@ GameObject:
   - component: {fileID: 1388097676}
   - component: {fileID: 1388097675}
   - component: {fileID: 1388097674}
+  - component: {fileID: 1388097677}
   m_Layer: 5
   m_Name: Astronaut7Button
   m_TagString: Untagged
@@ -3574,6 +3915,53 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1388097672}
+--- !u!114 &1388097677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1388097672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerEnter
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerExit
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  delegates: []
 --- !u!1 &1392822236 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
@@ -3594,14 +3982,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  turnSmoothTime: 0.2
-  speedSmoothTime: 0.1
+  Exclamation: {fileID: 2800000, guid: 8fa9fadc5a0a3b6478c20cecd1664330, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
   globalBestScore: 0
   globalBestPosition: {x: 0, y: 0, z: 0}
+  foundBestPosition: {x: 0, y: 0, z: 0}
   directionToGlobal: {x: 0, y: 0, z: 0}
   directionToPersonal: {x: 0, y: 0, z: 0}
   directionToForward: {x: 0, y: 0, z: 0}
@@ -3780,15 +4168,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.1
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.1
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.1
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_Name
@@ -3829,7 +4217,7 @@ Transform:
   m_GameObject: {fileID: 1489071000}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 100, y: 100, z: 100}
+  m_LocalScale: {x: 150, y: 100, z: 150}
   m_Children: []
   m_Father: {fileID: 2140928269}
   m_RootOrder: 0
@@ -3971,7 +4359,7 @@ Transform:
   - {fileID: 2000114432}
   - {fileID: 2053243651}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1635935004
 Prefab:
@@ -4022,15 +4410,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.099999994
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
       propertyPath: m_Name
@@ -4067,14 +4455,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  turnSmoothTime: 0.2
-  speedSmoothTime: 0.1
+  Exclamation: {fileID: 2800000, guid: 8fa9fadc5a0a3b6478c20cecd1664330, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
   globalBestScore: 0
   globalBestPosition: {x: 0, y: 0, z: 0}
+  foundBestPosition: {x: 0, y: 0, z: 0}
   directionToGlobal: {x: 0, y: 0, z: 0}
   directionToPersonal: {x: 0, y: 0, z: 0}
   directionToForward: {x: 0, y: 0, z: 0}
@@ -4183,14 +4571,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  turnSmoothTime: 0.2
-  speedSmoothTime: 0.1
+  Exclamation: {fileID: 2800000, guid: 8fa9fadc5a0a3b6478c20cecd1664330, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
   globalBestScore: 0
   globalBestPosition: {x: 0, y: 0, z: 0}
+  foundBestPosition: {x: 0, y: 0, z: 0}
   directionToGlobal: {x: 0, y: 0, z: 0}
   directionToPersonal: {x: 0, y: 0, z: 0}
   directionToForward: {x: 0, y: 0, z: 0}
@@ -4452,14 +4840,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  turnSmoothTime: 0.2
-  speedSmoothTime: 0.1
+  Exclamation: {fileID: 2800000, guid: 8fa9fadc5a0a3b6478c20cecd1664330, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
   globalBestScore: 0
   globalBestPosition: {x: 0, y: 0, z: 0}
+  foundBestPosition: {x: 0, y: 0, z: 0}
   directionToGlobal: {x: 0, y: 0, z: 0}
   directionToPersonal: {x: 0, y: 0, z: 0}
   directionToForward: {x: 0, y: 0, z: 0}
@@ -4526,6 +4914,7 @@ GameObject:
   - component: {fileID: 1869251844}
   - component: {fileID: 1869251843}
   - component: {fileID: 1869251842}
+  - component: {fileID: 1869251845}
   m_Layer: 5
   m_Name: Astronaut1Button
   m_TagString: Untagged
@@ -4637,6 +5026,53 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1869251840}
+--- !u!114 &1869251845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1869251840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerEnter
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerExit
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  delegates: []
 --- !u!1 &1894543444
 GameObject:
   m_ObjectHideFlags: 0
@@ -4979,6 +5415,7 @@ GameObject:
   - component: {fileID: 2087356802}
   - component: {fileID: 2087356801}
   - component: {fileID: 2087356800}
+  - component: {fileID: 2087356803}
   m_Layer: 5
   m_Name: Astronaut2Button
   m_TagString: Untagged
@@ -5090,6 +5527,53 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2087356798}
+--- !u!114 &2087356803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2087356798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerEnter
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerExit
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  delegates: []
 --- !u!1 &2093684016
 GameObject:
   m_ObjectHideFlags: 0
@@ -5101,6 +5585,7 @@ GameObject:
   - component: {fileID: 2093684020}
   - component: {fileID: 2093684019}
   - component: {fileID: 2093684018}
+  - component: {fileID: 2093684021}
   m_Layer: 5
   m_Name: Astronaut5Button
   m_TagString: Untagged
@@ -5212,6 +5697,53 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2093684016}
+--- !u!114 &2093684021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2093684016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerEnter
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1082157261}
+          m_MethodName: OnPointerExit
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  delegates: []
 --- !u!1 &2133979768 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 100002, guid: da0e0a166553e8d43bef6b9fabcdea68, type: 3}
@@ -5232,14 +5764,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
-  turnSmoothTime: 0.2
-  speedSmoothTime: 0.1
+  Exclamation: {fileID: 2800000, guid: 8fa9fadc5a0a3b6478c20cecd1664330, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
   personalBestPosition: {x: 0, y: 0, z: 0}
   globalBestScore: 0
   globalBestPosition: {x: 0, y: 0, z: 0}
+  foundBestPosition: {x: 0, y: 0, z: 0}
   directionToGlobal: {x: 0, y: 0, z: 0}
   directionToPersonal: {x: 0, y: 0, z: 0}
   directionToForward: {x: 0, y: 0, z: 0}
@@ -5378,7 +5910,7 @@ GameObject:
   - component: {fileID: 2140928270}
   - component: {fileID: 2140928273}
   m_Layer: 0
-  m_Name: Sphere
+  m_Name: Sun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

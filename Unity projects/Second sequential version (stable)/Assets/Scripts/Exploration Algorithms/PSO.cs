@@ -8,17 +8,17 @@ public class PSO
     public float globalBestScore;
     public Vector3 globalBestPosition;
 
-    private float Wmin = 1;
-    private float Wmax = 200;
+    private float Wmin = 1;     //1
+    private float Wmax = 500;  //2000
     private float Wcurrent;
-    private float c1 = 1.5f;
-    private float c2 = 2;
+    private float c1 = 1;    //1.5
+    private float c2 = 1.5f;       //2
 
     private float caida;
 
     private int iteration = 1;
-    private int maxIterations = 3000;
-    private int maxIterWithWmin = 400;
+    private int maxIterations = 3000;   //3000
+    private int maxIterWithWmin = 150;  //400
 
     //LOGS
     FileWriter globalBestScoreLogs;
@@ -54,11 +54,11 @@ public class PSO
         globalBestScoreLogs.Write(globalBestScore);
     }
 
-    private void UpdateTrajectory(float Wcurrent, float c1, float c2)
+    private void UpdateTrajectory(float Wcurrent, float c1, float c2, bool goToGlobalMax = false)
     {
         foreach (PlayerController controller in astronautControllers)
         {
-            controller.UpdateTrajectory(Wcurrent, c1, c2);
+            controller.UpdateTrajectory(Wcurrent, c1, c2, goToGlobalMax);
         }
     }
 
@@ -87,12 +87,39 @@ public class PSO
         testLog.End();
     }
 
+    private void GoToGlobalMax()
+    {
+        foreach (PlayerController controller in astronautControllers)
+        {
+            controller.SetBestPosition();
+            controller.Move();
+            controller.UpdatePersonalScore();
+        }
+        UpdateTrajectory(Wcurrent, c1, c2, true);
+    }
+
+    private void CheckGlobalMax()
+    {
+        foreach (PlayerController controller in astronautControllers)
+        {
+            if(controller.HasReachedHighestMountain())
+            {
+                controller.Stop();
+            }
+            else
+            {
+                controller.SetMove(true);
+            }
+        }
+    }
+
     //Main loop
     public void UpdateAstronauts()
     {
         if(iteration == (maxIterations + maxIterWithWmin))
         {
-            Stop();
+            GoToGlobalMax();
+            CheckGlobalMax();   //Will stop player is has reached mountain
         }
         else
         {

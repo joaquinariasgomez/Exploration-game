@@ -5,22 +5,26 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
 
     public CubeSphere attractor;
+    public Texture2D Exclamation;
+
+    private bool draw_exclamation = false;
+
     private float maxSpeed = 5;
     private float minSpeed = 0;
-    private float gravity = 9.8f;
+    private float correspondentSpeed;
 
-    //public Renderer myRenderer;
-
-    public float turnSmoothTime = 0.2f;
+    private float turnSmoothTime = 0.2f;
     float turnSmoothVelocity;
 
-    public float speedSmoothTime = 0.1f;
+    private float speedSmoothTime = 0.1f;
     float speedSmoothVelocity;
     float currentSpeed;
-    float maxVelocityCteY = 5f;
+    float maxVelocityCteY = 10f;
     float velocityCteY;
     bool running;
     bool move;
+    private float targetDistanceToHighestMountain = 2f;
+    private float enoughCloseToHightestMountain = 6f;   //This will let Astronaut find a stable position within this distance
 
     private Vector3 gravityDirection;
     private Vector3 gravityDirectionRotated;
@@ -33,7 +37,7 @@ public class PlayerController : MonoBehaviour {
 
     //STUCK
     private float secondsCounter = 0f;
-    private float secondsToCount = 0.5f;
+    private float secondsToCount = 0.1f;    //0.5
     private float latestX = 0f;
     private float latestY = 0f;
     private float latestZ = 0f;
@@ -46,6 +50,9 @@ public class PlayerController : MonoBehaviour {
     public Vector3 personalBestPosition;
     public float globalBestScore;
     public Vector3 globalBestPosition;
+
+    public Vector3 foundBestPosition;
+    private float foundBestScore;
 
     public Vector3 directionToGlobal;
     public Vector3 directionToPersonal;
@@ -76,11 +83,42 @@ public class PlayerController : MonoBehaviour {
 
     float distToGround;
     bool setted = false;
+    private bool settedBestPosition = false;
 
     Animator animator;
     //CharacterController controller;
     CapsuleCollider collider;
     Rigidbody rigidbody;
+
+    private void OnGUI()
+    {
+        if(draw_exclamation)
+        {
+            Vector2 astronautPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
+            GUI.DrawTexture(new Rect(astronautPos.x - 3, Screen.height - astronautPos.y - 40, 6, 15), Exclamation);
+        }
+    }
+
+    public void SetBestPosition()
+    {
+        if(settedBestPosition) { return; }
+        settedBestPosition = true;
+
+        draw_exclamation = true;
+
+        foundBestPosition = globalBestPosition;
+        foundBestScore = globalBestScore;
+
+        //Stop logs
+        this.actualScoreLogs.End();
+        this.personalBestScoreLogs.End();
+    }
+
+    public bool HasReachedHighestMountain()
+    {
+        float distanceToHighestMountain = Vector3.Distance(transform.position, foundBestPosition);
+        return distanceToHighestMountain <= targetDistanceToHighestMountain;
+    }
 
     private void PerformGravityRotation()
     {
@@ -135,11 +173,10 @@ public class PlayerController : MonoBehaviour {
         //Averiguar el angulo a girar para ir recto
         Vector3 referenceDirection = (new Vector3(0, 0, 1) - attractor.transform.position).normalized;
         Vector3 situatorDirection = new Vector3(transform.position.x, attractor.transform.position.y, transform.position.z).normalized;
-        float forwardAngle = Vector3.Angle(referenceDirection, situatorDirection);
-        if (situatorDirection == Vector3.zero)
-        {
-            forwardAngle = 0f;
-        }
+        //float forwardAngle = Vector3.Angle(referenceDirection, situatorDirection);
+
+        Vector3 situatorDirectionProjected = Vector3.ProjectOnPlane(situatorDirection, new Vector3(0, 1, 0));
+        float forwardAngle = Vector3.Angle(referenceDirection, situatorDirectionProjected);
 
         float x = transform.position.x;
         float y = transform.position.y;
@@ -149,11 +186,11 @@ public class PlayerController : MonoBehaviour {
         {
             if (x >= 0)
             {
-                transform.RotateAround(transform.position, transform.up, latestTargetDirection - forwardAngle);
+                transform.RotateAround(transform.position, transform.up, latestTargetDirection - forwardAngle); //-
             }
             else
             {
-                transform.RotateAround(transform.position, transform.up, latestTargetDirection + forwardAngle);
+                transform.RotateAround(transform.position, transform.up, latestTargetDirection + forwardAngle); //+
             }
         }
         else
@@ -178,7 +215,7 @@ public class PlayerController : MonoBehaviour {
         animator = GetComponent<Animator>();
         collider = GetComponent<CapsuleCollider>();
         rigidbody = GetComponent<Rigidbody>();
-        //myRenderer = GetComponent<Renderer>();
+
         rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
         rigidbody.useGravity = false;
 
@@ -191,6 +228,7 @@ public class PlayerController : MonoBehaviour {
         actualScore = attractor.gridSize / 2f;  //Minimum score
 
         speed = Random.Range(3, maxSpeed);
+        correspondentSpeed = speed;
         life = Random.Range(50, 100);
 
         float slowTime = 0.5f;
@@ -207,15 +245,10 @@ public class PlayerController : MonoBehaviour {
         personalBestScoreLogs = new FileWriter("Assets/Logs/Astronaut_" + this.id + "PersonalBestScore.txt");
     }
 
-    /*public bool isVisibleByCamera()
-    {
-        return gameObject.GetComponentInChildren<Renderer>().isVisible;
-    }*/
-
     public void SetInPlace(float x, float z, float angle)
     {
         float radius = (float)attractor.gridSize / 2f + CubeSphere.heightMultiplier;
-        transform.Translate(new Vector3(x, radius, z));
+        transform.Translate(new Vector3(x, radius, z)); //radius
         transform.RotateAround(transform.position, transform.up, angle);
         trajectory = angle;
         //STUCK
@@ -275,54 +308,76 @@ public class PlayerController : MonoBehaviour {
         personalBestScoreLogs.Write(personalBestScore);
     }
 
-    public void UpdateTrajectory(float Wcurrent, float c1, float c2)
+    public void UpdateTrajectory(float Wcurrent, float c1, float c2, bool goToGlobalMax = false)
     {
         //Update weights
         this.Wcurrent = Wcurrent;
         this.c1 = c1;
         this.c2 = c2;
 
-        //print(Wcurrent);
-
         //Update direction vectors
-        float r1 = 1f;// Random.Range(1f, 1.5f);
-        float r2 = 1f;// Random.Range(1f, 1.5f);
+        float r1 = 1; //Random.Range(1f, 1.5f);
+        float r2 = 1; //Random.Range(1f, 1.5f);
         directionToGlobal = r2 * c2 * (globalBestPosition - transform.position).normalized;
         directionToPersonal = r1 * c1 * (personalBestPosition - transform.position).normalized;
         directionToForward = Wcurrent * transform.forward;
         destination = directionToForward + directionToPersonal + directionToGlobal;
+        //WHEN CLOSE TO HIGHEST MOUNTAIN THINGS
+        if(goToGlobalMax)
+        {    
+            float distanceToHighestMountain = Vector3.Distance(transform.position, foundBestPosition);
+            if (distanceToHighestMountain <= enoughCloseToHightestMountain)
+            {
+                if (isGrounded())
+                {
+                    actualScore = Vector3.Distance(attractor.transform.position, transform.position);
+                    if (actualScore > foundBestScore)
+                    {
+                        foundBestScore = actualScore;
+                        foundBestPosition = transform.position;
+                    }
+                }
+            }
+
+            directionToGlobal = (foundBestPosition - transform.position).normalized;
+            destination = directionToGlobal;
+        }
+        //END WHEN CLOSE TO HIGHEST MOUNTAIN THINGS
         projectedDestination = Vector3.ProjectOnPlane(destination, transform.up);
 
         //Update trajectory
         float angle = Vector3.Angle(transform.forward, projectedDestination);
-        if (isGrounded())
+
+        //- => Izquierda
+        if (trajectory >= 360) trajectory -= 360;
+        if (trajectory <= -360) trajectory += 360;
+
+        float rightAngle = Vector3.Angle(transform.right, projectedDestination);
+        float leftAngle = Vector3.Angle(-transform.right, projectedDestination);
+
+        if (rightAngle >= leftAngle)
         {
-            //- => Izquierda
-            float rightAngle = Vector3.Angle(transform.right, projectedDestination);
-            float leftAngle = Vector3.Angle(-transform.right, projectedDestination);
-            if (rightAngle > leftAngle)
+            if (transform.position.y >= 0)
             {
-                if (transform.position.y >= 0)
-                {
-                    trajectory -= angle;
-                }
-                else
-                {
-                    trajectory += angle;
-                }
+                trajectory -= angle;    //-
             }
             else
             {
-                if (transform.position.y >= 0)
-                {
-                    trajectory += angle;
-                }
-                else
-                {
-                    trajectory -= angle;
-                }
+                trajectory += angle;    //+
             }
         }
+        else
+        {
+            if (transform.position.y >= 0)
+            {
+                trajectory += angle;
+            }
+            else
+            {
+                trajectory -= angle;
+            }
+        }
+        latestTargetDirection = trajectory;
     }
 
     private void ManageStepSound()
@@ -362,12 +417,21 @@ public class PlayerController : MonoBehaviour {
         ManageStepSound();
 
         //CHECK IF IT IS STUCK AND ITS ALSO MOVING
+        Vector3 upComponent = Vector3.zero;
         if(ItIsStuck() && move) {
-            trajectory += 180;  //Media vuelta
+            //trajectory += 180;
+            //velocityCteY = 5;
+            //speed = 100;
+            print(" esta "+id);
+            upComponent = transform.up;
         }
-
-        //float targetSpeed = (projectedDestination.magnitude > walkSpeed) ? runSpeed : walkSpeed;
-        //running = (targetSpeed==runSpeed);
+        else
+        {
+            upComponent = Vector3.zero;
+            //speed = correspondentSpeed;
+            //velocityCteY = maxVelocityCteY;
+            //upComponent = Vector3.zero;
+        }
 
         currentSpeed = Mathf.SmoothDamp(currentSpeed, speed, ref speedSmoothVelocity, speedSmoothTime);
 
@@ -375,11 +439,12 @@ public class PlayerController : MonoBehaviour {
 
         //PERFORM ROTATIONS
         PerformGravityRotation();
-        if(move) { PerformControllerRotation(); }
+
+        if (move) { PerformControllerRotation(); }
 
         //UPDATE HORIZONTAL TRANSLATION
         if(move && isGrounded()) {
-            transform.position += transform.forward * currentSpeed * Time.deltaTime;
+            transform.position += (transform.forward * currentSpeed + upComponent * currentSpeed) * Time.deltaTime;
         }
         //UPDATE VERTICAL TRANSLATION
         rigidbody.AddForce(-gravityDirection * velocityCteY);
@@ -396,15 +461,11 @@ public class PlayerController : MonoBehaviour {
         {
             animator.SetFloat("speedPercent", 0f, speedSmoothTime, Time.deltaTime);
         }
+    }
 
-        if (isGrounded())
-        {
-            velocityCteY = 0;
-        }
-        else
-        {
-            velocityCteY = maxVelocityCteY;
-        }
+    public void SetMove(bool condition)
+    {
+        this.move = condition;
     }
 
     public void Stop()
@@ -415,20 +476,8 @@ public class PlayerController : MonoBehaviour {
         gravityDirection = (transform.position - attractor.transform.position).normalized;
         //PERFORM ROTATIONS
         PerformGravityRotation();
+        //UPDATE VERTICAL TRANSLATION
         rigidbody.AddForce(-gravityDirection * velocityCteY);
-
-        if (isGrounded())
-        {
-            velocityCteY = 0;
-        }
-        else
-        {
-            velocityCteY = maxVelocityCteY;
-        }
-
-        //Logs
-        this.actualScoreLogs.End();
-        this.personalBestScoreLogs.End();
     }
 
     bool isGrounded()
@@ -456,7 +505,9 @@ public class PlayerController : MonoBehaviour {
         Gizmos.color = Color.red;
         //Gizmos.DrawRay(transform.position, destination);
         //Gizmos.color = Color.green;
-        Gizmos.DrawRay(transform.position, projectedDestination);
+        Gizmos.DrawRay(transform.position, projectedDestination.normalized * 200);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(transform.position, transform.forward * 200);
         /*Gizmos.color = Color.green;
         Gizmos.DrawRay(new Vector3(0, 0, 0), pointDirection * 100);
         Gizmos.color = Color.blue;

@@ -14,7 +14,8 @@ public class CameraController : MonoBehaviour {
     private float zoom = 0;
     private float minZoom = -40;
     private float maxZoom = 100;
-    private float zoomChangeAmount = 80f;
+    private float minZoomChangeAmount = 80f;    //Zoom change if zoom is lower than 0
+    private float maxZoomChangeAmount = 80f;
     [HideInInspector]
     public float zoomPercentage;
 
@@ -30,7 +31,14 @@ public class CameraController : MonoBehaviour {
 
     void Awake()
     {
-        initialAltitude = attractor.gridSize / 2f + CubeSphere.heightMultiplier + cameraAltitude;
+        switch(attractor.gridSize)
+        {
+            case 100: minZoom = -40; maxZoom = 100; maxZoomChangeAmount = 80; break;
+            case 200: minZoom = -40; maxZoom = 150; maxZoomChangeAmount = 120; break;
+            case 400: minZoom = -70; maxZoom = 300; maxZoomChangeAmount = 240; zoom = 30; break;
+            default: minZoom = -70; maxZoom = 300; maxZoomChangeAmount = 240; zoom = 30; break;
+        }
+        initialAltitude = attractor.gridSize / 2f + CubeSphere.heightMultiplier + cameraAltitude + zoom;
         transform.position += new Vector3(0, initialAltitude, 0);
     }
 
@@ -54,6 +62,11 @@ public class CameraController : MonoBehaviour {
         float distanceToMinZoom = zoom - minZoom;
         zoomPercentage = (distanceToMinZoom / zoomTravel) * 100;
         dragSpeed = 0.7f + zoomPercentage / 6f;
+        switch(attractor.gridSize)
+        {
+            case 100: dragSpeed *= 0.8f; break;
+            case 400: dragSpeed *= 1.75f; break;
+        }
 
         //Keyboard
         moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
@@ -79,6 +92,7 @@ public class CameraController : MonoBehaviour {
 
     private void PerformZoom()
     {
+        float zoomChangeAmount = (zoom < 0) ? minZoomChangeAmount : maxZoomChangeAmount;
         Vector3 gravityUp = (transform.position - attractor.transform.position).normalized;
         if (Input.mouseScrollDelta.y > 0)   //Zoom in
         {
@@ -88,6 +102,7 @@ public class CameraController : MonoBehaviour {
         {
             zoom += zoomChangeAmount * Time.deltaTime;
         }
+
         zoom = Mathf.Clamp(zoom, minZoom, maxZoom);
 
         float distanceFromCenterToCamera = Vector3.Distance(attractor.transform.position, transform.position);
@@ -114,6 +129,8 @@ public class CameraController : MonoBehaviour {
         float distanceToMinZoom = zoom - minZoom;
         zoomPercentage = (distanceToMinZoom / zoomTravel) * 100;
         //END ONLY FOR SHARED DATA
+
+        float zoomChangeAmount = (zoom < 0) ? minZoomChangeAmount : maxZoomChangeAmount;
 
         int childCount = astronauts[selectedAstronaut].transform.childCount;
 

@@ -17,12 +17,12 @@ public class MouseSkinManager : MonoBehaviour {
     private Vector2 movementVector;
 
     private float secondsCounter = 0;
-    private float minimumTimeInState = 0.3f;
+    private float minimumTimeInState = 0.25f;   //.3f;
 
-    private float variationBorderline = 3f;
+    private float variationBorderline = 1.5f;   //3f;
 
-    private bool isPointing = false;
-    private bool isButton = false;
+    private bool isPointingAstronaut = false;
+    private bool isPointingButton = false;
 
     private void Start()
     {
@@ -40,38 +40,22 @@ public class MouseSkinManager : MonoBehaviour {
         mousePosition = newMousePosition;
     }
 
-    public void SetTexture(string type, bool isButton = false)
+    public void Point(string cause = "astronaut")
     {
-        if(type == "point")
+        switch(cause)
         {
-            this.isButton = isButton;
-            isPointing = true;
-            drawTexture = Point_hand;
+            case "astronaut": isPointingAstronaut = true; break;
+            case "button": isPointingButton = true; break;
         }
-        Cursor.SetCursor(drawTexture, Vector2.zero, CursorMode.Auto);
     }
 
-    public void UnsetTextureButton()
+    public void Unpoint(string cause = "astronaut")
     {
-        drawTexture = Center_hand;
-        if(Input.GetMouseButton(0))
+        switch (cause)
         {
-            drawTexture = Grab_hand;
+            case "astronaut": isPointingAstronaut = false; break;
+            case "button": isPointingButton = false; break;
         }
-        //Cursor.SetCursor(drawTexture, Vector2.zero, CursorMode.Auto);
-        //Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-    }
-
-    public void UnsetTexture()
-    {
-        if(isButton) { return; }
-        drawTexture = Center_hand;
-        if (Input.GetMouseButton(0))
-        {
-            drawTexture = Grab_hand;
-        }
-        isPointing = false;
-        //Cursor.SetCursor(drawTexture, Vector2.zero, CursorMode.Auto);
     }
 
     private void TextureUpdate()
@@ -128,20 +112,22 @@ public class MouseSkinManager : MonoBehaviour {
     private void Update()
     {
         UpdateMousePosition();
-        if(Input.GetMouseButton(0))
+        if(isPointingAstronaut || isPointingButton)
         {
-            Cursor.SetCursor(Grab_hand, Vector2.zero, CursorMode.Auto);
+            Cursor.SetCursor(Point_hand, Vector2.zero, CursorMode.Auto);
+            secondsCounter = minimumTimeInState;    //Reset counter for TextureUpdate()
         }
         else
         {
-            if (!isPointing)
+            if(Input.GetMouseButton(0))
+            {
+                Cursor.SetCursor(Grab_hand, Vector2.zero, CursorMode.Auto);
+                secondsCounter = minimumTimeInState;    //Reset counter for TextureUpdate()
+            }
+            else
             {
                 TextureUpdate();
             }
         }
-    }
-
-    private void OnDrawGizmos()
-    {
     }
 }

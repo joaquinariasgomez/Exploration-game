@@ -8,6 +8,7 @@ using UnityEngine;
 public class CubeSphere : MonoBehaviour
 {
     public int gridSize;
+    public static int seed = 1045; //2048
     public TerrainType[] regions;
     public Material material;
     public GameObject camera;
@@ -15,18 +16,17 @@ public class CubeSphere : MonoBehaviour
 
     private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;    //Global
     private float radius;
-    private static int sqrtChunksPerFace = 25;     //25 - 5
-    public static float heightMultiplier = 12;     //20
+    private static int sqrtChunksPerFace;// = 25;     //25 - 5
+    public static float heightMultiplier = 10;     //20
     private static int id = 0;
 
     private static Dictionary<string, float[,]> noiseMaps=new Dictionary<string, float[,]>();  //Face, noiseMap
     private static Dictionary<string, string> faceMap = new Dictionary<string, string>();
     private static Color[] colourMap;
-    private static int seed = 1045; //2048
     private static float scale = 30f;
     private static int octaves = 4;
-    private static float persistance = 0.36f;
-    private static float lacunarity = 1.7f;
+    private static float persistance = 0.5f;   //0.36f;
+    private static float lacunarity = 1f;       //1.7f;
     private static Vector2 offset = new Vector2(0, 0);
 
     private static List<VerticesData> verticesData;
@@ -58,6 +58,14 @@ public class CubeSphere : MonoBehaviour
 
     public void Awake()
     {
+        switch(gridSize)    //3 sizes: 100, 200 & 400
+        {
+            case 100: sqrtChunksPerFace = 25; break;
+            case 200: sqrtChunksPerFace = 25; break;
+            case 400: sqrtChunksPerFace = 25; break;
+            default: gridSize = 400; sqrtChunksPerFace = 25; break;
+        }
+
         cameraTransform = camera.transform;
 
         viewerPositionOld = viewerPosition = cameraTransform.position;
@@ -85,7 +93,7 @@ public class CubeSphere : MonoBehaviour
     private void Start()
     {
         ClosestChunkHasChanged();   //Set variables for UpdateChunks()
-        StartCoroutine(UpdateChunks());
+        //StartCoroutine(UpdateChunks());
     }
 
     private void Update()
@@ -112,7 +120,7 @@ public class CubeSphere : MonoBehaviour
             if (ClosestChunkHasChanged())
             {
                 //timer.Start();
-                StartCoroutine(UpdateChunks());       //DECOMMENT
+                //StartCoroutine(UpdateChunks());       //DECOMMENT
                 //timer.Stop();
                 //print("Tiempo " + timer.ElapsedMilliseconds);
                 //timer.Reset();
@@ -732,8 +740,14 @@ public class CubeSphere : MonoBehaviour
     {
         float zoomPercentage = camera.GetComponent<CameraController>().zoomPercentage;
 
-        int maxChunksToRender = 1000;
-        int minChunksToRender = 20;
+        int maxChunksToRender = 1300;   //1000
+        int minChunksToRender = 50;     //20
+        switch(gridSize)
+        {
+            case 100: maxChunksToRender = 1500; minChunksToRender = 200; break;
+            case 200: maxChunksToRender = 1300; minChunksToRender = 110; break;
+            case 400: maxChunksToRender = 1000; minChunksToRender = 50; break;
+        }
         int chunksToRender = (int)(minChunksToRender + (zoomPercentage / 100) * (maxChunksToRender - minChunksToRender));
 
         int maxResToRender;
@@ -756,10 +770,13 @@ public class CubeSphere : MonoBehaviour
                 else
                 {
                     maxResToRender = 8;
+                    if(gridSize == 100)
+                    {
+                        maxResToRender = 4;
+                    }
                 }
             }
         }
-        //print(maxResToRender);
 
         Chunk closestChunk = chunks[0];
 

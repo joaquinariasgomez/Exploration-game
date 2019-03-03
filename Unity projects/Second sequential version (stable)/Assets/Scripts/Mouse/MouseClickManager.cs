@@ -6,6 +6,10 @@ public class MouseClickManager : MonoBehaviour {
 
     public GameObject myCamera;
     public AstronautManager astronautManager;
+    public Texture2D Pointed_astronaut;
+    private bool draw_point_astronaut = false;
+    private int pointedAstronaut = 0;
+
     private GameObject[] astronauts;
 
     private float minimumDistanceToClickAstronaut = 70;
@@ -39,7 +43,7 @@ public class MouseClickManager : MonoBehaviour {
             }
             else
             {
-                Point();
+                Point(closestAstronaut);
             }
         }
         else
@@ -48,14 +52,27 @@ public class MouseClickManager : MonoBehaviour {
         }
     }
 
-    private void Point()
+    private void OnGUI()
     {
-        gameObject.GetComponent<MouseSkinManager>().SetTexture("point");
+        if(draw_point_astronaut)
+        {
+            Vector2 astronautPos = Camera.main.WorldToScreenPoint(astronauts[pointedAstronaut].transform.position);
+            GUI.DrawTexture(new Rect(astronautPos.x - 14, Screen.height - astronautPos.y - 36, 28, 17), Pointed_astronaut);
+        }
+    }
+
+    private void Point(int pointedAstronaut)
+    {
+        gameObject.GetComponent<MouseSkinManager>().Point();
+
+        draw_point_astronaut = true;
+        this.pointedAstronaut = pointedAstronaut;
     }
 
     private void Unpoint()
     {
-        gameObject.GetComponent<MouseSkinManager>().UnsetTexture();
+        gameObject.GetComponent<MouseSkinManager>().Unpoint();
+        draw_point_astronaut = false;
     }
 
     private void SelectAstronaut(int astronautId)

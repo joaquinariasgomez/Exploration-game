@@ -3,17 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class OrbitMotion : MonoBehaviour {
+    public CubeSphere attractor;
     public Transform orbitingObject;
-    public Ellipse orbitPath;
+    private Ellipse orbitPath;
 
     [Range(0f, 1f)]
-    public float orbitProgress = 0f;
-    public float orbitPeriod = 3f;
-    public bool orbitActive = true;
+    private float orbitProgress = 0f;
+    private float orbitPeriod;
+    private bool orbitActive = true;
 
     //Use this for initialization
     void Start()
     {
+        float axisSize = attractor.gridSize + 100;
+        orbitPath = new Ellipse(axisSize, axisSize);
+        switch(attractor.gridSize)
+        {
+            case 100: orbitPeriod = 100; break;
+            case 200: orbitPeriod = 130; break;
+            case 400: orbitPeriod = 210; break;
+        }
         if(orbitingObject==null)
         {
             orbitActive = false;
