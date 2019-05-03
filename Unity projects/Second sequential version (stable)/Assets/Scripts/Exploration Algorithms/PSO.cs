@@ -9,7 +9,7 @@ public class PSO
     public Vector3 globalBestPosition;
 
     private float Wmin = 1;     //1
-    private float Wmax = 500;  //2000
+    private float Wmax;  //2000
     private float Wcurrent;
     private float c1 = 1;    //1.5
     private float c2 = 1.5f;       //2
@@ -17,8 +17,10 @@ public class PSO
     private float caida;
 
     private int iteration = 1;
-    private int maxIterations = 3000;   //3000
-    private int maxIterWithWmin = 150;  //400
+    private int maxIterations = 1000;   //3000
+    private int maxIterWithWmin = 5;  //400
+
+    private bool stopExploring = false;
 
     //LOGS
     FileWriter globalBestScoreLogs;
@@ -28,15 +30,29 @@ public class PSO
     public PSO(List<PlayerController> astronautControllers)
     {
         this.astronautControllers = astronautControllers;
-        this.Wcurrent = Wmax;
-        this.caida = (Wmax - Wmin) / maxIterations;
-
+        
         globalBestScore = astronautControllers[0].attractor.gridSize / 2f;  //Minimum best score
         globalBestPosition = Vector3.zero;
 
         //FileWriter
         globalBestScoreLogs = new FileWriter("Assets/Logs/GlobalBestScore.txt");
         testLog = new FileWriter("Assets/Logs/testLog.txt");
+    }
+
+    public void SetInertia(float inertia)
+    {
+        float maxInertia = 500;
+        switch (astronautControllers[0].attractor.gridSize)
+        {
+            case 100: maxInertia = 500; maxIterations = 1500; break;
+            case 200: maxInertia = 1000; maxIterations = 1750;  break;
+            case 400: maxInertia = 4000; maxIterations = 2000; break;
+        }
+        float minInertia = 20;
+        Wmax = minInertia + (maxInertia - minInertia) * inertia;
+
+        this.Wcurrent = Wmax;
+        this.caida = (Wmax - Wmin) / maxIterations;
     }
 
     private void UpdateGlobalScore()
@@ -113,13 +129,44 @@ public class PSO
         }
     }
 
+    private bool AllReachedHighestMountain()
+    {
+        bool condition = true;
+
+        foreach(PlayerController controller in astronautControllers)
+        {
+            if(!controller.HasReachedHighestMountain())
+            {
+                condition = false;
+            }
+        }
+        return condition;
+    }
+
+    private void SendSignalReachedHighestMountain()
+    {
+        foreach (PlayerController controller in astronautControllers)
+        {
+            controller.SetReachedHighestMountain();
+        }
+    }
+
+    public void StopExploring()
+    {
+        stopExploring = true;
+    }
+
     //Main loop
     public void UpdateAstronauts()
     {
-        if(iteration == (maxIterations + maxIterWithWmin))
+        if(iteration == (maxIterations + maxIterWithWmin) || stopExploring)
         {
             GoToGlobalMax();
             CheckGlobalMax();   //Will stop player is has reached mountain
+            if(AllReachedHighestMountain())
+            {
+                SendSignalReachedHighestMountain();
+            }
         }
         else
         {

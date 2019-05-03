@@ -21,8 +21,10 @@ public class MouseSkinManager : MonoBehaviour {
 
     private float variationBorderline = 1.5f;   //3f;
 
-    private bool isPointingAstronaut = false;
-    private bool isPointingButton = false;
+    [HideInInspector]
+    public bool isPointingAstronaut = false;
+    [HideInInspector]
+    public bool isPointingButton = false;
 
     private void Start()
     {

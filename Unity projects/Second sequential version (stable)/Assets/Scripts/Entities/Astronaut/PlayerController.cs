@@ -6,8 +6,12 @@ public class PlayerController : MonoBehaviour {
 
     public CubeSphere attractor;
     public Texture2D Exclamation;
+    public Texture2D Sword_and_shield;
+
+    private Vector3 upComponent = Vector3.zero;
 
     private bool draw_exclamation = false;
+    private bool draw_sword_shield = false;
 
     private float maxSpeed = 5;
     private float minSpeed = 0;
@@ -97,6 +101,11 @@ public class PlayerController : MonoBehaviour {
             Vector2 astronautPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
             GUI.DrawTexture(new Rect(astronautPos.x - 3, Screen.height - astronautPos.y - 40, 6, 15), Exclamation);
         }
+        if(draw_sword_shield)
+        {
+            Vector2 astronautPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
+            GUI.DrawTexture(new Rect(astronautPos.x - 16, Screen.height - astronautPos.y - 50, 34, 34), Sword_and_shield);
+        }
     }
 
     public void SetBestPosition()
@@ -112,6 +121,12 @@ public class PlayerController : MonoBehaviour {
         //Stop logs
         this.actualScoreLogs.End();
         this.personalBestScoreLogs.End();
+    }
+
+    public void SetReachedHighestMountain()
+    {
+        draw_exclamation = false;
+        draw_sword_shield = true;
     }
 
     public bool HasReachedHighestMountain()
@@ -417,13 +432,13 @@ public class PlayerController : MonoBehaviour {
         ManageStepSound();
 
         //CHECK IF IT IS STUCK AND ITS ALSO MOVING
-        Vector3 upComponent = Vector3.zero;
+        //Vector3 upComponent = Vector3.zero;
         if(ItIsStuck() && move) {
             //trajectory += 180;
             //velocityCteY = 5;
             //speed = 100;
             print(" esta "+id);
-            upComponent = transform.up;
+            upComponent += transform.up;
         }
         else
         {

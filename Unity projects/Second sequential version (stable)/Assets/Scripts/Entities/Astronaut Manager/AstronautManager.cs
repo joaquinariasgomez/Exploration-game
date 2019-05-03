@@ -5,8 +5,11 @@ using UnityEngine;
 public class AstronautManager : MonoBehaviour {
 
     public GameObject[] astronauts;
+    public GameObject StopExploringButton;
     private List<PlayerController> astronautControllers = new List<PlayerController>();
     private int numAstronauts;
+    private bool startPSO = false;
+    private float inertia;
 
     PSO pso;
 
@@ -27,6 +30,7 @@ public class AstronautManager : MonoBehaviour {
 
         SetAstronautsInPlace();
         pso = new PSO(astronautControllers);
+        StopExploringButton.SetActive(false);
     }
 
     void SetAstronautsInPlace()
@@ -43,9 +47,36 @@ public class AstronautManager : MonoBehaviour {
         astronautControllers[6].SetInPlace(0f, -radius, 180f);
         astronautControllers[7].SetInPlace(-radius * 3f / 4f, -radius * 3f / 4f, -135f);
     }
+
+    public void onOK()
+    {
+        startPSO = true;
+        inertia = GameObject.Find("WSliderText").GetComponent<ShowWInSlider>().value;
+        pso.SetInertia(inertia);
+
+        StopExploringButton.SetActive(true);
+        GameObject.Find("Mouse").GetComponent<MouseSkinManager>().Unpoint("button");
+
+        //Destroy UI elements
+        GameObject.Find("WSlider").gameObject.SetActive(false); //Destroys WSliderText because its child of WSlider
+        GameObject.Find("WSliderOK").gameObject.SetActive(false);
+    }
+
+    public void onStopExploring()
+    {
+        pso.StopExploring();
+
+        GameObject.Find("Mouse").GetComponent<MouseSkinManager>().Unpoint("button");
+
+        //Destroy UI element
+        StopExploringButton.SetActive(false);
+    }
 	
 	// Update is called once per frame
 	void Update () {
-        pso.UpdateAstronauts();
+        if(startPSO)
+        {
+            pso.UpdateAstronauts();
+        }
     }
 }

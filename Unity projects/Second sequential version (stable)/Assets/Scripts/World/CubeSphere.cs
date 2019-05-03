@@ -17,7 +17,7 @@ public class CubeSphere : MonoBehaviour
     private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;    //Global
     private float radius;
     private static int sqrtChunksPerFace;// = 25;     //25 - 5
-    public static float heightMultiplier = 10;     //20
+    public static float heightMultiplier = 5;     //20
     private static int id = 0;
 
     private static Dictionary<string, float[,]> noiseMaps=new Dictionary<string, float[,]>();  //Face, noiseMap
@@ -25,7 +25,7 @@ public class CubeSphere : MonoBehaviour
     private static Color[] colourMap;
     private static float scale = 30f;
     private static int octaves = 4;
-    private static float persistance = 0.5f;   //0.36f;
+    private static float persistance = 0.5f;   //0.36f; //0.5f
     private static float lacunarity = 1f;       //1.7f;
     private static Vector2 offset = new Vector2(0, 0);
 
@@ -93,7 +93,7 @@ public class CubeSphere : MonoBehaviour
     private void Start()
     {
         ClosestChunkHasChanged();   //Set variables for UpdateChunks()
-        //StartCoroutine(UpdateChunks());
+        StartCoroutine(UpdateChunks());
     }
 
     private void Update()
@@ -120,7 +120,7 @@ public class CubeSphere : MonoBehaviour
             if (ClosestChunkHasChanged())
             {
                 //timer.Start();
-                //StartCoroutine(UpdateChunks());       //DECOMMENT
+                StartCoroutine(UpdateChunks());       //DECOMMENT
                 //timer.Stop();
                 //print("Tiempo " + timer.ElapsedMilliseconds);
                 //timer.Reset();
@@ -141,9 +141,14 @@ public class CubeSphere : MonoBehaviour
         GenerateNoiseMapOfFace("zyx");
         GenerateNoiseMapOfFace("xz");
         GenerateNoiseMapOfFace("xzy");
+
         //Ahora mezclar los noiseMap con una funcion que coja los maps del diccionario
-        MixNoiseMaps();     //Cose las brechas ocasionadas por la generación de Chunks entre diferentes caras
-        //GenerateCraters();
+        MixNoiseMaps(1, 5);     //Cose las brechas ocasionadas por la generación de Chunks entre diferentes caras
+        MixNoiseMaps(1, 10);
+        MixNoiseMaps(1, 15);
+        /*MixNoiseMaps(1, 25, true);
+        MixNoiseMaps(1, 75, true);*/
+
         GenerateChunksOfFace(chunks, "xy");
         GenerateChunksOfFace(chunks, "xyz");
         GenerateChunksOfFace(chunks, "zy");
@@ -265,11 +270,10 @@ public class CubeSphere : MonoBehaviour
         noiseMaps.Add(face, noiseMap);
     }
 
-    private void MixNoiseMaps()
+    private void MixNoiseMaps(int from, int tope, bool recalculateMedium = true)
     {
         int width = gridSize + 1;
         int height = gridSize + 1;
-        int tope = 15;
 
         float[,] noiseMapXZY = noiseMaps["xzy"];
         float[,] noiseMapZY = noiseMaps["zy"];
@@ -282,9 +286,12 @@ public class CubeSphere : MonoBehaviour
         for(int j=0; j<width; j++)
         {
             float medium = (noiseMapXZY[0, j] + noiseMapZY[j, height - 1]) / 2;
-            noiseMapXZY[0, j] = medium;
-            noiseMapZY[j, height - 1] = medium;
-            for (int prof=1; prof<tope; prof++)
+            if(recalculateMedium)
+            {
+                noiseMapXZY[0, j] = medium;
+                noiseMapZY[j, height - 1] = medium;
+            }
+            for (int prof=from; prof<tope; prof++)     //prof=1
             {   
                 float mediumXZY = (noiseMapXZY[prof, j] + noiseMapXZY[prof - 1, j]) / 2;
                 float mediumZY = (noiseMapZY[j, height - 1 - prof] + noiseMapZY[j, height - prof]) / 2;
@@ -294,12 +301,12 @@ public class CubeSphere : MonoBehaviour
         }
         //Corner ZY - XZY - XY
         noiseMapXY[0, height - 1]= noiseMapXZY[0, 0];
-        for (int i=1; i<tope; i++)
+        for (int i=from; i<tope; i++)
         {
             float medium;
             noiseMapXY[i, height - 1] = noiseMapXZY[i, 0];
             noiseMapXY[0, height - 1 - i] = noiseMapZY[0, height - 1 - i];
-            for(int prof=1; prof<tope; prof++)
+            for(int prof=from; prof<tope; prof++)
             {
                 if(i+prof<tope)
                 {
@@ -316,9 +323,12 @@ public class CubeSphere : MonoBehaviour
         for(int j=0; j<width; j++)
         {
             float medium = (noiseMapXZ[0, j] + noiseMapZY[j, 0]) / 2;
-            noiseMapXZ[0, j] = medium;
-            noiseMapZY[j, 0] = medium;
-            for(int prof=1; prof<tope; prof++)
+            if(recalculateMedium)
+            {
+                noiseMapXZ[0, j] = medium;
+                noiseMapZY[j, 0] = medium;
+            }
+            for(int prof=from; prof<tope; prof++)
             {
                 float mediumXZ = (noiseMapXZ[prof, j] + noiseMapXZ[prof - 1, j]) / 2;
                 float mediumZY = (noiseMapZY[j, prof] + noiseMapZY[j, prof - 1]) / 2;
@@ -328,12 +338,12 @@ public class CubeSphere : MonoBehaviour
         }
         //Corner ZY - XZ - XY
         noiseMapXY[0, 0] = noiseMapZY[0, 0];
-        for (int i=1; i<tope; i++)
+        for (int i=from; i<tope; i++)
         {
             float medium;
             noiseMapXY[0, i] = noiseMapZY[0, i];
             noiseMapXY[i, 0] = noiseMapXZ[i, 0];
-            for(int prof=1; prof<tope; prof++)
+            for(int prof=from; prof<tope; prof++)
             {
                 if (i+prof<tope)
                 {
@@ -350,9 +360,12 @@ public class CubeSphere : MonoBehaviour
         for(int j=0; j<width; j++)
         {
             float medium = (noiseMapZYX[j, height - 1] + noiseMapXZY[height - 1, j]) / 2;
-            noiseMapZYX[j, height - 1] = medium;
-            noiseMapXZY[height - 1, j] = medium;
-            for(int prof=1; prof<tope; prof++)
+            if(recalculateMedium)
+            {
+                noiseMapZYX[j, height - 1] = medium;
+                noiseMapXZY[height - 1, j] = medium;
+            }
+            for(int prof=from; prof<tope; prof++)
             {
                 float mediumZYX = (noiseMapZYX[j, height - 1 - prof] + noiseMapZYX[j, height - prof]) / 2;
                 float mediumXZY = (noiseMapXZY[height - 1 - prof, j] + noiseMapXZY[height - prof, j]) / 2;
@@ -362,12 +375,12 @@ public class CubeSphere : MonoBehaviour
         }
         //Corner ZYX - XZY - XY
         noiseMapXY[height - 1, height - 1] = noiseMapXZY[height - 1, 0];
-        for (int i=1; i<tope; i++)
+        for (int i=from; i<tope; i++)
         {
             float medium;
             noiseMapXY[height - 1 - i, height - 1] = noiseMapXZY[height - 1 - i, 0];
             noiseMapXY[height - 1, height - 1 - i] = noiseMapZYX[0, height - 1 - i];
-            for(int prof=1; prof<tope; prof++)
+            for(int prof=from; prof<tope; prof++)
             {
                 if(i+prof<tope)
                 {
@@ -384,9 +397,12 @@ public class CubeSphere : MonoBehaviour
         for(int j=0; j<width; j++)
         {
             float medium = (noiseMapXZ[height - 1, j] + noiseMapZYX[j, 0]) / 2;
-            noiseMapXZ[height - 1, j] = medium;
-            noiseMapZYX[j, 0] = medium;
-            for(int prof=1; prof<tope; prof++)
+            if(recalculateMedium)
+            {
+                noiseMapXZ[height - 1, j] = medium;
+                noiseMapZYX[j, 0] = medium;
+            }
+            for(int prof=from; prof<tope; prof++)
             {
                 float mediumXZ = (noiseMapXZ[height - 1 - prof, j] + noiseMapXZ[height - prof, j]) / 2;
                 float mediumZYX = (noiseMapZYX[j, prof] + noiseMapZYX[j, prof - 1]) / 2;
@@ -396,12 +412,12 @@ public class CubeSphere : MonoBehaviour
         }
         //Corner XZ - ZYX - XY
         noiseMapXY[height - 1, 0] = noiseMapZYX[0, 0];
-        for (int i=1; i<tope; i++)
+        for (int i=from; i<tope; i++)
         {
             float medium;
             noiseMapXY[height - 1, i] = noiseMapZYX[0, i];
             noiseMapXY[height - 1 - i, 0] = noiseMapXZ[height - 1 - i, 0];
-            for(int prof=1; prof<tope; prof++)
+            for(int prof=from; prof<tope; prof++)
             {
                 if(i+prof<tope)
                 {
@@ -418,9 +434,12 @@ public class CubeSphere : MonoBehaviour
         for(int j=0; j<width; j++)
         {
             float medium = (noiseMapXYZ[j, height - 1] + noiseMapXZY[j, height - 1]) / 2;
-            noiseMapXYZ[j, height - 1] = medium;
-            noiseMapXZY[j, height - 1] = medium;
-            for(int prof=1; prof<tope; prof++)
+            if(recalculateMedium)
+            {
+                noiseMapXYZ[j, height - 1] = medium;
+                noiseMapXZY[j, height - 1] = medium;
+            }
+            for(int prof=from; prof<tope; prof++)
             {
                 float mediumXYZ = (noiseMapXYZ[j, height - 1 - prof] + noiseMapXYZ[j, height - prof]) / 2;
                 float mediumXZY = (noiseMapXZY[j, height - 1 - prof] + noiseMapXZY[j, height - prof]) / 2;
@@ -432,9 +451,12 @@ public class CubeSphere : MonoBehaviour
         for(int j=0; j<width; j++)
         {
             float medium = (noiseMapXYZ[j, 0] + noiseMapXZ[j, height - 1]) / 2;
-            noiseMapXYZ[j, 0] = medium;
-            noiseMapXZ[j, height - 1] = medium;
-            for(int prof=1; prof<tope; prof++)
+            if(recalculateMedium)
+            {
+                noiseMapXYZ[j, 0] = medium;
+                noiseMapXZ[j, height - 1] = medium;
+            }
+            for(int prof=from; prof<tope; prof++)
             {
                 float mediumXYZ = (noiseMapXYZ[j, prof] + noiseMapXYZ[j, prof - 1]) / 2;
                 float mediumXZ = (noiseMapXZ[j, height - 1 - prof] + noiseMapXZ[j, height - prof]) / 2;
@@ -446,9 +468,12 @@ public class CubeSphere : MonoBehaviour
         for(int j=0; j<width; j++)
         {
             float medium = (noiseMapXYZ[height - 1, height - 1 - j] + noiseMapZYX[height - 1, height - 1 - j]) / 2;
-            noiseMapXYZ[height - 1, height - 1 - j] = medium;
-            noiseMapZYX[height - 1, height - 1 - j] = medium;
-            for(int prof=1; prof<tope; prof++)
+            if(recalculateMedium)
+            {
+                noiseMapXYZ[height - 1, height - 1 - j] = medium;
+                noiseMapZYX[height - 1, height - 1 - j] = medium;
+            }
+            for(int prof=from; prof<tope; prof++)
             {
                 float mediumXYZ = (noiseMapXYZ[height - 1 - prof, height - 1 - j] + noiseMapXYZ[height - prof, height - 1 - j]) / 2;
                 float mediumZYX = (noiseMapZYX[height - 1 - prof, height - 1 - j] + noiseMapZYX[height - prof, height - 1 - j]) / 2;
@@ -458,12 +483,12 @@ public class CubeSphere : MonoBehaviour
         }
         //Corner XZY - XYZ - ZY
         noiseMapZY[height - 1, height - 1] = noiseMapXZY[0, height - 1];
-        for (int i = 1; i < tope; i++)
+        for (int i = from; i < tope; i++)
         {
             float medium;
             noiseMapZY[height - 1 - i, height - 1] = noiseMapXZY[0, height - 1 - i];
             noiseMapZY[height - 1, height - 1 - i] = noiseMapXYZ[0, height - 1 - i];
-            for(int prof=1; prof<tope; prof++)
+            for(int prof=from; prof<tope; prof++)
             {
                 if(i+prof<tope)
                 {
@@ -478,12 +503,12 @@ public class CubeSphere : MonoBehaviour
         }
         //Corner XYZ - XZ - ZY
         noiseMapZY[height - 1, 0] = noiseMapXZ[0, height - 1];
-        for (int i=1; i<tope; i++)
+        for (int i=from; i<tope; i++)      //i=1
         {
             float medium;
             noiseMapZY[height - 1 - i, 0] = noiseMapXZ[0, height - 1 - i];
             noiseMapZY[height - 1, i] = noiseMapXYZ[0, i];
-            for(int prof=1; prof<tope; prof++)
+            for(int prof=from; prof<tope; prof++)
             {
                 if(i+prof<tope)
                 {
@@ -498,12 +523,12 @@ public class CubeSphere : MonoBehaviour
         }
         //Corner ZYX - XYZ - XZY
         noiseMapXZY[height - 1, height - 1] = noiseMapXYZ[height - 1, height - 1];
-        for (int i=1; i<tope; i++)
+        for (int i=from; i<tope; i++)
         {
             float medium;
             noiseMapXZY[height - 1 - i, height - 1] = noiseMapXYZ[height - 1 - i, height - 1];
             noiseMapXZY[height - 1, height - 1 - i] = noiseMapZYX[height - 1 - i, height - 1];
-            for(int prof=1; prof<tope; prof++)
+            for(int prof=from; prof<tope; prof++)
             {
                 if(i+prof<tope)
                 {
@@ -518,12 +543,12 @@ public class CubeSphere : MonoBehaviour
         }
         //Corner XYZ - ZYX - XZ
         noiseMapXZ[height - 1, height - 1] = noiseMapXYZ[height - 1, 0];
-        for (int i=1; i<tope; i++)
+        for (int i=from; i<tope; i++)
         {
             float medium;
             noiseMapXZ[height - 1 - i, height - 1] = noiseMapXYZ[height - 1 - i, 0];
             noiseMapXZ[height - 1, height - 1 - i] = noiseMapZYX[height - 1 - i, 0];
-            for(int prof=1; prof<tope; prof++)
+            for(int prof=from; prof<tope; prof++)
             {
                 if (i + prof < tope)
                 {
@@ -535,44 +560,6 @@ public class CubeSphere : MonoBehaviour
             }
             //Diagonal
             noiseMapXZ[height - 1 - i, height - 1 - i] = (noiseMapXZ[height - i, height - 1 - i] + noiseMapXZ[height - 1 - i, height - i]) / 2;
-        }
-
-        noiseMaps["xzy"] = noiseMapXZY;
-        noiseMaps["zy"] = noiseMapZY;
-        noiseMaps["xy"] = noiseMapXY;
-        noiseMaps["xz"] = noiseMapXZ;
-        noiseMaps["zyx"] = noiseMapZYX;
-        noiseMaps["xyz"] = noiseMapXYZ;
-    }
-
-    private void GenerateCraters()
-    {
-        System.Random rnd = new System.Random();
-        int width = gridSize + 1;
-        int height = gridSize + 1;
-        float radio = 50;
-        float prof = 1.5f;
-
-        float[,] noiseMapXZY = noiseMaps["xzy"];
-        float[,] noiseMapZY = noiseMaps["zy"];
-        float[,] noiseMapXY = noiseMaps["xy"];
-        float[,] noiseMapXZ = noiseMaps["xz"];
-        float[,] noiseMapZYX = noiseMaps["zyx"];
-        float[,] noiseMapXYZ = noiseMaps["xyz"];
-
-        int fila = rnd.Next((int)radio, width - (int)radio);
-        int col = rnd.Next((int)radio, height - (int)radio);
-        for(int i=fila-(int)radio; i<fila+(int)radio; i++)
-        {
-            for(int j=col-(int)radio; j<col+(int)radio; j++)
-            {
-                float distanceToCenter = Mathf.Sqrt(Mathf.Pow(j-col, 2) + Mathf.Pow(i-fila, 2));
-                if(distanceToCenter<radio)
-                {
-                    float realDepth = prof - Mathf.Sqrt(Mathf.Pow(radio, 2) - Mathf.Pow(distanceToCenter, 2)) / (radio/prof);
-                    noiseMapXY[i, j] = realDepth * noiseMapXY[i, j];
-                }
-            }
         }
 
         noiseMaps["xzy"] = noiseMapXZY;

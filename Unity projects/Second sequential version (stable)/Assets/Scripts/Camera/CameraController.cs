@@ -165,7 +165,8 @@ public class CameraController : MonoBehaviour {
 
     void Update()
     {
-        if(astronautMovement)
+        bool pointing = GameObject.Find("Mouse").GetComponent<MouseSkinManager>().isPointingAstronaut || GameObject.Find("Mouse").GetComponent<MouseSkinManager>().isPointingButton;
+        if (astronautMovement)
         {
             //OTHER actions (like not letting camera roll)
             //UPDATE VERTICAL TRANSLATION
@@ -177,7 +178,10 @@ public class CameraController : MonoBehaviour {
             //PERFORM ROTATIONS
             PerformGravityRotation();
             //UPDATE HORIZONTAL TRANSLATION
-            PerformHorizontalTranslation();
+            if(!pointing)
+            {
+                PerformHorizontalTranslation();
+            }
             //UPDATE VERTICAL TRANSLATION
             PerformZoom();
         }
