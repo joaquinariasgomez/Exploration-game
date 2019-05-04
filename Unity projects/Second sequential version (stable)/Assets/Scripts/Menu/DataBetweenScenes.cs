@@ -6,6 +6,7 @@ public static class DataBetweenScenes {
 
     private static float musicVolume = 0.5f;
     private static float soundsVolume = 0.75f;
+    private static int size = 200;
 
     public static void setMusicVolume(float data)
     {
@@ -17,6 +18,11 @@ public static class DataBetweenScenes {
         soundsVolume = data;
     }
 
+    public static void setSize(int data)
+    {
+        size = data;
+    }
+
     public static float getMusicVolume()
     {
         return musicVolume;
@@ -25,5 +31,10 @@ public static class DataBetweenScenes {
     public static float getSoundsVolume()
     {
         return soundsVolume;
+    }
+
+    public static int getSize()
+    {
+        return size;
     }
 }

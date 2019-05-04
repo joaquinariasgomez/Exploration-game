@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour {
 
     private Vector3 upComponent = Vector3.zero;
 
+    private int gridSize;
+
     private bool draw_exclamation = false;
     private bool draw_sword_shield = false;
 
@@ -93,6 +95,11 @@ public class PlayerController : MonoBehaviour {
     //CharacterController controller;
     CapsuleCollider collider;
     Rigidbody rigidbody;
+
+    private void Awake()
+    {
+        gridSize = DataBetweenScenes.getSize();
+    }
 
     private void OnGUI()
     {
@@ -235,12 +242,12 @@ public class PlayerController : MonoBehaviour {
         rigidbody.useGravity = false;
 
         distToGround = collider.bounds.extents.y;
-        personalBestScore = attractor.gridSize / 2f;  //Minimum score
+        personalBestScore = gridSize / 2f;  //Minimum score
         personalBestPosition = new Vector3(0, 0, 0);    //No tener en cuenta si personalBestScore es 0f
         velocityCteY = maxVelocityCteY;
         this.move = true;
 
-        actualScore = attractor.gridSize / 2f;  //Minimum score
+        actualScore = gridSize / 2f;  //Minimum score
 
         speed = Random.Range(3, maxSpeed);
         correspondentSpeed = speed;
@@ -262,7 +269,7 @@ public class PlayerController : MonoBehaviour {
 
     public void SetInPlace(float x, float z, float angle)
     {
-        float radius = (float)attractor.gridSize / 2f + CubeSphere.heightMultiplier;
+        float radius = (float)gridSize / 2f + CubeSphere.heightMultiplier;
         transform.Translate(new Vector3(x, radius, z)); //radius
         transform.RotateAround(transform.position, transform.up, angle);
         trajectory = angle;

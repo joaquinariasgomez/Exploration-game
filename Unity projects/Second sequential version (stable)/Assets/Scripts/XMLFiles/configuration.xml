@@ -1,0 +1,15 @@
+<main>
+    <options>
+        <volume>
+            <music>
+                <defaultValue> 0.5 </defaultValue>
+            </music>
+            <sounds>
+                <defaultValue> 0.75 </defaultValue>
+            </sounds>
+        </volume>
+        <generation>
+
+        </generation>
+    </options>
+</main>

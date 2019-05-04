@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class CubeSphere : MonoBehaviour
 {
-    public int gridSize;
+    private int gridSize;
     public static int seed = 1045; //2048
     public TerrainType[] regions;
     public Material material;
@@ -58,6 +58,7 @@ public class CubeSphere : MonoBehaviour
 
     public void Awake()
     {
+        gridSize = DataBetweenScenes.getSize();
         switch(gridSize)    //3 sizes: 100, 200 & 400
         {
             case 100: sqrtChunksPerFace = 25; break;

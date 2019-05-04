@@ -7,6 +7,8 @@ public class CameraController : MonoBehaviour {
     public CubeSphere attractor;
     public AstronautManager astronautManager;
 
+    private int gridSize;
+
     GameObject[] astronauts;
 
     private float cameraAltitude = 40;
@@ -31,14 +33,15 @@ public class CameraController : MonoBehaviour {
 
     void Awake()
     {
-        switch(attractor.gridSize)
+        gridSize = DataBetweenScenes.getSize();
+        switch (gridSize)
         {
             case 100: minZoom = -40; maxZoom = 100; maxZoomChangeAmount = 80; break;
             case 200: minZoom = -40; maxZoom = 150; maxZoomChangeAmount = 120; break;
             case 400: minZoom = -70; maxZoom = 300; maxZoomChangeAmount = 240; zoom = 30; break;
             default: minZoom = -70; maxZoom = 300; maxZoomChangeAmount = 240; zoom = 30; break;
         }
-        initialAltitude = attractor.gridSize / 2f + CubeSphere.heightMultiplier + cameraAltitude + zoom;
+        initialAltitude = gridSize / 2f + CubeSphere.heightMultiplier + cameraAltitude + zoom;
         transform.position += new Vector3(0, initialAltitude, 0);
     }
 
@@ -62,7 +65,7 @@ public class CameraController : MonoBehaviour {
         float distanceToMinZoom = zoom - minZoom;
         zoomPercentage = (distanceToMinZoom / zoomTravel) * 100;
         dragSpeed = 0.7f + zoomPercentage / 6f;
-        switch(attractor.gridSize)
+        switch(gridSize)
         {
             case 100: dragSpeed *= 0.8f; break;
             case 400: dragSpeed *= 1.75f; break;
@@ -190,6 +193,6 @@ public class CameraController : MonoBehaviour {
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(new Vector3(0, (attractor.gridSize / 2f + CubeSphere.heightMultiplier + zoom), 0), 0.5f);
+        Gizmos.DrawSphere(new Vector3(0, (gridSize / 2f + CubeSphere.heightMultiplier + zoom), 0), 0.5f);
     }
 }

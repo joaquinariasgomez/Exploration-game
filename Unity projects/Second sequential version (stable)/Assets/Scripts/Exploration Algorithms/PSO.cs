@@ -16,6 +16,8 @@ public class PSO
 
     private float caida;
 
+    private int gridSize = DataBetweenScenes.getSize();
+
     private int iteration = 1;
     private int maxIterations = 1000;   //3000
     private int maxIterWithWmin = 5;  //400
@@ -31,7 +33,7 @@ public class PSO
     {
         this.astronautControllers = astronautControllers;
         
-        globalBestScore = astronautControllers[0].attractor.gridSize / 2f;  //Minimum best score
+        globalBestScore = gridSize / 2f;  //Minimum best score
         globalBestPosition = Vector3.zero;
 
         //FileWriter
@@ -42,7 +44,7 @@ public class PSO
     public void SetInertia(float inertia)
     {
         float maxInertia = 500;
-        switch (astronautControllers[0].attractor.gridSize)
+        switch (gridSize)
         {
             case 100: maxInertia = 500; maxIterations = 1500; break;
             case 200: maxInertia = 1000; maxIterations = 1750;  break;
