@@ -16,6 +16,9 @@ public class MouseClickManager : MonoBehaviour {
     private float minimumDepthToClickAstronaut = 80;
 
     private void Update () {    //Traer coordenadas de los astronautas a 2D
+        print("Music Volume: " + DataBetweenScenes.getMusicVolume());
+        print("Sounds Volume: " + DataBetweenScenes.getSoundsVolume());
+
         astronauts = astronautManager.astronauts;
         int closestAstronaut = 0;
         int astronautCounter = 0;
