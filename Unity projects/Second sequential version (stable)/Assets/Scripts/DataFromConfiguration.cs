@@ -14,20 +14,27 @@ public class DataFromConfiguration : MonoBehaviour {
     void Awake()
     {
         document = new XmlDocument();
-    }
-
-    void Start()
-    {
         document.LoadXml(GameAsset.text);   //Load file
         XmlNode root = document.DocumentElement;
 
-        //Options
         XmlNode options = root.SelectSingleNode("options");
-        //Volume
         XmlNode volume = options.SelectSingleNode("volume");
         //Music
         XmlNode music = volume.SelectSingleNode("music");
-        XmlNode musicDefaultValue = music.SelectSingleNode("defaultValue");
-        print(musicDefaultValue.InnerText);
+        DataBetweenScenes.setMusicVolume(float.Parse(music.InnerText));
+        //
+        //Sounds
+        XmlNode sounds = volume.SelectSingleNode("sounds");
+        DataBetweenScenes.setSoundsVolume(float.Parse(sounds.InnerText));
+        //
+        XmlNode generation = options.SelectSingleNode("generation");
+        //Size
+        XmlNode size = generation.SelectSingleNode("size");
+        DataBetweenScenes.setSize(int.Parse(size.InnerText));
+        //
+        //Seed
+        XmlNode seed = generation.SelectSingleNode("seed");
+        DataBetweenScenes.setSeed(int.Parse(seed.InnerText));
+        //
     }
 }

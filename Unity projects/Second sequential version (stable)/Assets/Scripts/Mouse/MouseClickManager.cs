@@ -16,6 +16,10 @@ public class MouseClickManager : MonoBehaviour {
     private float minimumDepthToClickAstronaut = 80;
 
     private void Update () {    //Traer coordenadas de los astronautas a 2D
+        if(PauseMenu.GamePaused)
+        {
+            return;
+        }
         astronauts = astronautManager.astronauts;
         int closestAstronaut = 0;
         int astronautCounter = 0;
@@ -54,6 +58,10 @@ public class MouseClickManager : MonoBehaviour {
 
     private void OnGUI()
     {
+        if(PauseMenu.GamePaused)
+        {
+            return;
+        }
         if(draw_point_astronaut)
         {
             Vector2 astronautPos = Camera.main.WorldToScreenPoint(astronauts[pointedAstronaut].transform.position);

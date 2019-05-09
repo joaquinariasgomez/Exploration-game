@@ -8,6 +8,8 @@ public class PauseMenu : MonoBehaviour {
     public static bool GamePaused = false;
 
     public GameObject pauseMenuUI;
+    public GameObject volumeMenuUI;
+    public GameObject standardMenuUI;
 	
 	void Update () {
 		if(Input.GetKeyDown(KeyCode.Escape))
@@ -26,6 +28,8 @@ public class PauseMenu : MonoBehaviour {
     public void Resume()
     {
         pauseMenuUI.SetActive(false);
+        volumeMenuUI.SetActive(false);
+        standardMenuUI.SetActive(true);
         Time.timeScale = 1f;
         GamePaused = false;
     }
@@ -33,14 +37,11 @@ public class PauseMenu : MonoBehaviour {
     private void Pause()
     {
         pauseMenuUI.SetActive(true);
+        standardMenuUI.SetActive(false);
         Time.timeScale = 0f;    //Freeze game
         GamePaused = true;
     }
-
-    public void LoadVolume()
-    {
-        SceneManager.LoadScene("Start Menu");
-    }
+    //SceneManager.LoadScene("Start Menu");
 
     public void QuitGame()
     {

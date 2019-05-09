@@ -168,6 +168,10 @@ public class CameraController : MonoBehaviour {
 
     void Update()
     {
+        if(PauseMenu.GamePaused)
+        {
+            return;
+        }
         bool pointing = GameObject.Find("Mouse").GetComponent<MouseSkinManager>().isPointingAstronaut || GameObject.Find("Mouse").GetComponent<MouseSkinManager>().isPointingButton;
         if (astronautMovement)
         {
@@ -190,9 +194,9 @@ public class CameraController : MonoBehaviour {
         }
     }
 
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawSphere(new Vector3(0, (gridSize / 2f + CubeSphere.heightMultiplier + zoom), 0), 0.5f);
-    }
+    }*/
 }

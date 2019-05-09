@@ -57,8 +57,18 @@ public class SelectCameraButton : MonoBehaviour {
         GameObject.Find("Mouse").GetComponent<MouseSkinManager>().Point("button");   //.SetTexture("point", true);
     }
 
+    public void OnPointerEnterMenu()
+    {
+        GameObject.Find("Mouse").GetComponent<MouseSkinManager>().PointMenu();   //.SetTexture("point", true);
+    }
+
     public void OnPointerExit()
     {
         GameObject.Find("Mouse").GetComponent<MouseSkinManager>().Unpoint("button");    //.UnsetTextureButton();
+    }
+
+    public void OnPointerExitMenu()
+    {
+        GameObject.Find("Mouse").GetComponent<MouseSkinManager>().UnpointMenu();    //.UnsetTextureButton();
     }
 }

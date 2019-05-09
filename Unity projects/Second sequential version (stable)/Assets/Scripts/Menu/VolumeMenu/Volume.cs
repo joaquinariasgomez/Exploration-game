@@ -1,10 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Volume : MonoBehaviour {
 
-	public void SetMusicVolume(float value)
+    public Slider musicSlider;
+    public Slider soundsSlider;
+
+    private void Start()
+    {
+        musicSlider.value = DataBetweenScenes.getMusicVolume();
+        soundsSlider.value = DataBetweenScenes.getSoundsVolume();
+    }
+
+    public void SetMusicVolume(float value)
     {
         DataBetweenScenes.setMusicVolume(value);
     }

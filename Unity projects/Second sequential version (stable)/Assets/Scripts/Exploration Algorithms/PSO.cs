@@ -23,6 +23,8 @@ public class PSO
     private int maxIterWithWmin = 5;  //400
 
     private bool stopExploring = false;
+    private bool finished = false;
+    private bool signalSent = false;
 
     //LOGS
     FileWriter globalBestScoreLogs;
@@ -153,13 +155,23 @@ public class PSO
         }
     }
 
+    private bool AllWeaponsAssigned()
+    {
+        bool value = true;
+        foreach (PlayerController controller in astronautControllers)
+        {
+            if (!controller.weaponAssigned()) value = false;
+        }
+        return value;
+    }
+
     public void StopExploring()
     {
         stopExploring = true;
     }
 
     //Main loop
-    public void UpdateAstronauts()
+    public bool UpdateAstronauts()
     {
         if(iteration == (maxIterations + maxIterWithWmin) || stopExploring)
         {
@@ -167,7 +179,17 @@ public class PSO
             CheckGlobalMax();   //Will stop player is has reached mountain
             if(AllReachedHighestMountain())
             {
-                SendSignalReachedHighestMountain();
+                if(!signalSent)
+                {
+                    SendSignalReachedHighestMountain();
+                    signalSent = true;
+                }   
+            }
+            //Check if all astronauts have been assigned with weapon
+            bool weaponsAssigned = AllWeaponsAssigned();
+            if(weaponsAssigned)
+            {
+                return true;
             }
         }
         else
@@ -182,5 +204,6 @@ public class PSO
             UpdateWeights();
             ++iteration;
         }
+        return false;
     }
 }

@@ -6,9 +6,14 @@ public class AstronautManager : MonoBehaviour {
 
     public GameObject[] astronauts;
     public GameObject StopExploringButton;
+    public GameObject SwordButtons;
+    public GameObject ShieldButtons;
+    public GameObject WeaponImages;
+
     private List<PlayerController> astronautControllers = new List<PlayerController>();
     private int numAstronauts;
     private bool startPSO = false;
+    private bool goForAliens = false;
     private float inertia;
 
     PSO pso;
@@ -71,12 +76,55 @@ public class AstronautManager : MonoBehaviour {
         //Destroy UI element
         StopExploringButton.SetActive(false);
     }
+
+    private void DestroyButtonsToImage()
+    {
+        //Destroy buttons
+        foreach(Transform child in SwordButtons.transform){
+            child.gameObject.SetActive(false);
+        }
+        foreach (Transform child in ShieldButtons.transform)
+        {
+            child.gameObject.SetActive(false);
+        }
+        //Put image
+        List<string> weapons = new List<string>();
+        foreach(PlayerController controller in astronautControllers)
+        {
+            string weapon = controller.GetWeapon();
+            weapons.Add(weapon);
+        }
+        int counter = 0;
+        foreach(Transform child in WeaponImages.transform)
+        {
+            child.gameObject.GetComponent<ShowWeaponImage>().SetImage(weapons[counter]);
+            counter++;
+        }
+    }
 	
 	// Update is called once per frame
 	void Update () {
+        if(PauseMenu.GamePaused)
+        {
+            return;
+        }
         if(startPSO)
         {
-            pso.UpdateAstronauts();
+            bool weaponsAssigned = pso.UpdateAstronauts();
+            if(weaponsAssigned)
+            {
+                startPSO = false;
+                //Destroy Weapon Buttons
+                DestroyButtonsToImage();
+                //Send signal to go for aliens
+                goForAliens = true;
+                //Call AlienManager
+                //...
+            }
+        }
+        if(goForAliens)
+        {
+
         }
     }
 }

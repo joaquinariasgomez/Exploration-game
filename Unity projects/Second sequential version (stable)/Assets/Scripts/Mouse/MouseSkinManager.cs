@@ -16,15 +16,19 @@ public class MouseSkinManager : MonoBehaviour {
     private Vector2 mousePosition;
     private Vector2 movementVector;
 
-    private float secondsCounter = 0;
-    private float minimumTimeInState = 0.25f;   //.3f;
+    private float timeToCompleteFramePaused = 0.02f;
 
-    private float variationBorderline = 1.5f;   //3f;
+    private float secondsCounter = 0;
+    private float minimumTimeInState = 0.15f;   //.3f;
+
+    private float variationThreshold = 1.5f;   //3f;
 
     [HideInInspector]
     public bool isPointingAstronaut = false;
     [HideInInspector]
     public bool isPointingButton = false;
+    [HideInInspector]
+    public bool isPointingMenu = false;
 
     private void Start()
     {
@@ -51,6 +55,11 @@ public class MouseSkinManager : MonoBehaviour {
         }
     }
 
+    public void PointMenu()
+    {
+        isPointingMenu = true;
+    }
+
     public void Unpoint(string cause = "astronaut")
     {
         switch (cause)
@@ -58,6 +67,11 @@ public class MouseSkinManager : MonoBehaviour {
             case "astronaut": isPointingAstronaut = false; break;
             case "button": isPointingButton = false; break;
         }
+    }
+
+    public void UnpointMenu()
+    {
+        isPointingMenu = false;
     }
 
     private void TextureUpdate()
@@ -72,7 +86,7 @@ public class MouseSkinManager : MonoBehaviour {
             xAxis = false;
         }
 
-        if (largerVariation > variationBorderline)
+        if (largerVariation > variationThreshold)
         {
             if(xAxis)
             {
@@ -85,7 +99,7 @@ public class MouseSkinManager : MonoBehaviour {
         }
         else
         {
-            if (largerVariation < -variationBorderline)
+            if (largerVariation < -variationThreshold)
             {
                 if (xAxis)
                 {
@@ -102,7 +116,14 @@ public class MouseSkinManager : MonoBehaviour {
             }
         }
 
-        secondsCounter += Time.deltaTime;
+        if(PauseMenu.GamePaused)
+        {
+            secondsCounter += timeToCompleteFramePaused;
+        }
+        else
+        {
+            secondsCounter += Time.deltaTime;
+        }
         if (secondsCounter > minimumTimeInState)
         {
             secondsCounter = 0;
@@ -114,21 +135,44 @@ public class MouseSkinManager : MonoBehaviour {
     private void Update()
     {
         UpdateMousePosition();
-        if(isPointingAstronaut || isPointingButton)
+        if(PauseMenu.GamePaused)    //PAUSE MENU
         {
-            Cursor.SetCursor(Point_hand, Vector2.zero, CursorMode.Auto);
-            secondsCounter = minimumTimeInState;    //Reset counter for TextureUpdate()
-        }
-        else
-        {
-            if(Input.GetMouseButton(0))
+            if (isPointingMenu)
             {
-                Cursor.SetCursor(Grab_hand, Vector2.zero, CursorMode.Auto);
+                Cursor.SetCursor(Point_hand, Vector2.zero, CursorMode.Auto);
                 secondsCounter = minimumTimeInState;    //Reset counter for TextureUpdate()
             }
             else
             {
-                TextureUpdate();
+                if (Input.GetMouseButton(0))
+                {
+                    Cursor.SetCursor(Grab_hand, Vector2.zero, CursorMode.Auto);
+                    secondsCounter = minimumTimeInState;    //Reset counter for TextureUpdate()
+                }
+                else
+                {
+                    TextureUpdate();
+                }
+            }
+        }
+        else
+        {
+            if (isPointingAstronaut || isPointingButton)
+            {
+                Cursor.SetCursor(Point_hand, Vector2.zero, CursorMode.Auto);
+                secondsCounter = minimumTimeInState;    //Reset counter for TextureUpdate()
+            }
+            else
+            {
+                if (Input.GetMouseButton(0))
+                {
+                    Cursor.SetCursor(Grab_hand, Vector2.zero, CursorMode.Auto);
+                    secondsCounter = minimumTimeInState;    //Reset counter for TextureUpdate()
+                }
+                else
+                {
+                    TextureUpdate();
+                }
             }
         }
     }

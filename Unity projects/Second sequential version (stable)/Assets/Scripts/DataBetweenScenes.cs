@@ -4,9 +4,10 @@ using UnityEngine;
 
 public static class DataBetweenScenes {
 
-    private static float musicVolume = 0.5f;
-    private static float soundsVolume = 0.75f;
-    private static int size = 200;
+    private static float musicVolume;
+    private static float soundsVolume;
+    private static int size;
+    private static int seed;
 
     public static void setMusicVolume(float data)
     {
@@ -23,6 +24,11 @@ public static class DataBetweenScenes {
         size = data;
     }
 
+    public static void setSeed(int data)
+    {
+        seed = data;
+    }
+
     public static float getMusicVolume()
     {
         return musicVolume;
@@ -36,5 +42,10 @@ public static class DataBetweenScenes {
     public static int getSize()
     {
         return size;
+    }
+
+    public static int getSeed()
+    {
+        return seed;
     }
 }

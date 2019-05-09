@@ -7,6 +7,9 @@ public class PlayerController : MonoBehaviour {
     public CubeSphere attractor;
     public Texture2D Exclamation;
     public Texture2D Sword_and_shield;
+    public GameObject HealthBar;
+    public GameObject swordButton;
+    public GameObject shieldButton;
 
     private Vector3 upComponent = Vector3.zero;
 
@@ -79,7 +82,9 @@ public class PlayerController : MonoBehaviour {
 
     //STATUS
     private float life;
-    private float speed; 
+    private float speed;
+    private bool hasSword = false;
+    private bool hasShield = false;
     //END_STATUS
 
     //LOGS
@@ -103,6 +108,10 @@ public class PlayerController : MonoBehaviour {
 
     private void OnGUI()
     {
+        if(PauseMenu.GamePaused)
+        {
+            return;
+        }
         if(draw_exclamation)
         {
             Vector2 astronautPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
@@ -112,6 +121,31 @@ public class PlayerController : MonoBehaviour {
         {
             Vector2 astronautPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
             GUI.DrawTexture(new Rect(astronautPos.x - 16, Screen.height - astronautPos.y - 50, 34, 34), Sword_and_shield);
+        }
+    }
+
+    public bool weaponAssigned()
+    {
+        return hasShield || hasSword;
+    }
+
+    public string GetWeapon()
+    {
+        if(hasShield) {
+            return "shield";
+        }
+        if(hasSword)
+        {
+            return "sword";
+        }
+        return "none";
+    }
+
+    public void SetWeapon(string weapon)
+    {
+        switch(weapon) {
+            case "sword": hasSword = true; hasShield = false; break;
+            case "shield": hasSword = false; hasShield = true; break;
         }
     }
 
@@ -130,10 +164,12 @@ public class PlayerController : MonoBehaviour {
         this.personalBestScoreLogs.End();
     }
 
-    public void SetReachedHighestMountain()
+    public void SetReachedHighestMountain() //Only called once to set flags
     {
         draw_exclamation = false;
         draw_sword_shield = true;
+        swordButton.GetComponent<SwordButton>().Activate();
+        shieldButton.GetComponent<ShieldButton>().Activate();
     }
 
     public bool HasReachedHighestMountain()
@@ -252,6 +288,7 @@ public class PlayerController : MonoBehaviour {
         speed = Random.Range(3, maxSpeed);
         correspondentSpeed = speed;
         life = Random.Range(50, 100);
+        this.HealthBar.GetComponent<HealthBar>().Initialize(life);
 
         float slowTime = 0.5f;
         float fastTime = 0.1f;
