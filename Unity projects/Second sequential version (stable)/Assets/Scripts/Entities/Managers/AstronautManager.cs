@@ -9,6 +9,7 @@ public class AstronautManager : MonoBehaviour {
     public GameObject SwordButtons;
     public GameObject ShieldButtons;
     public GameObject WeaponImages;
+    public AlienManager alienManager;
 
     private List<PlayerController> astronautControllers = new List<PlayerController>();
     private int numAstronauts;
@@ -57,7 +58,7 @@ public class AstronautManager : MonoBehaviour {
     {
         startPSO = true;
         inertia = GameObject.Find("WSliderText").GetComponent<ShowWInSlider>().value;
-        pso.SetInertia(inertia);
+        pso.SetInertiaAstronaut(inertia);
 
         StopExploringButton.SetActive(true);
         GameObject.Find("Mouse").GetComponent<MouseSkinManager>().Unpoint("button");
@@ -69,7 +70,7 @@ public class AstronautManager : MonoBehaviour {
 
     public void onStopExploring()
     {
-        pso.StopExploring();
+        pso.StopExploringAstronaut();
 
         GameObject.Find("Mouse").GetComponent<MouseSkinManager>().Unpoint("button");
 
@@ -119,7 +120,7 @@ public class AstronautManager : MonoBehaviour {
                 //Send signal to go for aliens
                 goForAliens = true;
                 //Call AlienManager
-                //...
+                alienManager.Initialize();
             }
         }
         if(goForAliens)
