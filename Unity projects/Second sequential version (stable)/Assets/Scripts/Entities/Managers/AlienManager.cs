@@ -12,6 +12,7 @@ public class AlienManager : MonoBehaviour {
     private float inertia = 0.33f;
 
     private bool initialized = false;
+    private Vector3 targetCoordinates;
 
     PSO pso;
 
@@ -24,14 +25,16 @@ public class AlienManager : MonoBehaviour {
         }
     }
 
-    public void Initialize()
+    public void Initialize(Vector3 targetCoordinates)
     {
+        this.targetCoordinates = targetCoordinates;
         this.initialized = true;
         //Initialize
         int counter = 0;
         foreach (AlienController controller in alienControllers)
         {
             controller.Initialize(counter);
+            controller.SetTargetCoordinates(targetCoordinates);
             counter++;
         }
 
@@ -45,7 +48,7 @@ public class AlienManager : MonoBehaviour {
     void SetAliensInPlace()
     {
         //Set Astronauts in place forming a circle, for example
-        float radius = 5f;
+        float radius = 2.5f;
 
         alienControllers[0].SetInPlace(-radius, 0f, -90f);
         alienControllers[1].SetInPlace(-radius * 3f / 4f, radius * 3f / 4f, -45f);
@@ -55,6 +58,8 @@ public class AlienManager : MonoBehaviour {
         alienControllers[5].SetInPlace(radius * 3f / 4f, -radius * 3f / 4f, 135f);
         alienControllers[6].SetInPlace(0f, -radius, 180f);
         alienControllers[7].SetInPlace(-radius * 3f / 4f, -radius * 3f / 4f, -135f);
+
+        startPSO = true;
     }
 
     private void StopExploring()

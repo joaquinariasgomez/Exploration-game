@@ -6,6 +6,8 @@ public class PSO
 {
     private List<PlayerController> astronautControllers;
     private List<AlienController> alienControllers;
+    private GameObject progressBar;
+    private GameObject StopExploringButton;
 
     //Astronauts
     public float globalBestScore_astronaut;
@@ -15,20 +17,30 @@ public class PSO
     public float globalBestScore_alien;
     public Vector3 globalBestPosition_alien;
 
-    private float Wmin = 1;     //1
-    private float Wmax;  //2000
-    private float Wcurrent;
-    private float c1 = 1;    //1.5
-    private float c2 = 1.5f;       //2
+    //Astronauts
+    private float Wmin_astronaut = 1;     //1
+    private float Wmax_astronaut;  //2000
+    private float Wcurrent_astronaut;
+    private float c1_astronaut = 1;    //1.5
+    private float c2_astronaut = 1.5f;       //2
 
-    private float caida;
+    private float caida_astronaut;
+
+    //Aliens
+    private float Wmin_alien = 1;     //1
+    private float Wmax_alien;  //2000
+    private float Wcurrent_alien;
+    private float c1_alien = 1;    //1.5
+    private float c2_alien = 1.5f;       //2
+
+    private float caida_alien;
 
     private int gridSize = DataBetweenScenes.getSize();
 
     //Astronauts variables
     private int iteration_astronaut = 1;
     private int maxIterations_astronaut = 1000;   //3000
-    private int maxIterWithWmin_astronaut = 5;  //400
+    private int maxIterWithWmin_astronaut = 50;  //400
 
     private bool stopExploring_astronaut = false;
     private bool signalSent_astronaut = false;
@@ -42,32 +54,37 @@ public class PSO
     private bool signalSent_alien = false;
 
     //LOGS
-    FileWriter globalBestScoreLogs;
-    FileWriter testLog;
+    FileWriter globalBestScoreLogs_astronaut;
+    FileWriter testLog_astronaut;
+
+    FileWriter globalBestScoreLogs_alien;
+    FileWriter testLog_alien;
     //END LOGS
 
-    public PSO(List<PlayerController> astronautControllers)
+    public PSO(List<PlayerController> astronautControllers, GameObject progressBar, GameObject StopExploringButton)
     {
         this.astronautControllers = astronautControllers;
+        this.progressBar = progressBar;
+        this.StopExploringButton = StopExploringButton;
         
         globalBestScore_astronaut = gridSize / 2f;  //Minimum best score
         globalBestPosition_astronaut = Vector3.zero;
 
         //FileWriter
-        globalBestScoreLogs = new FileWriter("Assets/Logs/GlobalAstronautBestScore.txt");
-        testLog = new FileWriter("Assets/Logs/AstronautTestLog.txt");
+        globalBestScoreLogs_astronaut = new FileWriter("Assets/Logs/GlobalAstronautBestScore.txt");
+        testLog_astronaut = new FileWriter("Assets/Logs/AstronautTestLog.txt");
     }
 
     public PSO(List<AlienController> alienControllers)
     {
         this.alienControllers = alienControllers;
 
-        globalBestScore_alien = gridSize / 2f;  //Minimum best score
+        globalBestScore_alien = gridSize * 4;  //Minimum best score
         globalBestPosition_alien = Vector3.zero;
 
         //FileWriter
-        globalBestScoreLogs = new FileWriter("Assets/Logs/GlobalAlienBestScore.txt");
-        testLog = new FileWriter("Assets/Logs/AlienTestLog.txt");
+        globalBestScoreLogs_alien = new FileWriter("Assets/Logs/GlobalAlienBestScore.txt");
+        testLog_alien = new FileWriter("Assets/Logs/AlienTestLog.txt");
     }
 
     public void SetInertiaAstronaut(float inertia)
@@ -79,11 +96,11 @@ public class PSO
             case 200: maxInertia = 1000; maxIterations_astronaut = 1750;  break;
             case 400: maxInertia = 4000; maxIterations_astronaut = 2000; break;
         }
-        float minInertia = 20;
-        Wmax = minInertia + (maxInertia - minInertia) * inertia;
+        float minInertia = 4;
+        Wmax_astronaut = minInertia + (maxInertia - minInertia) * inertia;
 
-        this.Wcurrent = Wmax;
-        this.caida = (Wmax - Wmin) / maxIterations_astronaut;
+        this.Wcurrent_astronaut = Wmax_astronaut;
+        this.caida_astronaut = (Wmax_astronaut - Wmin_astronaut) / maxIterations_astronaut;
     }
 
     public void SetInertiaAlien(float inertia)
@@ -91,18 +108,18 @@ public class PSO
         float maxInertia = 500;
         switch (gridSize)
         {
-            case 100: maxInertia = 500; maxIterations_alien = 1500; break;
-            case 200: maxInertia = 1000; maxIterations_alien = 1750; break;
-            case 400: maxInertia = 4000; maxIterations_alien = 2000; break;
+            case 100: maxInertia = 50; maxIterations_alien = 1500; break;
+            case 200: maxInertia = 10; maxIterations_alien = 1750; break;
+            case 400: maxInertia = 40; maxIterations_alien = 2000; break;
         }
-        float minInertia = 20;
-        Wmax = minInertia + (maxInertia - minInertia) * inertia;
+        float minInertia = 2;
+        Wmax_alien = minInertia + (maxInertia - minInertia) * inertia;
 
-        this.Wcurrent = Wmax;
-        this.caida = (Wmax - Wmin) / maxIterations_alien;
+        this.Wcurrent_alien = Wmax_alien;
+        this.caida_alien = (Wmax_alien - Wmin_alien) / maxIterations_alien;
     }
 
-    private void UpdateGlobalScore()    //ACOPLADO A ASTRONAUT
+    private void UpdateGlobalScoreAstronaut()
     {
         foreach (PlayerController controller in astronautControllers)
         {
@@ -114,10 +131,25 @@ public class PSO
             controller.UpdateGlobalScore(globalBestScore_astronaut, globalBestPosition_astronaut);
         }
         //Logs
-        globalBestScoreLogs.Write(globalBestScore_astronaut);
+        globalBestScoreLogs_astronaut.Write(globalBestScore_astronaut);
     }
 
-    private void UpdateTrajectory(float Wcurrent, float c1, float c2, bool goToGlobalMax = false)
+    private void UpdateGlobalScoreAlien()
+    {
+        foreach (AlienController controller in alienControllers)
+        {
+            if (controller.personalBestScore < globalBestScore_alien)
+            {
+                globalBestScore_alien = controller.personalBestScore;
+                globalBestPosition_alien = controller.personalBestPosition;
+            }
+            controller.UpdateGlobalScore(globalBestScore_alien, globalBestPosition_alien);
+        }
+        //Logs
+        //globalBestScoreLogs_alien.Write(globalBestScore_astronaut);
+    }
+
+    private void UpdateTrajectoryAstronaut(float Wcurrent, float c1, float c2, bool goToGlobalMax = false)
     {
         foreach (PlayerController controller in astronautControllers)
         {
@@ -125,19 +157,42 @@ public class PSO
         }
     }
 
-    private void UpdateWeights()
+    private void UpdateTrajectoryAlien(float Wcurrent, float c1, float c2, bool goToGlobalMax = false)
     {
-        if(Wcurrent > Wmin)
+        foreach (AlienController controller in alienControllers)
         {
-            Wcurrent -= this.caida;
-            if(Wcurrent < Wmin)
+            controller.UpdateTrajectory(Wcurrent, c1, c2, goToGlobalMax);
+        }
+    }
+
+    private void UpdateWeightsAstronaut()
+    {
+        if(Wcurrent_astronaut > Wmin_astronaut)
+        {
+            Wcurrent_astronaut -= this.caida_astronaut;
+            if(Wcurrent_astronaut < Wmin_astronaut)
             {
-                Wcurrent = Wmin;
+                Wcurrent_astronaut = Wmin_astronaut;
             }
         }
         //TestLog
-        testLog.Write(Wcurrent);
+        testLog_astronaut.Write(Wcurrent_astronaut);
     }
+
+    private void UpdateWeightsAlien()
+    {
+        if (Wcurrent_alien > Wmin_alien)
+        {
+            Wcurrent_alien -= this.caida_alien;
+            if (Wcurrent_alien < Wmin_alien)
+            {
+                Wcurrent_alien = Wmin_alien;
+            }
+        }
+        //TestLog
+        //testLog_alien.Write(Wcurrent);
+    }
+
 
     private void Stop()
     {
@@ -146,11 +201,11 @@ public class PSO
             controller.Stop();
         }
         //Logs
-        globalBestScoreLogs.End();
-        testLog.End();
+        globalBestScoreLogs_astronaut.End();
+        testLog_astronaut.End();
     }
 
-    private void GoToGlobalMax()
+    private void GoToGlobalMaxAstronaut()
     {
         foreach (PlayerController controller in astronautControllers)
         {
@@ -158,10 +213,10 @@ public class PSO
             controller.Move();
             controller.UpdatePersonalScore();
         }
-        UpdateTrajectory(Wcurrent, c1, c2, true);
+        UpdateTrajectoryAstronaut(Wcurrent_astronaut, c1_astronaut, c2_astronaut, true);
     }
 
-    private void CheckGlobalMax()
+    private void CheckGlobalMaxAstronaut()
     {
         foreach (PlayerController controller in astronautControllers)
         {
@@ -190,12 +245,38 @@ public class PSO
         return condition;
     }
 
+    private bool AllAliensAreCloseEnough()
+    {
+        bool condition = true;
+
+        foreach (AlienController controller in alienControllers)
+        {
+            if (!controller.IsCloseEnough())
+            {
+                condition = false;
+            }
+        }
+        return condition;
+    }
+
     private void SendSignalReachedHighestMountain()
     {
         foreach (PlayerController controller in astronautControllers)
         {
             controller.SetReachedHighestMountain();
         }
+    }
+
+    public Vector3 GetTargetCoordinates()
+    {
+        Vector3 target = Vector3.zero;
+
+        foreach (PlayerController controller in astronautControllers)
+        {
+            target += controller.GetCoordinates();
+        }
+        target = target / 8f;
+        return target;
     }
 
     private bool AllWeaponsAssigned()
@@ -218,13 +299,22 @@ public class PSO
         stopExploring_alien = true;
     }
 
+    private void UpdateProgressBar()
+    {
+        float progressPercentage = (float)iteration_astronaut / (float)(maxIterations_astronaut + maxIterWithWmin_astronaut);
+        progressBar.GetComponent<ProgressBar>().SetProgress(progressPercentage);
+    }
+
     //Main loop for astroanuts
     public bool UpdateAstronauts()
     {
+        UpdateProgressBar();
         if(iteration_astronaut == (maxIterations_astronaut + maxIterWithWmin_astronaut) || stopExploring_astronaut)
         {
-            GoToGlobalMax();
-            CheckGlobalMax();   //Will stop player is has reached mountain
+            StopExploringButton.SetActive(false);   //Delete stopExploringButton
+            progressBar.SetActive(false);    //Delete progress bar
+            GoToGlobalMaxAstronaut();
+            CheckGlobalMaxAstronaut();   //Will stop player is has reached mountain
             if(AllReachedHighestMountain())
             {
                 if(!signalSent_astronaut)
@@ -247,9 +337,9 @@ public class PSO
                 controller.Move();
                 controller.UpdatePersonalScore();
             }
-            UpdateGlobalScore();
-            UpdateTrajectory(Wcurrent, c1, c2);
-            UpdateWeights();
+            UpdateGlobalScoreAstronaut();
+            UpdateTrajectoryAstronaut(Wcurrent_astronaut, c1_astronaut, c2_astronaut);
+            UpdateWeightsAstronaut();
             ++iteration_astronaut;
         }
         return false;
@@ -258,32 +348,31 @@ public class PSO
     //Main loop for aliens
     public bool UpdateAliens()
     {
-        /*
-        if (iteration == (maxIterations + maxIterWithWmin) || stopExploring)
+        if (iteration_alien  == (maxIterations_alien + maxIterWithWmin_alien))
         {
-            GoToGlobalMax();
+            /*GoToGlobalMax();
             CheckGlobalMax();   //Will stop player is has reached mountain
             if (AllReachedHighestMountain())
             {
-                if (!signalSent)
+                if (!signalSent_alien)
                 {
                     SendSignalReachedHighestMountain();
-                    signalSent = true;
+                    signalSent_alien = true;
                 }
-            }
+            }*/
         }
         else
         {
-            foreach (PlayerController controller in astronautControllers)
+            foreach (AlienController controller in alienControllers)
             {
                 controller.Move();
                 controller.UpdatePersonalScore();
             }
-            UpdateGlobalScore();
-            UpdateTrajectory(Wcurrent, c1, c2);
-            UpdateWeights();
-            ++iteration;
-        }*/
+            UpdateGlobalScoreAlien();
+            UpdateTrajectoryAlien(Wcurrent_alien, c1_alien, c2_alien);
+            UpdateWeightsAlien();
+            ++iteration_alien;
+        }
         return false;
     }
 }

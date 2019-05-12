@@ -10,12 +10,14 @@ public class AstronautManager : MonoBehaviour {
     public GameObject ShieldButtons;
     public GameObject WeaponImages;
     public AlienManager alienManager;
+    public GameObject progressBar;
 
     private List<PlayerController> astronautControllers = new List<PlayerController>();
     private int numAstronauts;
     private bool startPSO = false;
     private bool goForAliens = false;
     private float inertia;
+    private bool setSoundBattle = true;
 
     PSO pso;
 
@@ -35,7 +37,7 @@ public class AstronautManager : MonoBehaviour {
         }
 
         SetAstronautsInPlace();
-        pso = new PSO(astronautControllers);
+        pso = new PSO(astronautControllers, progressBar, StopExploringButton);
         StopExploringButton.SetActive(false);
     }
 
@@ -101,6 +103,7 @@ public class AstronautManager : MonoBehaviour {
             child.gameObject.GetComponent<ShowWeaponImage>().SetImage(weapons[counter]);
             counter++;
         }
+        GameObject.Find("Mouse").GetComponent<MouseSkinManager>().Unpoint("button");
     }
 	
 	// Update is called once per frame
@@ -114,13 +117,18 @@ public class AstronautManager : MonoBehaviour {
             bool weaponsAssigned = pso.UpdateAstronauts();
             if(weaponsAssigned)
             {
+                if(setSoundBattle)
+                {
+                    FindObjectOfType<AudioManager>().PlayBattle();
+                    setSoundBattle = false;
+                }
                 startPSO = false;
                 //Destroy Weapon Buttons
                 DestroyButtonsToImage();
                 //Send signal to go for aliens
                 goForAliens = true;
                 //Call AlienManager
-                alienManager.Initialize();
+                alienManager.Initialize(pso.GetTargetCoordinates());
             }
         }
         if(goForAliens)

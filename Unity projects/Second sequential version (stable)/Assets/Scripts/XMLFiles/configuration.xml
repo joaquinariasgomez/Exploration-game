@@ -5,7 +5,7 @@
             <sounds> 0.75 </sounds>
         </volume>
         <generation>
-            <size> 200 </size>
+            <size> 100 </size>
             <seed> 0 </seed>
         </generation>
     </options>

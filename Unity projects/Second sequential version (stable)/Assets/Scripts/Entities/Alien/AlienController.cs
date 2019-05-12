@@ -61,6 +61,8 @@ public class AlienController : MonoBehaviour {
     public Vector3 destination;
     public Vector3 projectedDestination;
 
+    private Vector3 targetCoordinates = Vector3.zero;
+
     private float Wcurrent;
     private float c1;
     private float c2;
@@ -95,6 +97,11 @@ public class AlienController : MonoBehaviour {
         gridSize = DataBetweenScenes.getSize();
     }
 
+    private void Start()
+    {
+        gameObject.SetActive(false);
+    }
+
     public void SetBestPosition()
     {
         if (settedBestPosition) { return; }
@@ -104,8 +111,8 @@ public class AlienController : MonoBehaviour {
         foundBestScore = globalBestScore;
 
         //Stop logs
-        this.actualScoreLogs.End();
-        this.personalBestScoreLogs.End();
+        //this.actualScoreLogs.End();
+        //this.personalBestScoreLogs.End();
     }
 
     public void SetReachedHighestMountain() //Only called once to set flags
@@ -113,7 +120,7 @@ public class AlienController : MonoBehaviour {
         
     }
 
-    public bool HasReachedHighestMountain()
+    public bool IsCloseEnough()
     {
         float distanceToHighestMountain = Vector3.Distance(transform.position, foundBestPosition);
         return distanceToHighestMountain <= targetDistanceToHighestMountain;
@@ -210,6 +217,8 @@ public class AlienController : MonoBehaviour {
 
     public void Initialize(int id)
     {
+        gameObject.SetActive(true);
+
         this.id = id;
         animator = GetComponent<Animator>();
         collider = GetComponent<CapsuleCollider>();
@@ -219,7 +228,7 @@ public class AlienController : MonoBehaviour {
         rigidbody.useGravity = false;
 
         distToGround = collider.bounds.extents.y;
-        personalBestScore = gridSize / 2f;  //Minimum score
+        personalBestScore = gridSize * 4;  //Maximum score
         personalBestPosition = new Vector3(0, 0, 0);    //No tener en cuenta si personalBestScore es 0f
         velocityCteY = maxVelocityCteY;
         this.move = true;
@@ -284,12 +293,17 @@ public class AlienController : MonoBehaviour {
         return stuck;
     }
 
+    public void SetTargetCoordinates(Vector3 targetCoordinates)
+    {
+        this.targetCoordinates = targetCoordinates;
+    }
+
     public void UpdatePersonalScore()
     {
         if (isGrounded())
         {
-            actualScore = Vector3.Distance(attractor.transform.position, transform.position);
-            if (actualScore > personalBestScore)
+            actualScore = Vector3.Distance(targetCoordinates, transform.position);
+            if (actualScore < personalBestScore)
             {
                 personalBestScore = actualScore;
                 personalBestPosition = transform.position;
@@ -303,8 +317,8 @@ public class AlienController : MonoBehaviour {
         this.globalBestPosition = globalBestPosition;
 
         //Logs
-        actualScoreLogs.Write(actualScore);
-        personalBestScoreLogs.Write(personalBestScore);
+        //actualScoreLogs.Write(actualScore);
+        //personalBestScoreLogs.Write(personalBestScore);
     }
 
     public void UpdateTrajectory(float Wcurrent, float c1, float c2, bool goToGlobalMax = false)
@@ -416,21 +430,14 @@ public class AlienController : MonoBehaviour {
         ManageStepSound();
 
         //CHECK IF IT IS STUCK AND ITS ALSO MOVING
-        //Vector3 upComponent = Vector3.zero;
         if (ItIsStuck() && move)
         {
-            //trajectory += 180;
-            //velocityCteY = 5;
-            //speed = 100;
             print(" esta alien " + id);
             upComponent += transform.up;
         }
         else
         {
             upComponent = Vector3.zero;
-            //speed = correspondentSpeed;
-            //velocityCteY = maxVelocityCteY;
-            //upComponent = Vector3.zero;
         }
 
         currentSpeed = Mathf.SmoothDamp(currentSpeed, speed, ref speedSmoothVelocity, speedSmoothTime);
@@ -484,5 +491,11 @@ public class AlienController : MonoBehaviour {
     bool isGrounded()
     {
         return Physics.Raycast(collider.bounds.center, -gravityDirection, distToGround + distToGround / 4);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.black;
+        Gizmos.DrawSphere(targetCoordinates, 1f);
     }
 }

@@ -149,6 +149,11 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    public Vector3 GetCoordinates()
+    {
+        return transform.position;
+    }
+
     public void SetBestPosition()
     {
         if(settedBestPosition) { return; }

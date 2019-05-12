@@ -13,14 +13,18 @@ public class AudioManager : MonoBehaviour {
     private GameObject[] astronauts;
 
     private AudioSource[] soundtracks;
+
+    private List<int> soundtrackBattleIds;
     private int playingSoundtrack;  //id of soundtrack that is playing currently
     private int latestSoundtrack;   //id of latest soundtrack for no repeat
     private float timeBetweenSoundtracks = 2;
     private float timeBetweenSoundtracksCounter = 0;
 
+    private bool playBattle = false;
+
     private int stepCounter = 0;
 
-    private void AssignSoundToObject(Sound sound)
+    private void AssignSoundToObject(Sound sound, int soundCounter)
     {
         if (sound.type == "Step")       //Astronaut's Step
         {
@@ -46,6 +50,19 @@ public class AudioManager : MonoBehaviour {
                 sound.source.pitch = sound.pitch;
                 sound.source.loop = sound.loop;
             }
+            else
+            {
+                if (sound.type == "SoundtrackBattle")
+                {
+                    soundtrackBattleIds.Add(soundCounter-2);
+
+                    sound.source = gameObject.AddComponent<AudioSource>();  //Añadir al mundo en sí
+                    sound.source.clip = sound.clip;
+                    sound.source.volume = sound.volume;
+                    sound.source.pitch = sound.pitch;
+                    sound.source.loop = sound.loop;
+                }
+            }
         }
     }
 
@@ -63,36 +80,88 @@ public class AudioManager : MonoBehaviour {
 
         astronauts = astronautManager.astronauts;
 
+        soundtrackBattleIds = new List<int>();
+
+        int soundCounter = 0;
 		foreach(Sound sound in sounds)
         {
-            AssignSoundToObject(sound);
+            AssignSoundToObject(sound, soundCounter);
+            ++soundCounter;
         }
 	}
+    
+    public void PlayBattle()
+    {
+        this.playBattle = true;
+    }
 
     private void Start()
     {
         this.soundtracks = gameObject.GetComponents<AudioSource>();
-        playingSoundtrack = Mathf.RoundToInt(UnityEngine.Random.Range(0f, (float)(soundtracks.Length - 1)));
+
+        int numSoundtrackBattle = soundtrackBattleIds.Count;
+
+        playingSoundtrack = Mathf.RoundToInt(UnityEngine.Random.Range(0f, (float)(soundtracks.Length - 1 - numSoundtrackBattle)));
+
         latestSoundtrack = playingSoundtrack;
         soundtracks[playingSoundtrack].Play();
     }
 
+    private bool IsInBattleList(int id)
+    {
+        bool result = false;
+        foreach(int element in soundtrackBattleIds)
+        {
+            if (id == element) result = true;
+        }
+        return result;
+    }
+
     private void Update()
     {
-        if(!soundtracks[playingSoundtrack].isPlaying)
+        if(playBattle)
         {
-            timeBetweenSoundtracksCounter += Time.deltaTime;
-            if (timeBetweenSoundtracksCounter > timeBetweenSoundtracks)
+            if(!IsInBattleList(playingSoundtrack))
             {
-                timeBetweenSoundtracksCounter = 0;
-                //DO THINGS EVERY timeBetweenSoundtracks SECONDS
-                playingSoundtrack = Mathf.RoundToInt(UnityEngine.Random.Range(0f, (float)(soundtracks.Length - 1)));
-                while(playingSoundtrack == latestSoundtrack)
+                soundtracks[playingSoundtrack].Stop();
+                int numSoundtrackBattle = soundtrackBattleIds.Count;
+                playingSoundtrack = Mathf.RoundToInt(UnityEngine.Random.Range((float)(soundtracks.Length - 1 - numSoundtrackBattle), (float)(soundtracks.Length - 1)));
+            }
+            if (!soundtracks[playingSoundtrack].isPlaying)
+            {
+                timeBetweenSoundtracksCounter += Time.deltaTime;
+                if (timeBetweenSoundtracksCounter > timeBetweenSoundtracks)
                 {
-                    playingSoundtrack = Mathf.RoundToInt(UnityEngine.Random.Range(0f, (float)(soundtracks.Length - 1)));
+                    timeBetweenSoundtracksCounter = 0;
+                    //DO THINGS EVERY timeBetweenSoundtracks SECONDS
+                    int numSoundtrackBattle = soundtrackBattleIds.Count;
+                    playingSoundtrack = Mathf.RoundToInt(UnityEngine.Random.Range((float)(soundtracks.Length - 1 - numSoundtrackBattle), (float)(soundtracks.Length - 1)));
+                    while (playingSoundtrack == latestSoundtrack)
+                    {
+                        playingSoundtrack = Mathf.RoundToInt(UnityEngine.Random.Range((float)(soundtracks.Length - 1 - numSoundtrackBattle), (float)(soundtracks.Length - 1)));
+                    }
+                    soundtracks[playingSoundtrack].Play();
+                    latestSoundtrack = playingSoundtrack;
                 }
-                soundtracks[playingSoundtrack].Play();
-                latestSoundtrack = playingSoundtrack;
+            }
+        }
+        else
+        {
+            if (!soundtracks[playingSoundtrack].isPlaying)
+            {
+                timeBetweenSoundtracksCounter += Time.deltaTime;
+                if (timeBetweenSoundtracksCounter > timeBetweenSoundtracks)
+                {
+                    timeBetweenSoundtracksCounter = 0;
+                    //DO THINGS EVERY timeBetweenSoundtracks SECONDS
+                    playingSoundtrack = Mathf.RoundToInt(UnityEngine.Random.Range(0f, (float)(soundtracks.Length - 1)));
+                    while (playingSoundtrack == latestSoundtrack)
+                    {
+                        playingSoundtrack = Mathf.RoundToInt(UnityEngine.Random.Range(0f, (float)(soundtracks.Length - 1)));
+                    }
+                    soundtracks[playingSoundtrack].Play();
+                    latestSoundtrack = playingSoundtrack;
+                }
             }
         }
     }

@@ -5,11 +5,6 @@ using UnityEngine;
 public class HealthBar : MonoBehaviour {
 
     private Transform bar;
-
-	// Use this for initialization
-	void Start () {
-        Transform bar = transform.Find("Bar");
-	}
 	
 	public void Initialize(float value)
     {
