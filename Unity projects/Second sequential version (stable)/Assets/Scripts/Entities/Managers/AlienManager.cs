@@ -5,8 +5,10 @@ using UnityEngine;
 public class AlienManager : MonoBehaviour {
 
     public GameObject[] aliens;
+    public GameObject[] astronauts;
 
     private List<AlienController> alienControllers = new List<AlienController>();
+    private List<PlayerController> astronautControllers = new List<PlayerController>();
     private int numAliens;
     private bool startPSO = false;
     private float inertia = 0.33f;
@@ -15,6 +17,7 @@ public class AlienManager : MonoBehaviour {
     private Vector3 targetCoordinates;
 
     PSO pso;
+    AttackAstronauts attackAstronauts;
 
     // Use this for initialization
     void Start () {
@@ -22,6 +25,10 @@ public class AlienManager : MonoBehaviour {
         foreach (GameObject alien in aliens)
         {
             alienControllers.Add(alien.GetComponent<AlienController>());
+        }
+        foreach (GameObject astronaut in astronauts)
+        {
+            astronautControllers.Add(astronaut.GetComponent<PlayerController>());
         }
     }
 
@@ -40,6 +47,7 @@ public class AlienManager : MonoBehaviour {
 
         SetAliensInPlace();
         pso = new PSO(alienControllers);
+        attackAstronauts = new AttackAstronauts(astronautControllers, alienControllers);
         //Start looking for astronauts
         startPSO = true;
         pso.SetInertiaAlien(inertia);
@@ -80,6 +88,11 @@ public class AlienManager : MonoBehaviour {
             {
                 startPSO = false;
             }
+        }
+        else
+        {
+            //AttackAstronauts
+            attackAstronauts.UpdateAliens();
         }
     }
 }

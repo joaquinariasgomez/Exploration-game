@@ -231,6 +231,24 @@ public class PSO
         }
     }
 
+    private bool IsCloseEnoughToAstronauts()
+    {
+        bool result = true;
+
+        foreach(AlienController controller in alienControllers)
+        {
+            if(!controller.IsCloseEnoughToAstronauts())
+            {
+                result = false;
+            }
+            else
+            {
+                controller.Stop();
+            }
+        }
+        return result;
+    }
+
     private bool AllReachedHighestMountain()
     {
         bool condition = true;
@@ -238,20 +256,6 @@ public class PSO
         foreach(PlayerController controller in astronautControllers)
         {
             if(!controller.HasReachedHighestMountain())
-            {
-                condition = false;
-            }
-        }
-        return condition;
-    }
-
-    private bool AllAliensAreCloseEnough()
-    {
-        bool condition = true;
-
-        foreach (AlienController controller in alienControllers)
-        {
-            if (!controller.IsCloseEnough())
             {
                 condition = false;
             }
@@ -348,7 +352,7 @@ public class PSO
     //Main loop for aliens
     public bool UpdateAliens()
     {
-        if (iteration_alien  == (maxIterations_alien + maxIterWithWmin_alien))
+        if (IsCloseEnoughToAstronauts())
         {
             /*GoToGlobalMax();
             CheckGlobalMax();   //Will stop player is has reached mountain
@@ -360,6 +364,7 @@ public class PSO
                     signalSent_alien = true;
                 }
             }*/
+            return true;
         }
         else
         {

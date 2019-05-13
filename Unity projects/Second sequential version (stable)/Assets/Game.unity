@@ -9760,6 +9760,15 @@ MonoBehaviour:
   - {fileID: 775519184}
   - {fileID: 964193932}
   - {fileID: 119020725}
+  astronauts:
+  - {fileID: 1735169016}
+  - {fileID: 1392822236}
+  - {fileID: 2133979768}
+  - {fileID: 1830797016}
+  - {fileID: 467501366}
+  - {fileID: 969685384}
+  - {fileID: 1710232642}
+  - {fileID: 803664061}
 --- !u!4 &1075268810
 Transform:
   m_ObjectHideFlags: 0

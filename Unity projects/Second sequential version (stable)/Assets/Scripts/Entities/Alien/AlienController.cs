@@ -24,7 +24,9 @@ public class AlienController : MonoBehaviour {
     float velocityCteY;
     bool running;
     bool move;
-    private float targetDistanceToHighestMountain = 2f;
+    private float targetDistanceToAstronauts = 35f;
+    private float maximumDistanceToAstronaut = 20f;
+    private Vector3 directionOfEscape = Vector3.zero;
     private float enoughCloseToHightestMountain = 6f;   //This will let Astronaut find a stable position within this distance
 
     private Vector3 gravityDirection;
@@ -84,6 +86,11 @@ public class AlienController : MonoBehaviour {
     FileWriter personalBestScoreLogs;
     //END LOGS
 
+    //TEST
+    Vector3 fromDirectionOfEscape = Vector3.zero;
+    Vector3 toDirectionOfEscape = Vector3.zero;
+    //END_TEST
+
     float distToGround;
     bool setted = false;
     private bool settedBestPosition = false;
@@ -115,15 +122,39 @@ public class AlienController : MonoBehaviour {
         //this.personalBestScoreLogs.End();
     }
 
+    public bool CheckDistanceWithAstronauts(List<PlayerController> astronautControllers)
+    {
+        bool condition = false;
+
+        foreach (PlayerController controller in astronautControllers)
+        {
+            if(Vector3.Distance(controller.transform.position, transform.position) < maximumDistanceToAstronaut)
+            {
+                condition = true;
+                toDirectionOfEscape = transform.position;
+                fromDirectionOfEscape = controller.transform.position;
+            }
+        }
+        return condition;
+    }
+
+    public List<Vector3> GetDirectionOfEscape()
+    {
+        List<Vector3> result = new List<Vector3>();
+        result.Add(fromDirectionOfEscape);
+        result.Add(toDirectionOfEscape);
+        return result;
+    }
+
     public void SetReachedHighestMountain() //Only called once to set flags
     {
         
     }
 
-    public bool IsCloseEnough()
+    public bool IsCloseEnoughToAstronauts()
     {
-        float distanceToHighestMountain = Vector3.Distance(transform.position, foundBestPosition);
-        return distanceToHighestMountain <= targetDistanceToHighestMountain;
+        float actualScore = Vector3.Distance(targetCoordinates, transform.position);
+        return actualScore <= targetDistanceToAstronauts;
     }
 
     private void PerformGravityRotation()
@@ -495,7 +526,12 @@ public class AlienController : MonoBehaviour {
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.black;
-        Gizmos.DrawSphere(targetCoordinates, 1f);
+        Gizmos.color = Color.red;
+        if(directionOfEscape != Vector3.zero)
+        {
+            Gizmos.DrawLine(transform.position, gravityDirection);
+            Gizmos.color = Color.black;
+            Gizmos.DrawLine(transform.position, directionOfEscape);
+        }
     }
 }
