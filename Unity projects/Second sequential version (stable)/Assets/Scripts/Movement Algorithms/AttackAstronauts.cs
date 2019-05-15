@@ -78,11 +78,7 @@ public class AttackAstronauts {
         bool nowThrowing = ball.GetComponent<ThrowBall>().NowThrowing();
         if(!nowThrowing)
         {
-            if(controller.id==1)
-            {
-                ball.GetComponent<ThrowBall>().Throw(directionToAstronaut);
-                Debug.Log("Throwing again!");
-            }
+            ball.GetComponent<ThrowBall>().Throw(controller.transform.position, directionToAstronaut);
         }
     }
 
@@ -103,12 +99,23 @@ public class AttackAstronauts {
         }
     }
 
+    private void DrawStateIcon(AlienController controller)
+    {
+        int state = GetAlienState(controller);
+        switch(state)
+        {
+            case 0: controller.SetImageToDraw(0); break;    //0
+            case 1: controller.SetImageToDraw(2); break;    //2
+            case 2: controller.SetImageToDraw(1); break;    //1
+        }
+    }
+
     public void UpdateAliens()
     {
         foreach(AlienController controller in alienControllers)
         {
             //Draw State Icon
-
+            DrawStateIcon(controller);
             //End Draw State Icon
 
             if (controller.CheckDistanceWithAstronauts(astronautControllers))    //True if this alien is too close

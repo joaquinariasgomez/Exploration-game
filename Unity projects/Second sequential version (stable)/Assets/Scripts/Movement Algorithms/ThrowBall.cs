@@ -6,8 +6,8 @@ public class ThrowBall : MonoBehaviour {
 
     private bool throwing;
     private Vector3 direction;
-    private float velocityCte = 4f;
-    private float duration = 2f;    //Duration of maximum throw time in seconds
+    private float velocityCte = 3f;
+    private float duration = 5f;    //Duration of maximum throw time in seconds
     private float timeThrowing;
     private float maxTimeBetweenShoots = 3f;
     private float timeBetweenShoots;
@@ -49,14 +49,14 @@ public class ThrowBall : MonoBehaviour {
         }*/
 	}
 
-    public void Throw(Vector3 direction)
+    public void Throw(Vector3 from, Vector3 direction)
     {
         throwing = true;
         this.direction = direction;
 
         rigidbody.velocity = direction * velocityCte;
 
-        transform.Translate(Vector3.zero);
+        transform.position = from;
         gameObject.SetActive(true);
     }
 

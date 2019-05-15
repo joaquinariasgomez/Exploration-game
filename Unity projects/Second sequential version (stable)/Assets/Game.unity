@@ -1638,6 +1638,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
+  Angry: {fileID: 2800000, guid: a742c59384a93214fa7a027fea3b3da5, type: 3}
+  Sad: {fileID: 2800000, guid: 64db7d4b8a0f90b4cae56ac1e492be31, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
@@ -2229,6 +2231,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
+  Angry: {fileID: 2800000, guid: a742c59384a93214fa7a027fea3b3da5, type: 3}
+  Sad: {fileID: 2800000, guid: 64db7d4b8a0f90b4cae56ac1e492be31, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
@@ -6845,6 +6849,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
+  Angry: {fileID: 2800000, guid: a742c59384a93214fa7a027fea3b3da5, type: 3}
+  Sad: {fileID: 2800000, guid: 64db7d4b8a0f90b4cae56ac1e492be31, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
@@ -7707,6 +7713,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
+  Angry: {fileID: 2800000, guid: a742c59384a93214fa7a027fea3b3da5, type: 3}
+  Sad: {fileID: 2800000, guid: 64db7d4b8a0f90b4cae56ac1e492be31, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
@@ -9166,6 +9174,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
+  Angry: {fileID: 2800000, guid: a742c59384a93214fa7a027fea3b3da5, type: 3}
+  Sad: {fileID: 2800000, guid: 64db7d4b8a0f90b4cae56ac1e492be31, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
@@ -11366,6 +11376,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
+  Angry: {fileID: 2800000, guid: a742c59384a93214fa7a027fea3b3da5, type: 3}
+  Sad: {fileID: 2800000, guid: 64db7d4b8a0f90b4cae56ac1e492be31, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
@@ -11574,6 +11586,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
+  Angry: {fileID: 2800000, guid: a742c59384a93214fa7a027fea3b3da5, type: 3}
+  Sad: {fileID: 2800000, guid: 64db7d4b8a0f90b4cae56ac1e492be31, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0
@@ -13092,6 +13106,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attractor: {fileID: 1339366652}
+  Angry: {fileID: 2800000, guid: a742c59384a93214fa7a027fea3b3da5, type: 3}
+  Sad: {fileID: 2800000, guid: 64db7d4b8a0f90b4cae56ac1e492be31, type: 3}
   id: 0
   trajectory: 0
   personalBestScore: 0

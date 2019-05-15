@@ -240,6 +240,7 @@ public class PSO
             if(!controller.IsCloseEnoughToAstronauts())
             {
                 result = false;
+                controller.SetMove(true);
             }
             else
             {
@@ -354,16 +355,6 @@ public class PSO
     {
         if (IsCloseEnoughToAstronauts())
         {
-            /*GoToGlobalMax();
-            CheckGlobalMax();   //Will stop player is has reached mountain
-            if (AllReachedHighestMountain())
-            {
-                if (!signalSent_alien)
-                {
-                    SendSignalReachedHighestMountain();
-                    signalSent_alien = true;
-                }
-            }*/
             return true;
         }
         else

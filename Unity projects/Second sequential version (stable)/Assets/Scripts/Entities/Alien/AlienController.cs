@@ -5,6 +5,10 @@ using UnityEngine;
 public class AlienController : MonoBehaviour {
 
     public CubeSphere attractor;
+    public Texture2D Angry;
+    public Texture2D Sad;
+
+    private int imageToDraw = 0;    //0 -> no image; 1 -> angry; 2 -> sad
 
     private Vector3 upComponent = Vector3.zero;
 
@@ -105,6 +109,31 @@ public class AlienController : MonoBehaviour {
     private void Awake()
     {
         gridSize = DataBetweenScenes.getSize();
+    }
+
+    public void SetImageToDraw(int num)
+    {
+        this.imageToDraw = num;
+    }
+
+    private void OnGUI()
+    {
+        if(PauseMenu.GamePaused)
+        {
+            return;
+        }
+        switch(imageToDraw)
+        {
+            case 0: return;
+            case 1:
+                Vector2 alienPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
+                GUI.DrawTexture(new Rect(alienPos.x - 18, Screen.height - alienPos.y - 60, 36, 40), Angry);
+                break;
+            case 2:
+                Vector2 alienPos2 = Camera.main.WorldToScreenPoint(gameObject.transform.position);
+                GUI.DrawTexture(new Rect(alienPos2.x - 18, Screen.height - alienPos2.y - 52, 36, 32), Sad);
+                break;
+        }
     }
 
     private void Start()
@@ -522,7 +551,6 @@ public class AlienController : MonoBehaviour {
         //CHECK IF IT IS STUCK AND ITS ALSO MOVING
         if (ItIsStuck() && move)
         {
-            print(" esta alien " + id);
             upComponent += transform.up;
         }
         else
