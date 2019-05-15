@@ -89,6 +89,9 @@ public class AlienController : MonoBehaviour {
     //TEST
     Vector3 fromDirectionOfEscape = Vector3.zero;
     Vector3 toDirectionOfEscape = Vector3.zero;
+
+    Vector3 fromDirectionOfClosestAstronaut = Vector3.zero;
+    Vector3 toDirectionOfClosestAstronaut = Vector3.zero;
     //END_TEST
 
     float distToGround;
@@ -125,6 +128,7 @@ public class AlienController : MonoBehaviour {
     public bool CheckDistanceWithAstronauts(List<PlayerController> astronautControllers)
     {
         bool condition = false;
+        float bestDistance = 1000f;
 
         foreach (PlayerController controller in astronautControllers)
         {
@@ -133,6 +137,12 @@ public class AlienController : MonoBehaviour {
                 condition = true;
                 toDirectionOfEscape = transform.position;
                 fromDirectionOfEscape = controller.transform.position;
+            }
+            if(Vector3.Distance(controller.transform.position, transform.position) < bestDistance)
+            {
+                bestDistance = Vector3.Distance(controller.transform.position, transform.position);
+                toDirectionOfClosestAstronaut = transform.position;
+                fromDirectionOfClosestAstronaut = controller.transform.position;
             }
         }
         return condition;
@@ -143,6 +153,14 @@ public class AlienController : MonoBehaviour {
         List<Vector3> result = new List<Vector3>();
         result.Add(fromDirectionOfEscape);
         result.Add(toDirectionOfEscape);
+        return result;
+    }
+
+    public List<Vector3> GetDirectionOfClosestAstronaut()
+    {
+        List<Vector3> result = new List<Vector3>();
+        result.Add(fromDirectionOfClosestAstronaut);
+        result.Add(toDirectionOfClosestAstronaut);
         return result;
     }
 
@@ -387,6 +405,47 @@ public class AlienController : MonoBehaviour {
             destination = directionToGlobal;
         }
         //END WHEN CLOSE TO HIGHEST MOUNTAIN THINGS
+        projectedDestination = Vector3.ProjectOnPlane(destination, transform.up);
+
+        //Update trajectory
+        float angle = Vector3.Angle(transform.forward, projectedDestination);
+
+        //- => Izquierda
+        if (trajectory >= 360) trajectory -= 360;
+        if (trajectory <= -360) trajectory += 360;
+
+        float rightAngle = Vector3.Angle(transform.right, projectedDestination);
+        float leftAngle = Vector3.Angle(-transform.right, projectedDestination);
+
+        if (rightAngle >= leftAngle)
+        {
+            if (transform.position.y >= 0)
+            {
+                trajectory -= angle;    //-
+            }
+            else
+            {
+                trajectory += angle;    //+
+            }
+        }
+        else
+        {
+            if (transform.position.y >= 0)
+            {
+                trajectory += angle;
+            }
+            else
+            {
+                trajectory -= angle;
+            }
+        }
+        latestTargetDirection = trajectory;
+    }
+
+    public void UpdateTrajectoryDirection(Vector3 goToDirection)
+    {
+        destination = goToDirection;
+
         projectedDestination = Vector3.ProjectOnPlane(destination, transform.up);
 
         //Update trajectory
