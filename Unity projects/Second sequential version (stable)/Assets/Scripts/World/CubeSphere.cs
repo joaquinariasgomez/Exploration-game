@@ -17,7 +17,7 @@ public class CubeSphere : MonoBehaviour
     private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;    //Global
     private float radius;
     private static int sqrtChunksPerFace;// = 25;     //25 - 5
-    public static float heightMultiplier = 5;     //20
+    public static float heightMultiplier = 10;     //5
     private static int id = 0;
 
     private static Dictionary<string, float[,]> noiseMaps=new Dictionary<string, float[,]>();  //Face, noiseMap

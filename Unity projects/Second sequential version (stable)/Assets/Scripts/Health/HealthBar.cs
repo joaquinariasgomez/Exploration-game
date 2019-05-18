@@ -12,4 +12,10 @@ public class HealthBar : MonoBehaviour {
         float lifePercentage = value / 100f;
         bar.localScale = new Vector3(lifePercentage, 1f);
     }
+
+    public void UpdateHealth(float value)
+    {
+        float lifePercentage = value / 100f;
+        bar.localScale = new Vector3(lifePercentage, 1f);
+    }
 }

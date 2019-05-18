@@ -8,12 +8,13 @@ public class AttackAstronauts {
     private List<AlienController> alienControllers;
     private int maxNumberOfSimultaneousAliensGoAway;   //Número máximo de aliens huyendo al mismo tiempo
     private List<int> alienStates;  //0 -> atacando(idle).  1 -> huyendo.  2 -> supporteando al que huye
+    private Dictionary<int, Vector3> alienAstronautTarget = new Dictionary<int, Vector3>();   //Only for states 2
 
     public AttackAstronauts(List<PlayerController> astronautControllers, List<AlienController> alienControllers)
     {
         this.astronautControllers = astronautControllers;
         this.alienControllers = alienControllers;
-        maxNumberOfSimultaneousAliensGoAway = 2;
+        maxNumberOfSimultaneousAliensGoAway = 5;    //2
 
         alienStates = new List<int>();
         for(int i=0; i<alienControllers.Capacity; i++)  //Set states of aliens to idle
@@ -36,15 +37,33 @@ public class AttackAstronauts {
         return number;
     }
 
-    private void SetAlienState(int alienId, int state)
+    private void SetAlienState(int alienId, int state, Vector3 astronautPosition) //directionOfEscape is for state 2
     {
         alienStates[alienId] = state;
+        if(state == 2)
+        {
+            alienAstronautTarget[alienId] = astronautPosition;
+        }
     }
 
     private int GetAlienState(AlienController controller)
     {
         int alienId = controller.id;
         return alienStates[alienId];
+    }
+
+    private int GetNumberOfAlienStates(int desiredState)  //Returns number of "state" states
+    {
+        int counter = 0;
+
+        foreach(int state in alienStates)
+        {
+            if(state == desiredState)
+            {
+                counter++;
+            }
+        }
+        return counter;
     }
 
     private void StopAll()
@@ -74,11 +93,15 @@ public class AttackAstronauts {
 
         Vector3 directionToAstronaut = (from - to).normalized;
 
-        GameObject ball = controller.gameObject.transform.GetChild(3).gameObject;
-        bool nowThrowing = ball.GetComponent<ThrowBall>().NowThrowing();
+        bool nowThrowing = controller.ball.GetComponent<ThrowBall>().NowThrowing();
+
         if(!nowThrowing)
         {
-            ball.GetComponent<ThrowBall>().Throw(controller.transform.position, directionToAstronaut);
+            Vector3 positionFromShoot = controller.transform.position;
+            float distance = Vector3.Distance(positionFromShoot, Vector3.zero);
+            float targetDistace = distance + 0.6f;
+            Vector3 newPositionFromShoot = positionFromShoot * (targetDistace / distance);//Vector3.ClampMagnitude(positionFromShoot, targetDistace);
+            controller.ball.GetComponent<ThrowBall>().Throw(newPositionFromShoot, directionToAstronaut);
         }
     }
 
@@ -95,6 +118,17 @@ public class AttackAstronauts {
             case 1:
                 List<Vector3> directionOfEscape = controller.GetDirectionOfEscape();
                 MoveAway(controller, directionOfEscape);
+                break;
+            case 2:
+                Vector3 from = alienAstronautTarget[controller.id];
+                Vector3 to = controller.transform.position;
+                List<Vector3> directionToAstronaut = new List<Vector3>();
+                directionToAstronaut.Add(from);
+                directionToAstronaut.Add(to);
+
+                //KeepDistanceAndShoot(controller, directionToAstronaut);
+                ThrowBall(controller, directionToAstronaut);
+                //MoveAway(controller, directionToAstronaut);
                 break;
         }
     }
@@ -122,12 +156,31 @@ public class AttackAstronauts {
             {
                 if(GetNumberOfSimultaneousAliensGoAway() <= maxNumberOfSimultaneousAliensGoAway - 1)
                 {
-                    SetAlienState(controller.id, 1);    //Set this alien state to running away
+                    SetAlienState(controller.id, 1, Vector3.zero);    //Set this alien state to running away
+                    //Warn  other astronauts that don't have state 1
+                    foreach(AlienController controller2 in alienControllers)
+                    {
+                        if(GetAlienState(controller2) != 1)
+                        {
+                            Vector3 astronautPosition = controller.GetDirectionOfEscape()[0];
+                            SetAlienState(controller2.id, 2, astronautPosition);
+                        }
+                    }
                 }
             }
             else
             {
-                SetAlienState(controller.id, 0);
+                if(GetAlienState(controller) == 2)
+                {
+                    if(GetNumberOfSimultaneousAliensGoAway() == 0)
+                    {
+                        SetAlienState(controller.id, 0, Vector3.zero);
+                    }
+                }
+                else
+                {
+                    SetAlienState(controller.id, 0, Vector3.zero);
+                }
             }
 
             //Check states and act

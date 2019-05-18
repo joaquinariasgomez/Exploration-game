@@ -106,6 +106,11 @@ public class AstronautManager : MonoBehaviour {
         GameObject.Find("Mouse").GetComponent<MouseSkinManager>().Unpoint("button");
     }
 	
+    public GameObject[] GetAstronauts()
+    {
+        return astronauts;
+    }
+
 	// Update is called once per frame
 	void Update () {
         if(PauseMenu.GamePaused)

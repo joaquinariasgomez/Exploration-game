@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class ThrowBall : MonoBehaviour {
 
+    public AstronautManager astronautManager;
+
+    private GameObject[] astronauts;
     private bool throwing;
     private Vector3 direction;
-    private float velocityCte = 3f;
-    private float duration = 5f;    //Duration of maximum throw time in seconds
+    private float velocityCte = 7f;//3
+    private float duration = 10f;    //Duration of maximum throw time in seconds
     private float timeThrowing;
     private float maxTimeBetweenShoots = 3f;
     private float timeBetweenShoots;
@@ -16,6 +19,8 @@ public class ThrowBall : MonoBehaviour {
     Collider collider;
 
 	void Start () {
+        this.astronauts = astronautManager.GetAstronauts();
+
         rigidbody = GetComponent<Rigidbody>();
         collider = GetComponent<Collider>();
         rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
@@ -38,6 +43,15 @@ public class ThrowBall : MonoBehaviour {
                 timeThrowing = 0f;
                 throwing = false;
             }
+            if(isColliding())
+            {
+                timeThrowing = 0f;
+                throwing = false;
+            }
+        }
+        else
+        {
+            gameObject.SetActive(false);
         }
         /*else
         {
@@ -48,6 +62,38 @@ public class ThrowBall : MonoBehaviour {
             }
         }*/
 	}
+
+    private void CheckCollission(Collider collider)
+    {
+        foreach(GameObject astronaut in astronauts)
+        {
+            if(astronaut.GetComponent<Collider>() == collider)
+            {
+                int astronautId = astronaut.GetComponent<PlayerController>().id;
+                astronaut.GetComponent<PlayerController>().Hit();
+            }
+        }
+    }
+
+    bool isColliding()
+    {
+        RaycastHit hit;
+        Ray ray = new Ray(collider.bounds.center, direction);
+        if(Physics.Raycast(ray, out hit, 0.4f))
+        {
+            if(hit.collider != null)
+            {
+                //comprobar qué colider es hit.collider, dado que es el collider que ha sido hiteado
+                CheckCollission(hit.collider);
+                return true;
+            }
+        }
+        return false;
+    }
+    /*bool isColliding()
+    {
+        return Physics.Raycast(collider.bounds.center, direction, 2f);
+    }*/
 
     public void Throw(Vector3 from, Vector3 direction)
     {

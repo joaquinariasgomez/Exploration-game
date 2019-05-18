@@ -1,7 +1,7 @@
 <main>
     <options>
         <volume>
-            <music> 0.5 </music>
+            <music> 0 </music>
             <sounds> 0.75 </sounds>
         </volume>
         <generation>

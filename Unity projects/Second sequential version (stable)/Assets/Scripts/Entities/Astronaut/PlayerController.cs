@@ -28,12 +28,12 @@ public class PlayerController : MonoBehaviour {
     private float speedSmoothTime = 0.1f;
     float speedSmoothVelocity;
     float currentSpeed;
-    float maxVelocityCteY = 10f;
+    float maxVelocityCteY = 6f;    //10f;
     float velocityCteY;
     bool running;
     bool move;
-    private float targetDistanceToHighestMountain = 2f;
-    private float enoughCloseToHightestMountain = 6f;   //This will let Astronaut find a stable position within this distance
+    private float targetDistanceToHighestMountain = 3f; //2f;
+    private float enoughCloseToHightestMountain = 6f;   //6f; //This will let Astronaut find a stable position within this distance
 
     private Vector3 gravityDirection;
     private Vector3 gravityDirectionRotated;
@@ -81,6 +81,7 @@ public class PlayerController : MonoBehaviour {
     //END_STEPS
 
     //STATUS
+    private bool dead = false;
     private float life;
     private float speed;
     private bool hasSword = false;
@@ -122,6 +123,35 @@ public class PlayerController : MonoBehaviour {
             Vector2 astronautPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
             GUI.DrawTexture(new Rect(astronautPos.x - 16, Screen.height - astronautPos.y - 50, 34, 34), Sword_and_shield);
         }
+    }
+
+    public bool isDead()
+    {
+        return dead;
+    }
+
+    private void DecreaseLifeBy(float value)
+    {
+        if(life > 0f)
+        {
+            life -= value;
+            if (life < 0f) life = 0f;
+        }
+        if(life == 0f)
+        {
+            this.dead = true;
+        }
+    }
+
+    public void Hit()
+    {
+        float value = 10.5f;
+        if(hasShield)
+        {
+            value *= 0.4f;
+        }
+        this.DecreaseLifeBy(value);
+        this.HealthBar.GetComponent<HealthBar>().UpdateHealth(this.life);
     }
 
     public bool weaponAssigned()
@@ -476,8 +506,20 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    private void Update()
+    {
+        if (dead)
+        {
+            animator.SetFloat("speedPercent", 1f, speedSmoothTime, Time.deltaTime);
+        }
+    }
+
     public void Move()
     {
+        if(dead)
+        {
+            move = false;
+        }
         ManageStepSound();
 
         //CHECK IF IT IS STUCK AND ITS ALSO MOVING
@@ -511,7 +553,8 @@ public class PlayerController : MonoBehaviour {
             transform.position += (transform.forward * currentSpeed + upComponent * currentSpeed) * Time.deltaTime;
         }
         //UPDATE VERTICAL TRANSLATION
-        rigidbody.AddForce(-gravityDirection * velocityCteY);
+        //rigidbody.AddForce(-gravityDirection * velocityCteY);
+        rigidbody.velocity = -gravityDirection * velocityCteY;
 
         float targetDirection = trajectory;
         latestTargetDirection = targetDirection;
@@ -541,7 +584,8 @@ public class PlayerController : MonoBehaviour {
         //PERFORM ROTATIONS
         PerformGravityRotation();
         //UPDATE VERTICAL TRANSLATION
-        rigidbody.AddForce(-gravityDirection * velocityCteY);
+        //rigidbody.AddForce(-gravityDirection * velocityCteY);
+        rigidbody.velocity = -gravityDirection * velocityCteY;
     }
 
     bool isGrounded()

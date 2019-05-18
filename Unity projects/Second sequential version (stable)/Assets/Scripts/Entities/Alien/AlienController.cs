@@ -7,6 +7,7 @@ public class AlienController : MonoBehaviour {
     public CubeSphere attractor;
     public Texture2D Angry;
     public Texture2D Sad;
+    public GameObject ball;
 
     private int imageToDraw = 0;    //0 -> no image; 1 -> angry; 2 -> sad
 
@@ -24,7 +25,7 @@ public class AlienController : MonoBehaviour {
     private float speedSmoothTime = 0.1f;
     float speedSmoothVelocity;
     float currentSpeed;
-    float maxVelocityCteY = 10f;
+    float maxVelocityCteY = 6f;    //10f;
     float velocityCteY;
     bool running;
     bool move;
@@ -161,17 +162,20 @@ public class AlienController : MonoBehaviour {
 
         foreach (PlayerController controller in astronautControllers)
         {
-            if(Vector3.Distance(controller.transform.position, transform.position) < maximumDistanceToAstronaut)
+            if(!controller.isDead())
             {
-                condition = true;
-                toDirectionOfEscape = transform.position;
-                fromDirectionOfEscape = controller.transform.position;
-            }
-            if(Vector3.Distance(controller.transform.position, transform.position) < bestDistance)
-            {
-                bestDistance = Vector3.Distance(controller.transform.position, transform.position);
-                toDirectionOfClosestAstronaut = transform.position;
-                fromDirectionOfClosestAstronaut = controller.transform.position;
+                if (Vector3.Distance(controller.transform.position, transform.position) < maximumDistanceToAstronaut)
+                {
+                    condition = true;
+                    toDirectionOfEscape = transform.position;
+                    fromDirectionOfEscape = controller.transform.position;
+                }
+                if (Vector3.Distance(controller.transform.position, transform.position) < bestDistance)
+                {
+                    bestDistance = Vector3.Distance(controller.transform.position, transform.position);
+                    toDirectionOfClosestAstronaut = transform.position;
+                    fromDirectionOfClosestAstronaut = controller.transform.position;
+                }
             }
         }
         return condition;
@@ -191,11 +195,6 @@ public class AlienController : MonoBehaviour {
         result.Add(fromDirectionOfClosestAstronaut);
         result.Add(toDirectionOfClosestAstronaut);
         return result;
-    }
-
-    public void SetReachedHighestMountain() //Only called once to set flags
-    {
-        
     }
 
     public bool IsCloseEnoughToAstronauts()
@@ -573,7 +572,8 @@ public class AlienController : MonoBehaviour {
             transform.position += (transform.forward * currentSpeed + upComponent * currentSpeed) * Time.deltaTime;
         }
         //UPDATE VERTICAL TRANSLATION
-        rigidbody.AddForce(-gravityDirection * velocityCteY);
+        //rigidbody.AddForce(-gravityDirection * velocityCteY);
+        rigidbody.velocity = -gravityDirection * velocityCteY;
 
         float targetDirection = trajectory;
         latestTargetDirection = targetDirection;
@@ -603,7 +603,8 @@ public class AlienController : MonoBehaviour {
         //PERFORM ROTATIONS
         PerformGravityRotation();
         //UPDATE VERTICAL TRANSLATION
-        rigidbody.AddForce(-gravityDirection * velocityCteY);
+        //rigidbody.AddForce(-gravityDirection * velocityCteY);
+        rigidbody.velocity = -gravityDirection * velocityCteY;
     }
 
     bool isGrounded()

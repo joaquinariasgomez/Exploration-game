@@ -19,6 +19,8 @@ public class AudioManager : MonoBehaviour {
     private int latestSoundtrack;   //id of latest soundtrack for no repeat
     private float timeBetweenSoundtracks = 2;
     private float timeBetweenSoundtracksCounter = 0;
+    private float musicMultiplier;
+    private float soundMultiplier;
 
     private bool playBattle = false;
 
@@ -33,7 +35,7 @@ public class AudioManager : MonoBehaviour {
                 astronaut.AddComponent<AudioSource>();
 
                 astronaut.GetComponents<AudioSource>()[stepCounter].clip = sound.clip;
-                astronaut.GetComponents<AudioSource>()[stepCounter].volume = sound.volume;
+                astronaut.GetComponents<AudioSource>()[stepCounter].volume = sound.volume * soundMultiplier;
                 astronaut.GetComponents<AudioSource>()[stepCounter].pitch = sound.pitch;
                 astronaut.GetComponents<AudioSource>()[stepCounter].loop = sound.loop;
                 astronaut.GetComponents<AudioSource>()[stepCounter].spatialBlend = 1;
@@ -46,7 +48,7 @@ public class AudioManager : MonoBehaviour {
             {
                 sound.source = gameObject.AddComponent<AudioSource>();  //Añadir al mundo en sí
                 sound.source.clip = sound.clip;
-                sound.source.volume = sound.volume;
+                sound.source.volume = sound.volume * musicMultiplier;
                 sound.source.pitch = sound.pitch;
                 sound.source.loop = sound.loop;
             }
@@ -58,7 +60,7 @@ public class AudioManager : MonoBehaviour {
 
                     sound.source = gameObject.AddComponent<AudioSource>();  //Añadir al mundo en sí
                     sound.source.clip = sound.clip;
-                    sound.source.volume = sound.volume;
+                    sound.source.volume = sound.volume * musicMultiplier;
                     sound.source.pitch = sound.pitch;
                     sound.source.loop = sound.loop;
                 }
@@ -79,6 +81,9 @@ public class AudioManager : MonoBehaviour {
         DontDestroyOnLoad(gameObject);  //Para que no se corte entre carga de escenas
 
         astronauts = astronautManager.astronauts;
+
+        this.musicMultiplier = DataBetweenScenes.getMusicVolume();
+        this.soundMultiplier = DataBetweenScenes.getSoundsVolume();
 
         soundtrackBattleIds = new List<int>();
 
