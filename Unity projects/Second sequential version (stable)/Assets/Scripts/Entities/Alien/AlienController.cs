@@ -15,7 +15,7 @@ public class AlienController : MonoBehaviour {
 
     private int gridSize;
 
-    private float maxSpeed = 5;
+    private float maxSpeed = 2.5f; //5
     private float minSpeed = 0;
     private float correspondentSpeed;
 
@@ -30,7 +30,7 @@ public class AlienController : MonoBehaviour {
     bool running;
     bool move;
     private float targetDistanceToAstronauts = 35f;
-    private float maximumDistanceToAstronaut = 20f;
+    private float maximumDistanceToAstronaut = 5f; //20f
     private Vector3 directionOfEscape = Vector3.zero;
     private float enoughCloseToHightestMountain = 6f;   //This will let Astronaut find a stable position within this distance
 
@@ -38,6 +38,8 @@ public class AlienController : MonoBehaviour {
     private Vector3 gravityDirectionRotated;
     private Vector3 cross;
     private Vector3 pointDirection;
+
+    public Queue<int> shootSuccesses = new Queue<int>();   //1 -> acierto; 0 -> fallo
 
     private float latestTargetDirection = 0.0f;
     [HideInInspector]
@@ -197,6 +199,74 @@ public class AlienController : MonoBehaviour {
         return result;
     }
 
+    public List<Vector3> GetRealDirectionOfClosestAstronaut(List<PlayerController> astronautControllers)
+    {
+        float bestDistance = 1000f;
+        List<Vector3> result = new List<Vector3>();
+        bool allDead = true;
+
+        foreach (PlayerController controller in astronautControllers)
+        {
+            if (!controller.isDead())
+            {
+                allDead = false;
+                if (Vector3.Distance(controller.transform.position, transform.position) < bestDistance)
+                {
+                    bestDistance = Vector3.Distance(controller.transform.position, transform.position);
+                    result.Add(controller.transform.position);
+                    result.Add(transform.position);
+                }
+            }
+        }
+        if (allDead)
+        {
+            result.Add(Vector3.zero);
+            result.Add(transform.position);
+            return result;
+        }
+        else
+        {
+            return result;
+        }
+    }
+
+    public List<Vector3> GetDirectionOfRandomAstronaut(List<PlayerController> astronautControllers)
+    {
+        List<Vector3> result = new List<Vector3>();
+        Vector3 toDirectionOfRandomAstronaut = transform.position;
+        Vector3 fromDirectionOfRandomAstronaut = Vector3.zero;
+
+        bool oneIsChosen = false;
+
+        foreach(PlayerController controller in astronautControllers)
+        {
+            if(!controller.isDead())
+            {
+                float chooseThis = Random.Range(0f, 1f);
+                if(chooseThis <= 0.3f)
+                {
+                    oneIsChosen = true;
+                    fromDirectionOfRandomAstronaut = controller.transform.position;
+                }
+            }
+        }
+
+        if(!oneIsChosen)
+        {
+            foreach (PlayerController controller in astronautControllers)
+            {
+                if (!controller.isDead())
+                {
+                    fromDirectionOfRandomAstronaut = controller.transform.position;
+                }
+            }
+        }
+
+        result.Add(fromDirectionOfRandomAstronaut);
+        result.Add(toDirectionOfRandomAstronaut);
+        return result;
+    }
+
     public bool IsCloseEnoughToAstronauts()
     {
         float actualScore = Vector3.Distance(targetCoordinates, transform.position);
@@ -312,7 +382,7 @@ public class AlienController : MonoBehaviour {
 
         actualScore = gridSize / 2f;  //Minimum score
 
-        speed = Random.Range(4, maxSpeed);
+        speed = Random.Range(2, maxSpeed);
         correspondentSpeed = speed;
         life = 100;
 
@@ -610,16 +680,5 @@ public class AlienController : MonoBehaviour {
     bool isGrounded()
     {
         return Physics.Raycast(collider.bounds.center, -gravityDirection, distToGround + distToGround / 4);
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        if(directionOfEscape != Vector3.zero)
-        {
-            Gizmos.DrawLine(transform.position, gravityDirection);
-            Gizmos.color = Color.black;
-            Gizmos.DrawLine(transform.position, directionOfEscape);
-        }
     }
 }

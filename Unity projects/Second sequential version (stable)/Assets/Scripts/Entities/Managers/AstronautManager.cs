@@ -5,6 +5,7 @@ using UnityEngine;
 public class AstronautManager : MonoBehaviour {
 
     public GameObject[] astronauts;
+    public GameObject[] aliens;
     public GameObject StopExploringButton;
     public GameObject SwordButtons;
     public GameObject ShieldButtons;
@@ -13,6 +14,7 @@ public class AstronautManager : MonoBehaviour {
     public GameObject progressBar;
 
     private List<PlayerController> astronautControllers = new List<PlayerController>();
+    private List<AlienController> alienControllers = new List<AlienController>();
     private int numAstronauts;
     private bool startPSO = false;
     private bool goForAliens = false;
@@ -20,6 +22,7 @@ public class AstronautManager : MonoBehaviour {
     private bool setSoundBattle = true;
 
     PSO pso;
+    AttackAliens attackAliens;
 
     // Use this for initialization
     void Start () {
@@ -27,6 +30,10 @@ public class AstronautManager : MonoBehaviour {
         foreach (GameObject astronaut in astronauts)
         {
             astronautControllers.Add(astronaut.GetComponent<PlayerController>());
+        }
+        foreach (GameObject alien in aliens)
+        {
+            alienControllers.Add(alien.GetComponent<AlienController>());
         }
         //Initialize
         int counter = 0;
@@ -38,6 +45,7 @@ public class AstronautManager : MonoBehaviour {
 
         SetAstronautsInPlace();
         pso = new PSO(astronautControllers, progressBar, StopExploringButton);
+        attackAliens = new AttackAliens(astronautControllers, alienControllers);
         StopExploringButton.SetActive(false);
     }
 
@@ -138,7 +146,7 @@ public class AstronautManager : MonoBehaviour {
         }
         if(goForAliens)
         {
-
+            attackAliens.UpdateAstronauts();
         }
     }
 }

@@ -97,6 +97,8 @@ public class PlayerController : MonoBehaviour {
     bool setted = false;
     private bool settedBestPosition = false;
 
+    private Vector3 latestDirectionUsed = Vector3.zero;
+
     Animator animator;
     //CharacterController controller;
     CapsuleCollider collider;
@@ -437,6 +439,49 @@ public class PlayerController : MonoBehaviour {
             destination = directionToGlobal;
         }
         //END WHEN CLOSE TO HIGHEST MOUNTAIN THINGS
+        projectedDestination = Vector3.ProjectOnPlane(destination, transform.up);
+
+        //Update trajectory
+        float angle = Vector3.Angle(transform.forward, projectedDestination);
+
+        //- => Izquierda
+        if (trajectory >= 360) trajectory -= 360;
+        if (trajectory <= -360) trajectory += 360;
+
+        float rightAngle = Vector3.Angle(transform.right, projectedDestination);
+        float leftAngle = Vector3.Angle(-transform.right, projectedDestination);
+
+        if (rightAngle >= leftAngle)
+        {
+            if (transform.position.y >= 0)
+            {
+                trajectory -= angle;    //-
+            }
+            else
+            {
+                trajectory += angle;    //+
+            }
+        }
+        else
+        {
+            if (transform.position.y >= 0)
+            {
+                trajectory += angle;
+            }
+            else
+            {
+                trajectory -= angle;
+            }
+        }
+        latestTargetDirection = trajectory;
+    }
+
+    public void UpdateTrajectoryDirection(Vector3 goToDirection)
+    {
+        float relevance = 0f;  //0 si no quiero suavizar el movimiento
+        destination = goToDirection + latestDirectionUsed * relevance;
+        latestDirectionUsed = destination.normalized;
+
         projectedDestination = Vector3.ProjectOnPlane(destination, transform.up);
 
         //Update trajectory

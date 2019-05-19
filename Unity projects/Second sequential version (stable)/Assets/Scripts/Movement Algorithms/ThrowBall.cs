@@ -15,6 +15,8 @@ public class ThrowBall : MonoBehaviour {
     private float maxTimeBetweenShoots = 3f;
     private float timeBetweenShoots;
 
+    private bool hit;   //Dira si ha golpeado a un astronauta para dar feedback al alien
+
     Rigidbody rigidbody;
     Collider collider;
 
@@ -33,6 +35,7 @@ public class ThrowBall : MonoBehaviour {
         gameObject.SetActive(false);
         throwing = false;
         direction = Vector3.zero;
+        hit = false;
 	}
 	
 	void Update () {
@@ -65,21 +68,30 @@ public class ThrowBall : MonoBehaviour {
 
     private void CheckCollission(Collider collider)
     {
+        this.hit = false;
+
         foreach(GameObject astronaut in astronauts)
         {
-            if(astronaut.GetComponent<Collider>() == collider)
+            if(astronaut.GetComponent<Collider>() == collider && !astronaut.GetComponent<PlayerController>().isDead())
             {
                 int astronautId = astronaut.GetComponent<PlayerController>().id;
                 astronaut.GetComponent<PlayerController>().Hit();
+
+                this.hit = true;
             }
         }
     }
 
-    bool isColliding()
+    public bool hasHitAstronaut()
+    {
+        return hit;
+    }
+
+    public bool isColliding()
     {
         RaycastHit hit;
         Ray ray = new Ray(collider.bounds.center, direction);
-        if(Physics.Raycast(ray, out hit, 0.4f))
+        if(Physics.Raycast(ray, out hit, 0.5f)) //0.4f
         {
             if(hit.collider != null)
             {
