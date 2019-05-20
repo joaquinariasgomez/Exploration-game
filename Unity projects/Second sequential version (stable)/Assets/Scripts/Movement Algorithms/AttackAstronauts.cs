@@ -216,16 +216,9 @@ public class AttackAstronauts {
         }
         else
         {
-            if(distanceToAstronaut <= 8f)
-            {
-                controller.UpdateTrajectoryDirection(-targetAstronautPosition);
-                controller.SetMove(true);
-                controller.Move();
-            }
-            else
-            {
-                controller.Stop();
-            }
+            controller.UpdateTrajectoryDirection(-directionAstronaut);
+            controller.SetMove(true);
+            controller.Move();
         }
     }
 
@@ -235,15 +228,17 @@ public class AttackAstronauts {
         switch(state)
         {
             case 0:
-                //controller.Stop();
                 //Hacer función que intente mantener la distancia con los astronautas y dispare
                 List<Vector3> directionOfRandomAstronaut = controller.GetDirectionOfRandomAstronaut(astronautControllers);
                 List<Vector3> directionOfClosestAstronaut = controller.GetRealDirectionOfClosestAstronaut(astronautControllers);
                 float probabilityOfHittingClosest = 0.35f;
                 float probability = Random.Range(0f, 1f);
                 List<Vector3> directionOfTargetAstronaut = (probability <= probabilityOfHittingClosest) ? directionOfClosestAstronaut : directionOfRandomAstronaut;
-                ThrowBall(controller, directionOfTargetAstronaut);
-                UpdateAlienTrajectory(controller, directionOfTargetAstronaut);
+                if (controller.id == 3)
+                {
+                    ThrowBall(controller, directionOfTargetAstronaut);
+                    //UpdateAlienTrajectory(controller, directionOfTargetAstronaut);
+                }
                 break;
             case 1:
                 List<Vector3> directionOfEscape = controller.GetDirectionOfEscape();

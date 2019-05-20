@@ -179,6 +179,10 @@ public class PlayerController : MonoBehaviour {
             case "sword": hasSword = true; hasShield = false; break;
             case "shield": hasSword = false; hasShield = true; break;
         }
+        if(hasShield)
+        {
+            speed = speed / 3f;
+        }
     }
 
     public Vector3 GetCoordinates()
