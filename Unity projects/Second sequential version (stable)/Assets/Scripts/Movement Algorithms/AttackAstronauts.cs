@@ -234,11 +234,11 @@ public class AttackAstronauts {
                 float probabilityOfHittingClosest = 0.35f;
                 float probability = Random.Range(0f, 1f);
                 List<Vector3> directionOfTargetAstronaut = (probability <= probabilityOfHittingClosest) ? directionOfClosestAstronaut : directionOfRandomAstronaut;
-                if (controller.id == 3)
-                {
+                //if (controller.id == 3)
+                //{
                     ThrowBall(controller, directionOfTargetAstronaut);
-                    //UpdateAlienTrajectory(controller, directionOfTargetAstronaut);
-                }
+                    UpdateAlienTrajectory(controller, directionOfTargetAstronaut);
+                //}
                 break;
             case 1:
                 List<Vector3> directionOfEscape = controller.GetDirectionOfEscape();

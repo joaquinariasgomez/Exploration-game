@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour {
     public CubeSphere attractor;
     public Texture2D Exclamation;
     public Texture2D Sword_and_shield;
+    public Texture2D Sword;
+    public Texture2D Shield;
     public GameObject HealthBar;
     public GameObject swordButton;
     public GameObject shieldButton;
@@ -111,7 +113,7 @@ public class PlayerController : MonoBehaviour {
 
     private void OnGUI()
     {
-        if(PauseMenu.GamePaused)
+        if(PauseMenu.GamePaused || dead)
         {
             return;
         }
@@ -123,7 +125,17 @@ public class PlayerController : MonoBehaviour {
         if(draw_sword_shield)
         {
             Vector2 astronautPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
-            GUI.DrawTexture(new Rect(astronautPos.x - 16, Screen.height - astronautPos.y - 50, 34, 34), Sword_and_shield);
+            GUI.DrawTexture(new Rect(astronautPos.x - 16, Screen.height - astronautPos.y - 70, 34, 34), Sword_and_shield);  //-50
+        }
+        if (hasSword)
+        {
+            Vector2 astronautPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
+            GUI.DrawTexture(new Rect(astronautPos.x - 16, Screen.height - astronautPos.y - 70, 34, 34), Sword);
+        }
+        if (hasShield)
+        {
+            Vector2 astronautPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
+            GUI.DrawTexture(new Rect(astronautPos.x - 16, Screen.height - astronautPos.y - 70, 34, 34), Shield);
         }
     }
 
@@ -175,7 +187,8 @@ public class PlayerController : MonoBehaviour {
 
     public void SetWeapon(string weapon)
     {
-        switch(weapon) {
+        draw_sword_shield = false;
+        switch (weapon) {
             case "sword": hasSword = true; hasShield = false; break;
             case "shield": hasSword = false; hasShield = true; break;
         }

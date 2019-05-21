@@ -12,6 +12,8 @@ public class AstronautManager : MonoBehaviour {
     public GameObject WeaponImages;
     public AlienManager alienManager;
     public GameObject progressBar;
+    public GameObject gameOverMenu;
+    public GameObject attack_defend;
 
     private List<PlayerController> astronautControllers = new List<PlayerController>();
     private List<AlienController> alienControllers = new List<AlienController>();
@@ -27,6 +29,7 @@ public class AstronautManager : MonoBehaviour {
     // Use this for initialization
     void Start () {
         numAstronauts = astronauts.Length;
+        gameOverMenu.SetActive(false);
         foreach (GameObject astronaut in astronauts)
         {
             astronautControllers.Add(astronaut.GetComponent<PlayerController>());
@@ -45,7 +48,7 @@ public class AstronautManager : MonoBehaviour {
 
         SetAstronautsInPlace();
         pso = new PSO(astronautControllers, progressBar, StopExploringButton);
-        attackAliens = new AttackAliens(astronautControllers, alienControllers);
+        attackAliens = new AttackAliens(astronautControllers, alienControllers, gameOverMenu);
         StopExploringButton.SetActive(false);
     }
 
@@ -142,6 +145,8 @@ public class AstronautManager : MonoBehaviour {
                 goForAliens = true;
                 //Call AlienManager
                 alienManager.Initialize(pso.GetTargetCoordinates());
+                //Set Active Attack_Defend
+                attack_defend.SetActive(true);
             }
         }
         if(goForAliens)
