@@ -7,10 +7,13 @@ public class MouseClickManager : MonoBehaviour {
     public GameObject myCamera;
     public AstronautManager astronautManager;
     public Texture2D Pointed_astronaut;
+    public GameObject attack_defend;
+
     private bool draw_point_astronaut = false;
     private int pointedAstronaut = 0;
 
     private GameObject[] astronauts;
+    private GameObject[] aliens;
 
     private float minimumDistanceToClickAstronaut = 70;
     private float minimumDepthToClickAstronaut = 80;
@@ -21,6 +24,7 @@ public class MouseClickManager : MonoBehaviour {
             return;
         }
         astronauts = astronautManager.astronauts;
+        aliens = astronautManager.aliens;
         int closestAstronaut = 0;
         int astronautCounter = 0;
         float closestDepth = 0;
@@ -43,16 +47,65 @@ public class MouseClickManager : MonoBehaviour {
         {
             if (Input.GetMouseButtonUp(0))
             {
-                SelectAstronaut(closestAstronaut);
+                bool defend = attack_defend.GetComponent<Attack_Defend>().Clicked() == "clickedDefend";
+                if(defend && astronauts[closestAstronaut].GetComponent<PlayerController>().GetWeapon() == "sword")
+                {
+                    SelectAstronaut(closestAstronaut, true);
+                }
+                else
+                {
+                    SelectAstronaut(closestAstronaut, false);
+                }
             }
             else
             {
-                Point(closestAstronaut);
+                if(attack_defend.GetComponent<Attack_Defend>().Clicked() == "clickedDefend" && astronauts[closestAstronaut].GetComponent<PlayerController>().GetWeapon() == "sword")
+                {
+                    PointDefend(closestAstronaut);
+                }
+                else
+                {
+                    Point(closestAstronaut);
+                }
             }
         }
         else
         {
             Unpoint();
+        }
+
+        //Do same with aliens
+        int closestAlien = 0;
+        int alienCounter = 0;
+        closestDepth = 0;
+        minimumDistance = float.MaxValue;
+
+        mousePos = Input.mousePosition;
+        foreach (GameObject alien in aliens)
+        {
+            Vector2 screenPos = Camera.main.WorldToScreenPoint(alien.transform.position);
+            float distance = Vector2.Distance(mousePos, screenPos);
+            if (distance < minimumDistance)
+            {
+                minimumDistance = distance;
+                closestAlien = alienCounter;
+                closestDepth = Camera.main.WorldToScreenPoint(alien.transform.position).z;
+            }
+            ++alienCounter;
+        }
+        if (minimumDistance <= minimumDistanceToClickAstronaut && closestDepth <= minimumDepthToClickAstronaut)
+        {
+            if (Input.GetMouseButtonUp(0))
+            {
+                //SelectAlien(closestAlien);
+            }
+            else
+            {
+                if (attack_defend.GetComponent<Attack_Defend>().Clicked() == "clickedAttack")
+                {
+                    PointAttack();
+                }
+            }
         }
     }
 
@@ -69,8 +122,24 @@ public class MouseClickManager : MonoBehaviour {
         }
     }
 
+    private void PointDefend(int pointedAstronaut)
+    {
+        gameObject.GetComponent<MouseSkinManager>().Unpoint("astronaut");
+        gameObject.GetComponent<MouseSkinManager>().Point("defend");
+
+        draw_point_astronaut = true;
+        this.pointedAstronaut = pointedAstronaut;
+    }
+
+    private void PointAttack()
+    {
+        gameObject.GetComponent<MouseSkinManager>().Point("attack");
+    }
+
     private void Point(int pointedAstronaut)
     {
+        gameObject.GetComponent<MouseSkinManager>().Unpoint("defend");
+        gameObject.GetComponent<MouseSkinManager>().Unpoint("attack");
         gameObject.GetComponent<MouseSkinManager>().Point();
 
         draw_point_astronaut = true;
@@ -80,29 +149,31 @@ public class MouseClickManager : MonoBehaviour {
     private void Unpoint()
     {
         gameObject.GetComponent<MouseSkinManager>().Unpoint();
+        gameObject.GetComponent<MouseSkinManager>().Unpoint("defend");
+        gameObject.GetComponent<MouseSkinManager>().Unpoint("attack");
         draw_point_astronaut = false;
     }
 
-    private void SelectAstronaut(int astronautId)
+    private void SelectAstronaut(int astronautId, bool Defend = false)
     {
         switch (astronautId)
         {
             case 0:
-                myCamera.GetComponent<AstronautSelector>().SelectAstronaut0(); break;
+                myCamera.GetComponent<AstronautSelector>().SelectAstronaut0(Defend); break;
             case 1:
-                myCamera.GetComponent<AstronautSelector>().SelectAstronaut1(); break;
+                myCamera.GetComponent<AstronautSelector>().SelectAstronaut1(Defend); break;
             case 2:
-                myCamera.GetComponent<AstronautSelector>().SelectAstronaut2(); break;
+                myCamera.GetComponent<AstronautSelector>().SelectAstronaut2(Defend); break;
             case 3:
-                myCamera.GetComponent<AstronautSelector>().SelectAstronaut3(); break;
+                myCamera.GetComponent<AstronautSelector>().SelectAstronaut3(Defend); break;
             case 4:
-                myCamera.GetComponent<AstronautSelector>().SelectAstronaut4(); break;
+                myCamera.GetComponent<AstronautSelector>().SelectAstronaut4(Defend); break;
             case 5:
-                myCamera.GetComponent<AstronautSelector>().SelectAstronaut5(); break;
+                myCamera.GetComponent<AstronautSelector>().SelectAstronaut5(Defend); break;
             case 6:
-                myCamera.GetComponent<AstronautSelector>().SelectAstronaut6(); break;
+                myCamera.GetComponent<AstronautSelector>().SelectAstronaut6(Defend); break;
             case 7:
-                myCamera.GetComponent<AstronautSelector>().SelectAstronaut7(); break;
+                myCamera.GetComponent<AstronautSelector>().SelectAstronaut7(Defend); break;
         }
     }
 }

@@ -99,6 +99,8 @@ public class PlayerController : MonoBehaviour {
     bool setted = false;
     private bool settedBestPosition = false;
 
+    private bool defendThis = false;
+
     private Vector3 latestDirectionUsed = Vector3.zero;
 
     Animator animator;
@@ -137,6 +139,16 @@ public class PlayerController : MonoBehaviour {
             Vector2 astronautPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
             GUI.DrawTexture(new Rect(astronautPos.x - 16, Screen.height - astronautPos.y - 70, 34, 34), Shield);
         }
+    }
+
+    public void SetDefendThis(bool condition = true)
+    {
+        this.defendThis = condition;
+    }
+
+    public bool GetDefendThis()
+    {
+        return this.defendThis;
     }
 
     public bool isDead()
@@ -356,6 +368,11 @@ public class PlayerController : MonoBehaviour {
         //FileWriter
         actualScoreLogs = new FileWriter("Assets/Logs/Astronaut_" + this.id + "ActualScore.txt");
         personalBestScoreLogs = new FileWriter("Assets/Logs/Astronaut_" + this.id + "PersonalBestScore.txt");
+    }
+
+    public void SetSpeed(float value)
+    {
+        this.speed = value;
     }
 
     public void SetInPlace(float x, float z, float angle)
@@ -590,7 +607,7 @@ public class PlayerController : MonoBehaviour {
             //trajectory += 180;
             //velocityCteY = 5;
             //speed = 100;
-            print(" esta "+id);
+            //print(" esta "+id);
             upComponent += transform.up;
         }
         else

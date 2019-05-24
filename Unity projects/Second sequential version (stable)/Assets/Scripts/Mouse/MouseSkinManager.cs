@@ -11,6 +11,8 @@ public class MouseSkinManager : MonoBehaviour {
     public Texture2D Down_hand;
     public Texture2D Point_hand;
     public Texture2D Grab_hand;
+    public Texture2D Defend_texture;
+    public Texture2D Attack_texture;
     private Texture2D drawTexture;
 
     private Vector2 mousePosition;
@@ -29,6 +31,10 @@ public class MouseSkinManager : MonoBehaviour {
     public bool isPointingButton = false;
     [HideInInspector]
     public bool isPointingMenu = false;
+    [HideInInspector]
+    public bool isPointingAlienToAttack = false;
+    [HideInInspector]
+    public bool isPointingAstronautToDefend = false;
 
     private void Start()
     {
@@ -52,6 +58,8 @@ public class MouseSkinManager : MonoBehaviour {
         {
             case "astronaut": isPointingAstronaut = true; break;
             case "button": isPointingButton = true; break;
+            case "defend": isPointingAstronautToDefend = true; break;
+            case "attack": isPointingAlienToAttack = true; break;
         }
     }
 
@@ -66,6 +74,8 @@ public class MouseSkinManager : MonoBehaviour {
         {
             case "astronaut": isPointingAstronaut = false; break;
             case "button": isPointingButton = false; break;
+            case "defend": isPointingAstronautToDefend = false; break;
+            case "attack": isPointingAlienToAttack = false; break;
         }
     }
 
@@ -164,14 +174,30 @@ public class MouseSkinManager : MonoBehaviour {
             }
             else
             {
-                if (Input.GetMouseButton(0))
+                if(isPointingAstronautToDefend)
                 {
-                    Cursor.SetCursor(Grab_hand, Vector2.zero, CursorMode.Auto);
+                    Cursor.SetCursor(Defend_texture, Vector2.zero, CursorMode.Auto);
                     secondsCounter = minimumTimeInState;    //Reset counter for TextureUpdate()
                 }
                 else
                 {
-                    TextureUpdate();
+                    if(isPointingAlienToAttack)
+                    {
+                        Cursor.SetCursor(Attack_texture, Vector2.zero, CursorMode.Auto);
+                        secondsCounter = minimumTimeInState;    //Reset counter for TextureUpdate()
+                    }
+                    else
+                    {
+                        if (Input.GetMouseButton(0))
+                        {
+                            Cursor.SetCursor(Grab_hand, Vector2.zero, CursorMode.Auto);
+                            secondsCounter = minimumTimeInState;    //Reset counter for TextureUpdate()
+                        }
+                        else
+                        {
+                            TextureUpdate();
+                        }
+                    }
                 }
             }
         }

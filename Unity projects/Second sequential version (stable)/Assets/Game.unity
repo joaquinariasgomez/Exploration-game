@@ -1157,7 +1157,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1082157262}
         m_MethodName: SelectAstronaut4
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -3300,9 +3300,13 @@ MonoBehaviour:
   Down_hand: {fileID: 2800000, guid: 60ca5e6a9b9fb3c47925e5cabd0b627f, type: 3}
   Point_hand: {fileID: 2800000, guid: ba6bc06c1e4d4404f9f2df7a6b278569, type: 3}
   Grab_hand: {fileID: 2800000, guid: 0c5d9e27f9bbf5445839721bf187881e, type: 3}
+  Defend_texture: {fileID: 2800000, guid: df6e75ef0889f154ba5b46ce251a3e1d, type: 3}
+  Attack_texture: {fileID: 2800000, guid: 37f27fc2fd95d154d9fe929fcad7726d, type: 3}
   isPointingAstronaut: 0
   isPointingButton: 0
   isPointingMenu: 0
+  isPointingAlienToAttack: 0
+  isPointingAstronautToDefend: 0
 --- !u!114 &364470347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3317,6 +3321,7 @@ MonoBehaviour:
   myCamera: {fileID: 1082157257}
   astronautManager: {fileID: 411203583}
   Pointed_astronaut: {fileID: 2800000, guid: 5c01a7735de6f20409e621cf52e7bb9e, type: 3}
+  attack_defend: {fileID: 1335657105}
 --- !u!1 &368249882
 GameObject:
   m_ObjectHideFlags: 0
@@ -6261,7 +6266,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1082157262}
         m_MethodName: SelectAstronaut6
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -10517,7 +10522,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1082157262}
         m_MethodName: SelectAstronaut0
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -11286,7 +11291,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1082157262}
         m_MethodName: SelectAstronaut3
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -11959,7 +11964,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1082157262}
         m_MethodName: SelectAstronaut7
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -16083,7 +16088,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1082157262}
         m_MethodName: SelectAstronaut1
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -17800,7 +17805,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1082157262}
         m_MethodName: SelectAstronaut2
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -17970,7 +17975,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1082157262}
         m_MethodName: SelectAstronaut5
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

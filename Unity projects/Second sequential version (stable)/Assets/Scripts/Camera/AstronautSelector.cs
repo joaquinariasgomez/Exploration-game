@@ -38,8 +38,13 @@ public class AstronautSelector : MonoBehaviour {
         this.selectedAstronaut = num;
     }
 
-    public void SelectAstronaut0()
+    public void SelectAstronaut0(bool defend = false)
     {
+        if(defend)
+        {
+            astronautManager.astronauts[0].GetComponent<PlayerController>().SetDefendThis();
+            return;
+        }
         if (selectedAstronauts[0])
         {
             selectedAstronauts[0] = false;
@@ -65,8 +70,13 @@ public class AstronautSelector : MonoBehaviour {
         }
     }
 
-    public void SelectAstronaut1()
+    public void SelectAstronaut1(bool defend = false)
     {
+        if (defend)
+        {
+            astronautManager.astronauts[1].GetComponent<PlayerController>().SetDefendThis();
+            return;
+        }
         if (selectedAstronauts[1])
         {
             selectedAstronauts[1] = false;
@@ -92,8 +102,13 @@ public class AstronautSelector : MonoBehaviour {
         }
     }
 
-    public void SelectAstronaut2()
+    public void SelectAstronaut2(bool defend = false)
     {
+        if (defend)
+        {
+            astronautManager.astronauts[2].GetComponent<PlayerController>().SetDefendThis();
+            return;
+        }
         if (selectedAstronauts[2])
         {
             selectedAstronauts[2] = false;
@@ -119,8 +134,13 @@ public class AstronautSelector : MonoBehaviour {
         }
     }
 
-    public void SelectAstronaut3()
+    public void SelectAstronaut3(bool defend = false)
     {
+        if (defend)
+        {
+            astronautManager.astronauts[3].GetComponent<PlayerController>().SetDefendThis();
+            return;
+        }
         if (selectedAstronauts[3])
         {
             selectedAstronauts[3] = false;
@@ -146,8 +166,13 @@ public class AstronautSelector : MonoBehaviour {
         }
     }
 
-    public void SelectAstronaut4()
+    public void SelectAstronaut4(bool defend = false)
     {
+        if (defend)
+        {
+            astronautManager.astronauts[4].GetComponent<PlayerController>().SetDefendThis();
+            return;
+        }
         if (selectedAstronauts[4])
         {
             selectedAstronauts[4] = false;
@@ -173,8 +198,13 @@ public class AstronautSelector : MonoBehaviour {
         }
     }
 
-    public void SelectAstronaut5()
+    public void SelectAstronaut5(bool defend = false)
     {
+        if (defend)
+        {
+            astronautManager.astronauts[5].GetComponent<PlayerController>().SetDefendThis();
+            return;
+        }
         if (selectedAstronauts[5])
         {
             selectedAstronauts[5] = false;
@@ -200,8 +230,13 @@ public class AstronautSelector : MonoBehaviour {
         }
     }
 
-    public void SelectAstronaut6()
+    public void SelectAstronaut6(bool defend = false)
     {
+        if (defend)
+        {
+            astronautManager.astronauts[6].GetComponent<PlayerController>().SetDefendThis();
+            return;
+        }
         if (selectedAstronauts[6])
         {
             selectedAstronauts[6] = false;
@@ -226,9 +261,14 @@ public class AstronautSelector : MonoBehaviour {
             Astronaut6Button.GetComponent<Image>().color = Color.green;
         }
     }
-
-    public void SelectAstronaut7()
+    
+    public void SelectAstronaut7(bool defend = false)
     {
+        if (defend)
+        {
+            astronautManager.astronauts[7].GetComponent<PlayerController>().SetDefendThis();
+            return;
+        }
         if (selectedAstronauts[7])
         {
             selectedAstronauts[7] = false;
