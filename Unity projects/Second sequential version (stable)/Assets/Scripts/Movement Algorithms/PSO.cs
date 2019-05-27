@@ -26,6 +26,10 @@ public class PSO
 
     private float caida_astronaut;
 
+    //Tiempo que van a estar parados antes de ir a la máxima montaña
+    private float maxTimeStopped = 0.25f;
+    private float timeStopped = 0f;
+
     //Aliens
     private float Wmin_alien = 1;     //1
     private float Wmax_alien;  //2000
@@ -50,8 +54,11 @@ public class PSO
     private int maxIterations_alien = 1000;   //3000
     private int maxIterWithWmin_alien = 5;  //400
 
+    private Vector3 positionCloseToAstronauts = Vector3.zero;
+
     private bool stopExploring_alien = false;
     private bool signalSent_alien = false;
+    //private float timeUpdatingAlien = 0f;
 
     //LOGS
     FileWriter globalBestScoreLogs_astronaut;
@@ -207,6 +214,16 @@ public class PSO
 
     private void GoToGlobalMaxAstronaut()
     {
+        if(timeStopped < maxTimeStopped)
+        {
+            foreach (PlayerController controller in astronautControllers)
+            {
+                controller.SetBestPosition();
+                controller.Stop();
+            }
+            timeStopped += Time.deltaTime;
+            return;
+        }
         foreach (PlayerController controller in astronautControllers)
         {
             controller.SetBestPosition();
@@ -231,7 +248,7 @@ public class PSO
         }
     }
 
-    private bool IsCloseEnoughToAstronauts()
+    /*private bool IsCloseEnoughToAstronauts()
     {
         bool result = true;
 
@@ -248,6 +265,41 @@ public class PSO
             }
         }
         return result;
+    }*/
+
+    private Vector3 OneIsCloseEnoughToAstronauts()  //Devuelve la posicion a la que tendrán que acercarse los demás astronuatas
+    {
+        foreach (AlienController controller in alienControllers)
+        {
+            if (controller.IsCloseEnoughToAstronauts())
+            {
+                controller.Stop();
+                return controller.transform.position;
+            }
+        }
+        return Vector3.zero;
+    }
+
+    private bool AllCloseEnoughToPosition(Vector3 position)
+    {
+        bool condition = true;
+
+        foreach(AlienController controller in alienControllers)
+        {
+            if(Vector3.Distance(controller.transform.position, position) > 4f)
+            {
+                controller.UpdateTrajectoryDirection(position - controller.transform.position);
+                controller.SetMove(true);
+                controller.Move();
+                condition = false;
+            }
+            else
+            {
+                //Esta cerca a position
+                controller.Stop();
+            }
+        }
+        return condition;
     }
 
     private bool AllReachedHighestMountain()
@@ -353,9 +405,17 @@ public class PSO
     //Main loop for aliens
     public bool UpdateAliens()
     {
-        if (IsCloseEnoughToAstronauts())
+        if(positionCloseToAstronauts == Vector3.zero)
         {
-            return true;
+            positionCloseToAstronauts = OneIsCloseEnoughToAstronauts();
+        }
+        
+        if (positionCloseToAstronauts != Vector3.zero)
+        {
+            if(AllCloseEnoughToPosition(positionCloseToAstronauts))
+            {
+                return true;
+            }
         }
         else
         {

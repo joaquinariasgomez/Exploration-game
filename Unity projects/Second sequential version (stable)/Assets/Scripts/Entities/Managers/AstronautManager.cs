@@ -48,7 +48,7 @@ public class AstronautManager : MonoBehaviour {
 
         SetAstronautsInPlace();
         pso = new PSO(astronautControllers, progressBar, StopExploringButton);
-        attackAliens = new AttackAliens(astronautControllers, alienControllers, gameOverMenu);
+        attackAliens = new AttackAliens(astronautControllers, alienControllers, gameOverMenu, alienManager);
         StopExploringButton.SetActive(false);
     }
 

@@ -8,6 +8,7 @@ public class AlienController : MonoBehaviour {
     public Texture2D Angry;
     public Texture2D Sad;
     public GameObject ball;
+    public GameObject HealthBar;
 
     private int imageToDraw = 0;    //0 -> no image; 1 -> angry; 2 -> sad
 
@@ -30,6 +31,7 @@ public class AlienController : MonoBehaviour {
     bool running;
     bool move;
     private float targetDistanceToAstronauts = 35f;
+    private float maxDistanceToShoot = 20f;
     private float maximumDistanceToAstronaut = 5f; //20f
     private Vector3 directionOfEscape = Vector3.zero;
     private float enoughCloseToHightestMountain = 6f;   //This will let Astronaut find a stable position within this distance
@@ -84,6 +86,7 @@ public class AlienController : MonoBehaviour {
     //END_STEPS
 
     //STATUS
+    private bool dead = false;
     private float life;
     private float speed;
     //END_STATUS
@@ -94,7 +97,8 @@ public class AlienController : MonoBehaviour {
     //END LOGS
 
     //TEST
-    Vector3 fromDirectionOfEscape = Vector3.zero;
+    //Vector3 fromDirectionOfEscape = Vector3.zero;
+    PlayerController fromDirectionOfEscape = null;
     Vector3 toDirectionOfEscape = Vector3.zero;
 
     Vector3 fromDirectionOfClosestAstronaut = Vector3.zero;
@@ -112,6 +116,7 @@ public class AlienController : MonoBehaviour {
     private void Awake()
     {
         gridSize = DataBetweenScenes.getSize();
+        HealthBar.SetActive(false);
     }
 
     public void SetImageToDraw(int num)
@@ -119,9 +124,47 @@ public class AlienController : MonoBehaviour {
         this.imageToDraw = num;
     }
 
+    public float GetMaxDistanceToShoot()
+    {
+        return maxDistanceToShoot;
+    }
+
+    public bool isDead()
+    {
+        return dead;
+    }
+
+    private void Update()
+    {
+        if (dead)
+        {
+            animator.SetFloat("speedPercent", 1f, speedSmoothTime, Time.deltaTime);
+        }
+    }
+
+    public void Hit()
+    {
+        float value = 10.5f;
+        this.DecreaseLifeBy(value);
+        this.HealthBar.GetComponent<HealthBar>().UpdateHealth(this.life);
+    }
+
+    private void DecreaseLifeBy(float value)
+    {
+        if (life > 0f)
+        {
+            life -= value;
+            if (life < 0f) life = 0f;
+        }
+        if (life == 0f)
+        {
+            this.dead = true;
+        }
+    }
+
     private void OnGUI()
     {
-        if(PauseMenu.GamePaused)
+        if(PauseMenu.GamePaused || dead)
         {
             return;
         }
@@ -170,7 +213,7 @@ public class AlienController : MonoBehaviour {
                 {
                     condition = true;
                     toDirectionOfEscape = transform.position;
-                    fromDirectionOfEscape = controller.transform.position;
+                    fromDirectionOfEscape = controller;// = controller.transform.position;
                 }
                 if (Vector3.Distance(controller.transform.position, transform.position) < bestDistance)
                 {
@@ -183,12 +226,13 @@ public class AlienController : MonoBehaviour {
         return condition;
     }
 
-    public List<Vector3> GetDirectionOfEscape()
+    public /*List<Vector3>*/PlayerController /*GetDirectionOfEscape*/GetAstronautToEscapeFrom()
     {
-        List<Vector3> result = new List<Vector3>();
+        /*List<Vector3> result = new List<Vector3>();
         result.Add(fromDirectionOfEscape);
-        result.Add(toDirectionOfEscape);
-        return result;
+        result.Add(toDirectionOfEscape);*/
+
+        return fromDirectionOfEscape;
     }
 
     public List<Vector3> GetDirectionOfClosestAstronaut()
@@ -386,6 +430,8 @@ public class AlienController : MonoBehaviour {
         correspondentSpeed = speed;
         life = 100;
 
+        this.HealthBar.GetComponent<HealthBar>().Initialize(life);
+
         float slowTime = 0.5f;
         float fastTime = 0.1f;
         float difTime = slowTime - fastTime;
@@ -400,10 +446,28 @@ public class AlienController : MonoBehaviour {
         personalBestScoreLogs = new FileWriter("Assets/Logs/Alien_" + this.id + "PersonalBestScore.txt");
     }
 
-    public void SetInPlace(float x, float z, float angle)
+    /*public void SetInPlace(float x, float z, float angle, bool condition = true)
     {
         float radius = (float)gridSize / 2f + CubeSphere.heightMultiplier;
-        transform.Translate(new Vector3(x, radius, z)); //radius
+        if(condition)
+        {
+            transform.Translate(new Vector3(x, radius, z)); //radius
+        }
+        else
+        {
+            transform.Translate(new Vector3(x, -radius, z)); //radius
+        }
+        transform.RotateAround(transform.position, transform.up, angle);
+        trajectory = angle;
+        //STUCK
+        latestX = transform.position.x;
+        latestZ = transform.position.z;
+        setted = true;
+    }*/
+
+    public void SetInPlace(Vector3 position, float angle)
+    {
+        transform.Translate(position); //radius
         transform.RotateAround(transform.position, transform.up, angle);
         trajectory = angle;
         //STUCK
@@ -613,8 +677,24 @@ public class AlienController : MonoBehaviour {
         }
     }
 
+    private void UpdateHealthPosition()
+    {
+        if(!this.HealthBar.activeInHierarchy)
+        {
+            HealthBar.SetActive(true);
+        }
+        Vector2 alienPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
+        alienPos.y += 100f;
+        this.HealthBar.transform.position = alienPos;
+    }
+
     public void Move()
     {
+        UpdateHealthPosition();
+        if(dead)
+        {
+            move = false;
+        }
         ManageStepSound();
 
         //CHECK IF IT IS STUCK AND ITS ALSO MOVING

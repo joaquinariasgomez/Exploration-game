@@ -14,6 +14,7 @@ public class ThrowBall : MonoBehaviour {
     private float timeThrowing;
     private float maxTimeBetweenShoots = 3f;
     private float timeBetweenShoots;
+    private bool canBeShotAgain = true;
 
     private bool hit;   //Dira si ha golpeado a un astronauta para dar feedback al alien
 
@@ -39,14 +40,15 @@ public class ThrowBall : MonoBehaviour {
 	}
 	
 	void Update () {
-		if(throwing)
+        if(throwing)
         {
             timeThrowing += Time.deltaTime;
-            if(timeThrowing >= duration) {
+            if (timeThrowing >= duration)
+            {
                 timeThrowing = 0f;
                 throwing = false;
             }
-            if(isColliding())
+            if (isColliding())
             {
                 timeThrowing = 0f;
                 throwing = false;
@@ -56,15 +58,46 @@ public class ThrowBall : MonoBehaviour {
         {
             gameObject.SetActive(false);
         }
-        /*else
+        
+        /*if (hit)
         {
+            Debug.Log("HE HITTEADO A UN ASTRONAUTA");
+            gameObject.SetActive(false);
             timeBetweenShoots += Time.deltaTime;
-            if(timeBetweenShoots >= maxTimeBetweenShoots)
+            if (timeBetweenShoots >= maxTimeBetweenShoots)
             {
                 timeBetweenShoots = 0f;
+                canBeShotAgain = true;
+                hit = false;
+                Debug.Log("hora de abandonar");
+            }
+            else
+            {
+                canBeShotAgain = false;
+            }
+        }
+        else
+        {
+            timeThrowing += Time.deltaTime;
+            if (timeThrowing >= duration)
+            {
+                timeThrowing = 0f;
+                throwing = false;
+                canBeShotAgain = true;
+            }
+            if (isColliding())
+            {
+                timeThrowing = 0f;
+                throwing = false;
+                canBeShotAgain = true;
             }
         }*/
-	}
+    }
+
+    public bool CanBeShotAgain()
+    {
+        return this.canBeShotAgain;
+    }
 
     private void CheckCollission(Collider collider)
     {
@@ -102,10 +135,6 @@ public class ThrowBall : MonoBehaviour {
         }
         return false;
     }
-    /*bool isColliding()
-    {
-        return Physics.Raycast(collider.bounds.center, direction, 2f);
-    }*/
 
     public void Throw(Vector3 from, Vector3 direction)
     {

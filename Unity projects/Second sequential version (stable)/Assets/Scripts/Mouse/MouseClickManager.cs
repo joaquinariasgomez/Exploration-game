@@ -48,24 +48,24 @@ public class MouseClickManager : MonoBehaviour {
             if (Input.GetMouseButtonUp(0))
             {
                 bool defend = attack_defend.GetComponent<Attack_Defend>().Clicked() == "clickedDefend";
-                if(defend && astronauts[closestAstronaut].GetComponent<PlayerController>().GetWeapon() == "sword")
+                if(defend && astronauts[closestAstronaut].GetComponent<PlayerController>().GetWeapon() == "sword" && !astronauts[closestAstronaut].GetComponent<PlayerController>().isDead())
                 {
                     SelectAstronaut(closestAstronaut, true);
                 }
                 else
                 {
-                    SelectAstronaut(closestAstronaut, false);
+                    if(!astronauts[closestAstronaut].GetComponent<PlayerController>().isDead()) SelectAstronaut(closestAstronaut, false);
                 }
             }
             else
             {
-                if(attack_defend.GetComponent<Attack_Defend>().Clicked() == "clickedDefend" && astronauts[closestAstronaut].GetComponent<PlayerController>().GetWeapon() == "sword")
+                if(attack_defend.GetComponent<Attack_Defend>().Clicked() == "clickedDefend" && astronauts[closestAstronaut].GetComponent<PlayerController>().GetWeapon() == "sword" && !astronauts[closestAstronaut].GetComponent<PlayerController>().isDead())
                 {
                     PointDefend(closestAstronaut);
                 }
                 else
                 {
-                    Point(closestAstronaut);
+                    if(!astronauts[closestAstronaut].GetComponent<PlayerController>().isDead()) Point(closestAstronaut);
                 }
             }
         }

@@ -1329,9 +1329,13 @@ MonoBehaviour:
   Down_hand: {fileID: 2800000, guid: 60ca5e6a9b9fb3c47925e5cabd0b627f, type: 3}
   Point_hand: {fileID: 2800000, guid: ba6bc06c1e4d4404f9f2df7a6b278569, type: 3}
   Grab_hand: {fileID: 2800000, guid: 0c5d9e27f9bbf5445839721bf187881e, type: 3}
+  Defend_texture: {fileID: 0}
+  Attack_texture: {fileID: 0}
   isPointingAstronaut: 0
   isPointingButton: 0
   isPointingMenu: 0
+  isPointingAlienToAttack: 0
+  isPointingAstronautToDefend: 0
 --- !u!4 &626468082
 Transform:
   m_ObjectHideFlags: 0
@@ -2059,6 +2063,23 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 1563626422}
           m_MethodName: OnPointerEnter
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1563626422}
+          m_MethodName: OnPointerExit
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}

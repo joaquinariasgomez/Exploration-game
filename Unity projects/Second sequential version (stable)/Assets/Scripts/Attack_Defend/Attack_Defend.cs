@@ -19,6 +19,8 @@ public class Attack_Defend : MonoBehaviour {
         gameObject.SetActive(false);
         clickedAttack = false;
         clickedDefend = false;
+        ChangeAttackAlphaTo(noActiveAlphaValue);
+        ChangeDefendAlphaTo(noActiveAlphaValue);
     }
 
     private void ChangeAttackAlphaTo(float value)

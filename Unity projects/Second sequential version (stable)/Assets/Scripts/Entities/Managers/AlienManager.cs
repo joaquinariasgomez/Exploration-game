@@ -10,8 +10,11 @@ public class AlienManager : MonoBehaviour {
     private List<AlienController> alienControllers = new List<AlienController>();
     private List<PlayerController> astronautControllers = new List<PlayerController>();
     private int numAliens;
-    private bool startPSO = false;
+    [HideInInspector]
+    public bool startPSO = false;
     private float inertia = 0.33f;
+
+    private Vector3 setPosition = Vector3.zero;
 
     private bool initialized = false;
     private Vector3 targetCoordinates;
@@ -55,17 +58,40 @@ public class AlienManager : MonoBehaviour {
 
     void SetAliensInPlace()
     {
+        Vector3 averagePosition = Vector3.zero;
+        foreach(PlayerController astronaut in astronautControllers)
+        {
+            Vector3 position = astronaut.transform.position;
+            averagePosition += position;
+        }
+        averagePosition = averagePosition / 8f;
+
+        Vector3 newPosition = (averagePosition - Vector3.zero).normalized;
+        int degrees = 35;
+        switch(DataBetweenScenes.getSize())
+        {
+            case 100: degrees = 55; break;
+            case 200: degrees = 40; break;
+            case 400: degrees = 25; break;
+        }
+        newPosition = Quaternion.Euler(degrees, 0, 0) * newPosition * (DataBetweenScenes.getSize() / 2f + CubeSphere.heightMultiplier);
+
         //Set Astronauts in place forming a circle, for example
         float radius = 2.5f;
 
-        alienControllers[0].SetInPlace(-radius, 0f, -90f);
+        /*alienControllers[0].SetInPlace(-radius, 0f, -90f);
         alienControllers[1].SetInPlace(-radius * 3f / 4f, radius * 3f / 4f, -45f);
         alienControllers[2].SetInPlace(0f, radius, 0f);
         alienControllers[3].SetInPlace(radius * 3f / 4f, radius * 3f / 4f, 45f);
         alienControllers[4].SetInPlace(radius, 0f, 90f);
         alienControllers[5].SetInPlace(radius * 3f / 4f, -radius * 3f / 4f, 135f);
         alienControllers[6].SetInPlace(0f, -radius, 180f);
-        alienControllers[7].SetInPlace(-radius * 3f / 4f, -radius * 3f / 4f, -135f);
+        alienControllers[7].SetInPlace(-radius * 3f / 4f, -radius * 3f / 4f, -135f);*/
+
+        foreach(AlienController alien in alienControllers)
+        {
+            alien.SetInPlace(newPosition, Random.Range(0f, 360f));
+        }
 
         startPSO = true;
     }
@@ -94,5 +120,11 @@ public class AlienManager : MonoBehaviour {
             //AttackAstronauts
             attackAstronauts.UpdateAliens();
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(setPosition, 5f);
     }
 }
