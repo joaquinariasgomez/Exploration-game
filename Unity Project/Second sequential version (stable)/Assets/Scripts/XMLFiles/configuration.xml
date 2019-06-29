@@ -1,0 +1,31 @@
+<main>
+  <options>
+    <volume>
+      <music> 0 </music>
+      <sounds> 0.75 </sounds>
+    </volume>
+    <generation>
+      <size> 200 </size>
+      <seed> 21983 </seed>
+    </generation>
+  </options>
+  <pso>
+    <astronaut>
+      <c1> 1 </c1>
+      <c2> 1.5 </c2>
+    </astronaut>
+    <alien>
+      <c1> 1 </c1>
+      <c2> 1.5 </c2>
+    </alien>
+  </pso>
+  <entity>
+    <astronaut>
+      <maxSpeed> 5 </maxSpeed>
+    </astronaut>
+    <alien>
+      <maxSpeed> 2.5 </maxSpeed>
+      <maxDistanceToShoot> 20 </maxDistanceToShoot>
+    </alien>
+  </entity>
+</main>
