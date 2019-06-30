@@ -17,16 +17,16 @@ public class CubeSphere : MonoBehaviour
     private Noise.NormalizeMode normalizeMode=Noise.NormalizeMode.Global;    //Global
     private float radius;
     private static int sqrtChunksPerFace;// = 25;     //25 - 5
-    public static float heightMultiplier = 10;     //5
+    public static float heightMultiplier = DataBetweenScenes.getHeightMultiplier();//10;     //5
     private static int id = 0;
 
     private static Dictionary<string, float[,]> noiseMaps=new Dictionary<string, float[,]>();  //Face, noiseMap
     private static Dictionary<string, string> faceMap = new Dictionary<string, string>();
     private static Color[] colourMap;
-    private static float scale = 30f;
-    private static int octaves = 4;
-    private static float persistance = 0.5f;   //0.36f; //0.5f
-    private static float lacunarity = 1f;       //1.7f;
+    private static float scale = DataBetweenScenes.getScale();//30f;
+    private static int octaves = DataBetweenScenes.getOctaves();//4;
+    private static float persistance = DataBetweenScenes.getPersistance();//0.5f;   //0.36f; //0.5f
+    private static float lacunarity = DataBetweenScenes.getLacunarity();//1f;       //1.7f;
     private static Vector2 offset = new Vector2(0, 0);
 
     private static List<VerticesData> verticesData;
@@ -968,7 +968,7 @@ public class CubeSphere : MonoBehaviour
                 }
             }
         }*/
-        if (vertices == null)
+        /*if (vertices == null)
         {
             return;
         }
@@ -981,7 +981,7 @@ public class CubeSphere : MonoBehaviour
             Gizmos.DrawRay(vertices[i], normals[i]);
             //Vector3 realVertice = vertices[i] + vertices[i] * (20 / radius);
             //Gizmos.DrawRay(new Vector3(0, 0, 0), realVertice);
-        }
+        }*/
     }
 
     public class VerticesData

@@ -26,6 +26,8 @@ public class DataFromConfiguration : MonoBehaviour {
         XmlNode entity = root.SelectSingleNode("entity");
         XmlNode astronautEntity = entity.SelectSingleNode("astronaut");
         XmlNode alienEntity = entity.SelectSingleNode("alien");
+        XmlNode world = root.SelectSingleNode("world");
+        XmlNode noise = world.SelectSingleNode("noise");
         //Music
         XmlNode music = volume.SelectSingleNode("music");
         DataBetweenScenes.setMusicVolume(float.Parse(music.InnerText));
@@ -69,6 +71,26 @@ public class DataFromConfiguration : MonoBehaviour {
         //MaxDistanceToShoot Alien
         XmlNode maxDistanceToShoot = alienEntity.SelectSingleNode("maxDistanceToShoot");
         DataBetweenScenes.setMaxDistanceToShoot(float.Parse(maxDistanceToShoot.InnerText));
+        //
+        //HeightMultiplier
+        XmlNode heightMultiplier = world.SelectSingleNode("heightMultiplier");
+        DataBetweenScenes.setHeightMultiplier(float.Parse(heightMultiplier.InnerText));
+        //
+        //Scale
+        XmlNode scale = noise.SelectSingleNode("scale");
+        DataBetweenScenes.setScale(float.Parse(scale.InnerText));
+        //
+        //Octaves
+        XmlNode octaves = noise.SelectSingleNode("octaves");
+        DataBetweenScenes.setOctaves(int.Parse(octaves.InnerText));
+        //
+        //Persistance
+        XmlNode persistance = noise.SelectSingleNode("persistance");
+        DataBetweenScenes.setPersistance(float.Parse(persistance.InnerText));
+        //
+        //Lacunarity
+        XmlNode lacunarity = noise.SelectSingleNode("lacunarity");
+        DataBetweenScenes.setLacunarity(float.Parse(lacunarity.InnerText));
         //
     }
 }

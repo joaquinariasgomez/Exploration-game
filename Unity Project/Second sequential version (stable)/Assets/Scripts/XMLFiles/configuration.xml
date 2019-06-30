@@ -6,7 +6,7 @@
     </volume>
     <generation>
       <size> 200 </size>
-      <seed> 21983 </seed>
+      <seed> 139823 </seed>
     </generation>
   </options>
   <pso>
@@ -28,4 +28,13 @@
       <maxDistanceToShoot> 20 </maxDistanceToShoot>
     </alien>
   </entity>
+  <world>
+    <heightMultiplier> 10 </heightMultiplier>
+    <noise>
+      <scale> 30 </scale>
+      <octaves> 4 </octaves>
+      <persistance> 0.5 </persistance>
+      <lacunarity> 1 </lacunarity>
+    </noise>
+  </world>
 </main>

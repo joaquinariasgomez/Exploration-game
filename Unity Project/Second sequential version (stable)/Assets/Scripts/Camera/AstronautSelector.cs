@@ -17,6 +17,7 @@ public class AstronautSelector : MonoBehaviour {
 
     private int selectedAstronaut; //-1 => No se selecciona astronauta
     List<bool> selectedAstronauts = new List<bool>();
+    private Color pressedColor = Color.green;
 
     private void Start()
     {
@@ -66,7 +67,7 @@ public class AstronautSelector : MonoBehaviour {
             Astronaut7Button.GetComponent<Image>().color = Color.white;
             selectedAstronauts[0] = true;
             selectedAstronaut = 0;
-            Astronaut0Button.GetComponent<Image>().color = Color.green;
+            Astronaut0Button.GetComponent<Image>().color = pressedColor;
         }
     }
 
@@ -98,7 +99,7 @@ public class AstronautSelector : MonoBehaviour {
             Astronaut7Button.GetComponent<Image>().color = Color.white;
             selectedAstronauts[1] = true;
             selectedAstronaut = 1;
-            Astronaut1Button.GetComponent<Image>().color = Color.green;
+            Astronaut1Button.GetComponent<Image>().color = pressedColor;
         }
     }
 
@@ -130,7 +131,7 @@ public class AstronautSelector : MonoBehaviour {
             Astronaut7Button.GetComponent<Image>().color = Color.white;
             selectedAstronauts[2] = true;
             selectedAstronaut = 2;
-            Astronaut2Button.GetComponent<Image>().color = Color.green;
+            Astronaut2Button.GetComponent<Image>().color = pressedColor;
         }
     }
 
@@ -162,7 +163,7 @@ public class AstronautSelector : MonoBehaviour {
             Astronaut7Button.GetComponent<Image>().color = Color.white;
             selectedAstronauts[3] = true;
             selectedAstronaut = 3;
-            Astronaut3Button.GetComponent<Image>().color = Color.green;
+            Astronaut3Button.GetComponent<Image>().color = pressedColor;
         }
     }
 
@@ -194,7 +195,7 @@ public class AstronautSelector : MonoBehaviour {
             Astronaut7Button.GetComponent<Image>().color = Color.white;
             selectedAstronauts[4] = true;
             selectedAstronaut = 4;
-            Astronaut4Button.GetComponent<Image>().color = Color.green;
+            Astronaut4Button.GetComponent<Image>().color = pressedColor;
         }
     }
 
@@ -226,7 +227,7 @@ public class AstronautSelector : MonoBehaviour {
             Astronaut7Button.GetComponent<Image>().color = Color.white;
             selectedAstronauts[5] = true;
             selectedAstronaut = 5;
-            Astronaut5Button.GetComponent<Image>().color = Color.green;
+            Astronaut5Button.GetComponent<Image>().color = pressedColor;
         }
     }
 
@@ -258,7 +259,7 @@ public class AstronautSelector : MonoBehaviour {
             Astronaut7Button.GetComponent<Image>().color = Color.white;
             selectedAstronauts[6] = true;
             selectedAstronaut = 6;
-            Astronaut6Button.GetComponent<Image>().color = Color.green;
+            Astronaut6Button.GetComponent<Image>().color = pressedColor;
         }
     }
     
@@ -290,7 +291,7 @@ public class AstronautSelector : MonoBehaviour {
             Astronaut0Button.GetComponent<Image>().color = Color.white;
             selectedAstronauts[7] = true;
             selectedAstronaut = 7;
-            Astronaut7Button.GetComponent<Image>().color = Color.green;
+            Astronaut7Button.GetComponent<Image>().color = pressedColor;
         }
     }
 }

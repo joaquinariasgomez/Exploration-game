@@ -124,7 +124,7 @@ public class AlienManager : MonoBehaviour {
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(setPosition, 5f);
+        /*Gizmos.color = Color.red;
+        Gizmos.DrawSphere(setPosition, 5f);*/
     }
 }

@@ -15,6 +15,11 @@ public static class DataBetweenScenes {
     private static float maxSpeedAstronaut;
     private static float maxSpeedAlien;
     private static float maxDistanceToShoot;
+    private static float heightMultiplier;
+    private static float scale;
+    private static int octaves;
+    private static float persistance;
+    private static float lacunarity;
 
     public static void setMusicVolume(float data)
     {
@@ -71,6 +76,31 @@ public static class DataBetweenScenes {
         maxDistanceToShoot = data;
     }
 
+    public static void setHeightMultiplier(float data)
+    {
+        heightMultiplier = data;
+    }
+
+    public static void setScale(float data)
+    {
+        scale = data;
+    }
+
+    public static void setOctaves(int data)
+    {
+        octaves = data;
+    }
+
+    public static void setPersistance(float data)
+    {
+        persistance = data;
+    }
+
+    public static void setLacunarity(float data)
+    {
+        lacunarity = data;
+    }
+
     public static float getMusicVolume()
     {
         return musicVolume;
@@ -124,5 +154,30 @@ public static class DataBetweenScenes {
     public static float getMaxDistanceToShoot()
     {
         return maxDistanceToShoot;
+    }
+
+    public static float getHeightMultiplier()
+    {
+        return heightMultiplier;
+    }
+
+    public static float getScale()
+    {
+        return scale;
+    }
+
+    public static int getOctaves()
+    {
+        return octaves;
+    }
+
+    public static float getPersistance()
+    {
+        return persistance;
+    }
+
+    public static float getLacunarity()
+    {
+        return lacunarity;
     }
 }
