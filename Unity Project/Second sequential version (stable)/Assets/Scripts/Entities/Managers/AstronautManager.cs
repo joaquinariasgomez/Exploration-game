@@ -13,6 +13,7 @@ public class AstronautManager : MonoBehaviour {
     public AlienManager alienManager;
     public GameObject progressBar;
     public GameObject gameOverMenu;
+    public GameObject missionsuccessMenu;
     public GameObject attack_defend;
 
     private List<PlayerController> astronautControllers = new List<PlayerController>();
@@ -30,6 +31,7 @@ public class AstronautManager : MonoBehaviour {
     void Start () {
         numAstronauts = astronauts.Length;
         gameOverMenu.SetActive(false);
+        missionsuccessMenu.SetActive(false);
         foreach (GameObject astronaut in astronauts)
         {
             astronautControllers.Add(astronaut.GetComponent<PlayerController>());
@@ -48,7 +50,7 @@ public class AstronautManager : MonoBehaviour {
 
         SetAstronautsInPlace();
         pso = new PSO(astronautControllers, progressBar, StopExploringButton);
-        attackAliens = new AttackAliens(astronautControllers, alienControllers, gameOverMenu, alienManager);
+        attackAliens = new AttackAliens(astronautControllers, alienControllers, gameOverMenu, missionsuccessMenu, alienManager);
         StopExploringButton.SetActive(false);
     }
 
@@ -137,6 +139,11 @@ public class AstronautManager : MonoBehaviour {
                 {
                     FindObjectOfType<AudioManager>().PlayBattle();
                     setSoundBattle = false;
+                }
+                //Set new speed
+                foreach(PlayerController controller in astronautControllers)
+                {
+                    controller.SetNewSpeed();
                 }
                 startPSO = false;
                 //Destroy Weapon Buttons

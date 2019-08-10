@@ -204,7 +204,11 @@ public class PlayerController : MonoBehaviour {
             case "sword": hasSword = true; hasShield = false; break;
             case "shield": hasSword = false; hasShield = true; break;
         }
-        if(hasShield)
+    }
+
+    public void SetNewSpeed()
+    {
+        if (hasShield)
         {
             speed = speed / 3f;
         }
@@ -665,6 +669,15 @@ public class PlayerController : MonoBehaviour {
         gravityDirection = (transform.position - attractor.transform.position).normalized;
         //PERFORM ROTATIONS
         PerformGravityRotation();
+        //UPDATE VERTICAL TRANSLATION
+        //rigidbody.AddForce(-gravityDirection * velocityCteY);
+        rigidbody.velocity = -gravityDirection * velocityCteY;
+    }
+
+    public void PerformJustGravity()
+    {
+        gravityDirection = (transform.position - attractor.transform.position).normalized;
+        //PERFORM ROTATIONS
         //UPDATE VERTICAL TRANSLATION
         //rigidbody.AddForce(-gravityDirection * velocityCteY);
         rigidbody.velocity = -gravityDirection * velocityCteY;

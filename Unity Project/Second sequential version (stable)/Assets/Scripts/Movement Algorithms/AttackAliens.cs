@@ -7,22 +7,24 @@ public class AttackAliens {
     private List<PlayerController> astronautControllers;
     private List<AlienController> alienControllers;
     private GameObject gameOverMenu;
+    private GameObject missionSuccessMenu;
     private AlienManager alienManager;
 
     private float distanceToDefender = 5.5f;
     private float separationBetweenDefensors = 1f;
     private Dictionary<int, int> defenderAstronaut;    //Key defends Value
-    private Dictionary<int, int> astronautAttacksAlien;    //Key defends Value
+    private Dictionary<int, int> astronautAttacksAlien;    //Key attacks Value
     private Dictionary<AlienController, int> defensorBall;   //Defensor goes for ball
     private float minDistanceToAttackAlien = 2f;
     private List<float> timeSinceAttack = new List<float>();
-    private float minTimeToAttack = 1f;
+    private float minTimeToAttack = 0.6f;
 
-    public AttackAliens(List<PlayerController> astronautControllers, List<AlienController> alienControllers, GameObject gameOverMenu, AlienManager alienManager)
+    public AttackAliens(List<PlayerController> astronautControllers, List<AlienController> alienControllers, GameObject gameOverMenu, GameObject missionSuccessMenu, AlienManager alienManager)
     {
         this.astronautControllers = astronautControllers;
         this.alienControllers = alienControllers;
         this.gameOverMenu = gameOverMenu;
+        this.missionSuccessMenu = missionSuccessMenu;
         this.alienManager = alienManager;
 
         defenderAstronaut = new Dictionary<int, int>();
@@ -50,16 +52,6 @@ public class AttackAliens {
         }
     }
 
-    private void MoveRandomly(PlayerController controller)
-    {
-        int number = Random.Range(0, 8);
-        Vector3 objective = alienControllers[number].transform.position;
-        controller.SetSpeed(1.5f);  //Delete this later
-        controller.UpdateTrajectoryDirection(objective);
-        controller.SetMove(true);
-        controller.Move();
-    }
-
     private bool AlienNotFound(int alienId)
     {
         foreach(PlayerController controller in astronautControllers)
@@ -72,12 +64,35 @@ public class AttackAliens {
         return true;
     }
 
+    private int GetClosestAlienId(PlayerController controller)
+    {
+        int alienToAttackId = -1;
+
+        foreach (AlienController alien in alienControllers)
+        {
+            float minDistance = 100000f;
+
+            if (!alien.isDead())
+            {
+                float distance = Vector3.Distance(alien.transform.position, controller.transform.position);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    alienToAttackId = alien.id;
+                }
+            }
+        }
+
+        return alienToAttackId;
+    }
+
     private AlienController GetAlienToAttack(PlayerController controller)
     {
         //This will select the closest alien to the astronaut
-        float minDistance = 1000f;
-        AlienController alienToAttack = null;
+        float minDistance = 100000f;
+        int alienToAttackId = -1;
 
+        //Check if assigned Alien is dead, then deassign that alien
         if(astronautAttacksAlien[controller.id] != -1)
         {
             AlienController alienTest = GetAlienById(astronautAttacksAlien[controller.id]);
@@ -91,13 +106,13 @@ public class AttackAliens {
         {
             if(!alien.isDead())
             {
-                if(AlienNotFound(alien.id))    //Ningun astronauta está atacando a este alien
+                if(AlienNotFound(alien.id))    //Ningún astronauta está atacando a este alien
                 {
                     float distance = Vector3.Distance(alien.transform.position, controller.transform.position);
                     if (distance < minDistance)
                     {
                         minDistance = distance;
-                        alienToAttack = alien;
+                        alienToAttackId = alien.id;
                     }
                 }
             }
@@ -105,17 +120,26 @@ public class AttackAliens {
 
         if(astronautAttacksAlien[controller.id] != -1)
         {
-            alienToAttack = GetAlienById(astronautAttacksAlien[controller.id]);
+            alienToAttackId = astronautAttacksAlien[controller.id];
         }
         else
         {
-            if(alienToAttack != null)
+            if(alienToAttackId != -1)
             {
-                astronautAttacksAlien[controller.id] = alienToAttack.id;
+                astronautAttacksAlien[controller.id] = alienToAttackId;
+            }
+            else
+            {
+                //Encontrar el alien más cercano para asignarselo a este astronauta
+                alienToAttackId = GetClosestAlienId(controller);
+                if(alienToAttackId != -1)
+                {
+                    astronautAttacksAlien[controller.id] = alienToAttackId;
+                }
             }
         }
 
-        return alienToAttack;
+        return GetAlienById(alienToAttackId);
     }
 
     private AlienController GetAlienById(int id)
@@ -412,9 +436,33 @@ public class AttackAliens {
 
     private void GameOver()
     {
+        PauseMenu.GamePaused = true;
+        foreach (PlayerController controller in astronautControllers)
+        {
+            controller.Stop();
+        }
+        foreach (AlienController controller in alienControllers)
+        {
+            controller.Stop();
+        }
         this.gameOverMenu.SetActive(true);
         Time.timeScale = 0f;    //Freeze game
+    }
+
+    private void MissionSuccess()
+    {
         PauseMenu.GamePaused = true;
+        foreach (PlayerController controller in astronautControllers)
+        {
+            controller.Stop();
+        }
+        foreach (AlienController controller in alienControllers)
+        {
+            controller.Stop();
+        }
+        this.missionSuccessMenu.SetActive(true);
+        Time.timeScale = 0f;    //Freeze game
+        
     }
 
     private bool AliensStartedAttack()
@@ -428,12 +476,19 @@ public class AttackAliens {
         {
             foreach(PlayerController controller in astronautControllers)
             {
-                if (AliensStartedAttack())
-                {
-                    controller.Stop();
-                }
+                controller.Stop();
             }
             return;
+        }
+
+        //CHECK GAME OVER OR PASSED
+        if (AllPlayerDead())
+        {
+            GameOver();
+        }
+        if (AllAlienDead())
+        {
+            MissionSuccess(); //Should be Game passed or smthing
         }
 
         //int bestIdToLeave = GetBestAstronautToLeave();
@@ -443,29 +498,15 @@ public class AttackAliens {
             {
                 //DEFENDERS
                 PlayerController defender = UpdateDefender(controller, true);
-
-                if (AllPlayerDead()) {
-                    controller.Stop();
-                    GameOver();
-                }
-                else
-                {
-                    Defend(controller, defender);
-                }
+                Defend(controller, defender);
             }
             else
             {
                 //ATTACKERS
-                if(AllAlienDead())
-                {
-                    controller.Stop();
-                    GameOver();
-                }
-                else
-                {
-                    AlienController alien = GetAlienToAttack(controller);
-                    Attack(controller, alien);
-                }
+                controller.PerformJustGravity();
+
+                AlienController alien = GetAlienToAttack(controller);
+                Attack(controller, alien);
             }
         }
     }

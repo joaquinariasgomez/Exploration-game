@@ -79,12 +79,6 @@ public class AlienController : MonoBehaviour {
     private float c2;
     //END_PSO
 
-    //STEPS
-    int stepId = 0; //0 -> Right    1 -> Left
-    private float timeBetweenStepsCounter = 0f;
-    private float timeBetweenStepsToCount;   //THIS WILL DEPEND on astronaut's speed
-    //END_STEPS
-
     //STATUS
     private bool dead = false;
     private float life;
@@ -135,6 +129,14 @@ public class AlienController : MonoBehaviour {
         {
             animator.SetFloat("speedPercent", 1f, speedSmoothTime, Time.deltaTime);
         }
+        if(PauseMenu.GamePaused)
+        {
+            this.HealthBar.SetActive(false);
+        }
+        else
+        {
+            this.HealthBar.SetActive(true);
+        }
     }
 
     public void Hit()
@@ -163,7 +165,7 @@ public class AlienController : MonoBehaviour {
         {
             return;
         }
-        switch(imageToDraw)
+        switch (imageToDraw)
         {
             case 0: return;
             case 1:
@@ -429,8 +431,6 @@ public class AlienController : MonoBehaviour {
         float difSpeed = maxSpeed - 3;
 
         float timeIncrease = ((speed - 3) / difSpeed) * difTime;
-
-        timeBetweenStepsToCount = slowTime - timeIncrease;
     }
 
     /*public void SetInPlace(float x, float z, float angle, bool condition = true)
@@ -628,38 +628,6 @@ public class AlienController : MonoBehaviour {
         latestTargetDirection = trajectory;
     }
 
-    private void ManageStepSound()
-    {
-        if (move && isGrounded())
-        {
-            //Continue steping
-            if (!FindObjectOfType<AudioManager>().isPlayingStep(id, stepId))
-            {
-                timeBetweenStepsCounter += Time.deltaTime;
-                if (timeBetweenStepsCounter > timeBetweenStepsToCount)
-                {
-                    timeBetweenStepsCounter = 0;
-                    //DO THINGS EVERY timeBetweenStepsToCount SECONDS
-                    if (stepId == 0)
-                    {
-                        stepId = 1;
-                    }
-                    else
-                    {
-                        stepId = 0;
-                    }
-                    FindObjectOfType<AudioManager>().PlayStep(id, stepId);
-                }
-            }
-        }
-        else
-        {
-            //Stop steps
-            FindObjectOfType<AudioManager>().StopStep(id, 0);
-            FindObjectOfType<AudioManager>().StopStep(id, 1);
-        }
-    }
-
     private void UpdateHealthPosition()
     {
         if(!this.HealthBar.activeInHierarchy)
@@ -678,7 +646,6 @@ public class AlienController : MonoBehaviour {
         {
             move = false;
         }
-        ManageStepSound();
 
         //CHECK IF IT IS STUCK AND ITS ALSO MOVING
         if (ItIsStuck() && move)
