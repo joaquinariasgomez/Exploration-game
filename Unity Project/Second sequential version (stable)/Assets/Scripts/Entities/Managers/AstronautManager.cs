@@ -19,13 +19,16 @@ public class AstronautManager : MonoBehaviour {
     private List<PlayerController> astronautControllers = new List<PlayerController>();
     private List<AlienController> alienControllers = new List<AlienController>();
     private int numAstronauts;
-    private bool startPSO = false;
-    private bool goForAliens = false;
+    [HideInInspector]
+    public bool startPSO = false;
+    [HideInInspector]
+    public bool goForAliens = false;
     private float inertia;
     private bool setSoundBattle = true;
 
     PSO pso;
-    AttackAliens attackAliens;
+    [HideInInspector]
+    public AttackAliens attackAliens;
 
     // Use this for initialization
     void Start () {
@@ -47,6 +50,12 @@ public class AstronautManager : MonoBehaviour {
             controller.Initialize(counter);
             counter++;
         }
+
+        //Ensure we have a min and max speed entities
+        float maxSpeedAstronaut = DataBetweenScenes.getMaxSpeedAstronaut();
+        float minSpeedAstronaut = 3f;
+        int astronautIdMin = Random.Range(0, 7); astronautControllers[astronautIdMin].SetSpeed(minSpeedAstronaut);
+        int astronautIdMax = Random.Range(0, 7); astronautControllers[astronautIdMax].SetSpeed(maxSpeedAstronaut);
 
         SetAstronautsInPlace();
         pso = new PSO(astronautControllers, progressBar, StopExploringButton);

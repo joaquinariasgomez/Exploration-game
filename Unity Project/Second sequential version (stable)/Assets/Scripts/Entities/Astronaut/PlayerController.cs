@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour {
     public Texture2D Sword;
     public Texture2D Shield;
     public GameObject HealthBar;
+    public GameObject miniHealthBar;
     public GameObject swordButton;
     public GameObject shieldButton;
 
@@ -22,18 +23,20 @@ public class PlayerController : MonoBehaviour {
 
     private float maxSpeed = DataBetweenScenes.getMaxSpeedAstronaut();//5
     private float minSpeed = 0;
-    private float correspondentSpeed;
 
     private float turnSmoothTime = 0.2f;
     float turnSmoothVelocity;
 
+    [HideInInspector]
+    public int alienIdToFocus = -1;
     private float speedSmoothTime = 0.1f;
     float speedSmoothVelocity;
     float currentSpeed;
     float maxVelocityCteY = 6f;    //10f;
     float velocityCteY;
     bool running;
-    bool move;
+    [HideInInspector]
+    public bool move;
     private float targetDistanceToHighestMountain = 3f; //2f;
     private float enoughCloseToHightestMountain = 6f;   //6f; //This will let Astronaut find a stable position within this distance
 
@@ -86,6 +89,7 @@ public class PlayerController : MonoBehaviour {
     private bool dead = false;
     private float life;
     private float speed;
+    private float originalSpeed;
     private bool hasSword = false;
     private bool hasShield = false;
     //END_STATUS
@@ -95,6 +99,8 @@ public class PlayerController : MonoBehaviour {
     //FileWriter personalBestScoreLogs;
     //END LOGS
 
+    [HideInInspector]
+    public Vector3 trajectoryDirection = Vector3.zero;
     float distToGround;
     bool setted = false;
     private bool settedBestPosition = false;
@@ -111,6 +117,7 @@ public class PlayerController : MonoBehaviour {
     private void Awake()
     {
         gridSize = DataBetweenScenes.getSize();
+        miniHealthBar.SetActive(false);
     }
 
     private void OnGUI()
@@ -156,6 +163,11 @@ public class PlayerController : MonoBehaviour {
         return dead;
     }
 
+    public void FocusAlien(int alienId)
+    {
+        this.alienIdToFocus = alienId;
+    }
+
     private void DecreaseLifeBy(float value)
     {
         if(life > 0f)
@@ -169,15 +181,28 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    public float GetSpeed()
+    {
+        return originalSpeed;
+    }
+
     public void Hit()
     {
-        float value = 10.5f;
+        float value = 6f;    //10.5f
         if(hasShield)
         {
-            value *= 0.4f;
+            value *= 0.5f;
         }
-        this.DecreaseLifeBy(value);
+        //this.DecreaseLifeBy(value);
         this.HealthBar.GetComponent<HealthBar>().UpdateHealth(this.life);
+        this.miniHealthBar.GetComponent<HealthBar>().UpdateHealth(this.life);
+    }
+
+    private void UpdateHealthPosition()
+    {
+        Vector2 astronautPos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
+        astronautPos.y += 130f;
+        this.miniHealthBar.transform.position = astronautPos;
     }
 
     public bool weaponAssigned()
@@ -206,11 +231,23 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    public void SetNewSpeed()
+    public void SetNewSpeed(float decreaseValue = -1f)
     {
         if (hasShield)
         {
-            speed = speed / 3f;
+            speed = originalSpeed * 2.5f;
+            if(decreaseValue != -1)
+            {
+                speed = decreaseValue;
+            }
+            float slowTime = 0.5f;
+            float fastTime = 0.1f;
+            float difTime = slowTime - fastTime;
+            float difSpeed = maxSpeed - 3;
+
+            float timeIncrease = ((speed - 3) / difSpeed) * difTime;
+
+            timeBetweenStepsToCount = slowTime - timeIncrease;
         }
     }
 
@@ -356,9 +393,10 @@ public class PlayerController : MonoBehaviour {
         actualScore = gridSize / 2f;  //Minimum score
 
         speed = Random.Range(3, maxSpeed);
-        correspondentSpeed = speed;
+        originalSpeed = speed;
         life = Random.Range(50, 100);
         this.HealthBar.GetComponent<HealthBar>().Initialize(life);
+        this.miniHealthBar.GetComponent<HealthBar>().Initialize(life);
 
         float slowTime = 0.5f;
         float fastTime = 0.1f;
@@ -377,6 +415,15 @@ public class PlayerController : MonoBehaviour {
     public void SetSpeed(float value)
     {
         this.speed = value;
+        originalSpeed = speed;
+        float slowTime = 0.5f;
+        float fastTime = 0.1f;
+        float difTime = slowTime - fastTime;
+        float difSpeed = maxSpeed - 3;
+
+        float timeIncrease = ((speed - 3) / difSpeed) * difTime;
+
+        timeBetweenStepsToCount = slowTime - timeIncrease;
     }
 
     public void SetInPlace(float x, float z, float angle)
@@ -521,9 +568,11 @@ public class PlayerController : MonoBehaviour {
     {
         float relevance = 0f;  //0 si no quiero suavizar el movimiento
         destination = goToDirection + latestDirectionUsed * relevance;
+        
         latestDirectionUsed = destination.normalized;
 
         projectedDestination = Vector3.ProjectOnPlane(destination, transform.up);
+        this.trajectoryDirection = projectedDestination;
 
         //Update trajectory
         float angle = Vector3.Angle(transform.forward, projectedDestination);
@@ -602,7 +651,8 @@ public class PlayerController : MonoBehaviour {
 
     public void Move()
     {
-        if(dead)
+        UpdateHealthPosition();
+        if (dead)
         {
             move = false;
         }
@@ -663,6 +713,7 @@ public class PlayerController : MonoBehaviour {
 
     public void Stop()
     {
+        UpdateHealthPosition();
         this.move = false;
         animator.SetFloat("speedPercent", 0f, speedSmoothTime, Time.deltaTime);
 

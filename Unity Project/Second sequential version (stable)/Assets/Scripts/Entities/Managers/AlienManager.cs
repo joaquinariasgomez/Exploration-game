@@ -20,7 +20,8 @@ public class AlienManager : MonoBehaviour {
     private Vector3 targetCoordinates;
 
     PSO pso;
-    AttackAstronauts attackAstronauts;
+    [HideInInspector]
+    public AttackAstronauts attackAstronauts;
 
     // Use this for initialization
     void Start () {
@@ -47,6 +48,12 @@ public class AlienManager : MonoBehaviour {
             controller.SetTargetCoordinates(targetCoordinates);
             counter++;
         }
+
+        //Ensure we have a min and max speed entities
+        float maxSpeedAlien = DataBetweenScenes.getMaxSpeedAlien();
+        float minSpeedAlien = 1.75f;
+        int alienIdMin = Random.Range(0, 7); alienControllers[alienIdMin].SetSpeed(minSpeedAlien);
+        int alienIdMax = Random.Range(0, 7); alienControllers[alienIdMax].SetSpeed(maxSpeedAlien);
 
         SetAliensInPlace();
         pso = new PSO(alienControllers);

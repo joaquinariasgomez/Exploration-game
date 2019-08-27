@@ -16,9 +16,8 @@ public class AlienController : MonoBehaviour {
 
     private int gridSize;
 
-    private float maxSpeed = DataBetweenScenes.getMaxSpeedAlien();//2.5f; //5
+    private float maxSpeed = DataBetweenScenes.getMaxSpeedAlien();//2.5f -> 4f
     private float minSpeed = 0;
-    private float correspondentSpeed;
 
     private float turnSmoothTime = 0.2f;
     float turnSmoothVelocity;
@@ -83,7 +82,11 @@ public class AlienController : MonoBehaviour {
     private bool dead = false;
     private float life;
     private float speed;
+    private float originalSpeed;
     //END_STATUS
+
+    [HideInInspector]
+    public int myDefensorId = -1;
 
     //TEST
     //Vector3 fromDirectionOfEscape = Vector3.zero;
@@ -118,18 +121,13 @@ public class AlienController : MonoBehaviour {
         return maxDistanceToShoot;
     }
 
-    public bool isDead()
-    {
-        return dead;
-    }
-
     private void Update()
     {
         if (dead)
         {
             animator.SetFloat("speedPercent", 1f, speedSmoothTime, Time.deltaTime);
         }
-        if(PauseMenu.GamePaused)
+        if(PauseMenu.GamePaused || dead)
         {
             this.HealthBar.SetActive(false);
         }
@@ -196,11 +194,11 @@ public class AlienController : MonoBehaviour {
     public bool CheckDistanceWithAstronauts(List<PlayerController> astronautControllers)
     {
         bool condition = false;
-        float bestDistance = 1000f;
+        float bestDistance = 100000f;
 
         foreach (PlayerController controller in astronautControllers)
         {
-            if(!controller.isDead())
+            if(!controller.isDead() && controller.GetWeapon() == "sword")
             {
                 if (Vector3.Distance(controller.transform.position, transform.position) < maximumDistanceToAstronaut)
                 {
@@ -236,72 +234,74 @@ public class AlienController : MonoBehaviour {
         return result;
     }
 
-    public List<Vector3> GetRealDirectionOfClosestAstronaut(List<PlayerController> astronautControllers)
+    public int GetRealDirectionOfClosestAstronaut(List<PlayerController> astronautControllers)
     {
-        float bestDistance = 1000f;
-        List<Vector3> result = new List<Vector3>();
-        bool allDead = true;
+        float bestDistance = 100000f;
+        //List<Vector3> result = new List<Vector3>();
+        int astronautId = 0;
 
+        int counter = 0;
         foreach (PlayerController controller in astronautControllers)
         {
-            if (!controller.isDead())
+            if (!controller.isDead() && controller.GetWeapon() == "sword")
             {
-                allDead = false;
                 if (Vector3.Distance(controller.transform.position, transform.position) < bestDistance)
                 {
                     bestDistance = Vector3.Distance(controller.transform.position, transform.position);
-                    result.Add(controller.transform.position);
-                    result.Add(transform.position);
+                    //result.Add(controller.transform.position);
+                    //result.Add(transform.position);
+                    astronautId = counter;
                 }
             }
+            ++counter;
         }
-        if (allDead)
-        {
-            result.Add(Vector3.zero);
-            result.Add(transform.position);
-            return result;
-        }
-        else
-        {
-            return result;
-        }
+
+        return astronautId;
     }
 
-    public List<Vector3> GetDirectionOfRandomAstronaut(List<PlayerController> astronautControllers)
+    public int GetDirectionOfRandomAstronaut(List<PlayerController> astronautControllers)
     {
-        List<Vector3> result = new List<Vector3>();
-        Vector3 toDirectionOfRandomAstronaut = transform.position;
-        Vector3 fromDirectionOfRandomAstronaut = Vector3.zero;
+        //List<Vector3> result = new List<Vector3>();
+        //Vector3 toDirectionOfRandomAstronaut = transform.position;
+        //Vector3 fromDirectionOfRandomAstronaut = Vector3.zero;
+        int astronautId = 0;
 
         bool oneIsChosen = false;
 
+        int counter = 0;
         foreach(PlayerController controller in astronautControllers)
         {
-            if(!controller.isDead())
+            if(!controller.isDead() && controller.GetWeapon() == "sword")
             {
                 float chooseThis = Random.Range(0f, 1f);
                 if(chooseThis <= 0.3f)
                 {
                     oneIsChosen = true;
-                    fromDirectionOfRandomAstronaut = controller.transform.position;
+                    //fromDirectionOfRandomAstronaut = controller.transform.position;
+                    astronautId = counter;
                 }
             }
+            ++counter;
         }
 
         if(!oneIsChosen)
         {
+            counter = 0;
             foreach (PlayerController controller in astronautControllers)
             {
-                if (!controller.isDead())
+                if (!controller.isDead() && controller.GetWeapon() == "sword")
                 {
-                    fromDirectionOfRandomAstronaut = controller.transform.position;
+                    //fromDirectionOfRandomAstronaut = controller.transform.position;
+                    astronautId = counter;
                 }
+                ++counter;
             }
         }
 
-        result.Add(fromDirectionOfRandomAstronaut);
-        result.Add(toDirectionOfRandomAstronaut);
-        return result;
+        //result.Add(fromDirectionOfRandomAstronaut);
+        //result.Add(toDirectionOfRandomAstronaut);
+        //return result;
+        return astronautId;
     }
 
     public bool IsCloseEnoughToAstronauts()
@@ -399,6 +399,18 @@ public class AlienController : MonoBehaviour {
         }
     }
 
+    public void SetSpeed(float speed, bool backToNormal = false)
+    {
+        if(backToNormal)
+        {
+            this.speed = originalSpeed;
+        }
+        else
+        {
+            this.speed = speed;
+        }
+    }
+
     public void Initialize(int id)
     {
         gameObject.SetActive(true);
@@ -419,8 +431,8 @@ public class AlienController : MonoBehaviour {
 
         actualScore = gridSize / 2f;  //Minimum score
 
-        speed = Random.Range(2, maxSpeed);
-        correspondentSpeed = speed;
+        speed = Random.Range(1.75f, maxSpeed);
+        originalSpeed = speed;
         life = 100;
 
         this.HealthBar.GetComponent<HealthBar>().Initialize(life);
@@ -431,6 +443,11 @@ public class AlienController : MonoBehaviour {
         float difSpeed = maxSpeed - 3;
 
         float timeIncrease = ((speed - 3) / difSpeed) * difTime;
+    }
+
+    public bool isDead()
+    {
+        return dead;
     }
 
     /*public void SetInPlace(float x, float z, float angle, bool condition = true)
@@ -630,6 +647,11 @@ public class AlienController : MonoBehaviour {
 
     private void UpdateHealthPosition()
     {
+        if(isDead())
+        {
+            HealthBar.SetActive(false);
+            return;
+        }
         if(!this.HealthBar.activeInHierarchy)
         {
             HealthBar.SetActive(true);
@@ -696,6 +718,7 @@ public class AlienController : MonoBehaviour {
 
     public void Stop()
     {
+        UpdateHealthPosition();
         this.move = false;
         animator.SetFloat("speedPercent", 0f, speedSmoothTime, Time.deltaTime);
 

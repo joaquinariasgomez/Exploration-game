@@ -93,11 +93,12 @@ public class MouseClickManager : MonoBehaviour {
             }
             ++alienCounter;
         }
-        if (minimumDistance <= minimumDistanceToClickAstronaut && closestDepth <= minimumDepthToClickAstronaut)
+        if (minimumDistance <= minimumDistanceToClickAstronaut && closestDepth <= minimumDepthToClickAstronaut && !aliens[closestAlien].GetComponent<AlienController>().isDead())
         {
-            if (Input.GetMouseButtonUp(0))
+            if (Input.GetMouseButtonUp(0) && attack_defend.GetComponent<Attack_Defend>().Clicked() == "clickedAttack")  //Clicked
             {
-                //SelectAlien(closestAlien);
+                PointAttack();
+                SelectAlien(closestAlien);
             }
             else
             {
@@ -111,7 +112,11 @@ public class MouseClickManager : MonoBehaviour {
 
     private void OnGUI()
     {
-        if(PauseMenu.GamePaused)
+        foreach(GameObject astronautObject in astronauts)
+        {
+            astronautObject.GetComponent<PlayerController>().miniHealthBar.SetActive(false);
+        }
+        if (PauseMenu.GamePaused)
         {
             return;
         }
@@ -119,6 +124,10 @@ public class MouseClickManager : MonoBehaviour {
         {
             Vector2 astronautPos = Camera.main.WorldToScreenPoint(astronauts[pointedAstronaut].transform.position);
             GUI.DrawTexture(new Rect(astronautPos.x - 14, Screen.height - astronautPos.y - 36, 28, 17), Pointed_astronaut);
+            if (astronautManager.startPSO || astronautManager.goForAliens)
+            {
+                astronauts[pointedAstronaut].GetComponent<PlayerController>().miniHealthBar.SetActive(true);
+            }
         }
     }
 
@@ -152,6 +161,34 @@ public class MouseClickManager : MonoBehaviour {
         gameObject.GetComponent<MouseSkinManager>().Unpoint("defend");
         gameObject.GetComponent<MouseSkinManager>().Unpoint("attack");
         draw_point_astronaut = false;
+    }
+
+    private void SelectAlien(int alienId)
+    {
+        //Closest astronaut will focus alien
+        float minDistance = 100000f;
+        int chosenAstronautId = 0;
+        int counter = 0;
+
+        foreach (GameObject astronaut in astronauts)
+        {
+            if(!astronaut.GetComponent<PlayerController>().isDead())
+            {
+                float distance = Vector3.Distance(astronaut.GetComponent<PlayerController>().transform.position, aliens[alienId].GetComponent<AlienController>().transform.position);
+                if (distance < minDistance && !astronautManager.attackAliens.AstronautAttackingAlien(alienId, counter)) //Comprobar que astronaut no está atacando actualmente a alien
+                {
+                    minDistance = distance;
+                    chosenAstronautId = counter;
+                }
+                ++counter;
+            }
+        }
+        Debug.Log("Astronauta elegido: " + chosenAstronautId + " con info extra: "+ astronautManager.attackAliens.AstronautAttackingAlien(alienId, chosenAstronautId));
+
+        if(!astronautManager.attackAliens.AstronautAttackingAlien(alienId, chosenAstronautId))
+        {
+            astronauts[chosenAstronautId].GetComponent<PlayerController>().FocusAlien(alienId);
+        }
     }
 
     private void SelectAstronaut(int astronautId, bool Defend = false)

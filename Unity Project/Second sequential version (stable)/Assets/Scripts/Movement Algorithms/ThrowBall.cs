@@ -9,7 +9,7 @@ public class ThrowBall : MonoBehaviour {
     private GameObject[] astronauts;
     private bool throwing;
     private Vector3 direction;
-    private float velocityCte = 4.5f;//3f
+    private float velocityCte = 10f;//3f
     private float duration = 10f;    //Duration of maximum throw time in seconds
     private float timeThrowing;
     private float maxTimeBetweenShoots = 3f;

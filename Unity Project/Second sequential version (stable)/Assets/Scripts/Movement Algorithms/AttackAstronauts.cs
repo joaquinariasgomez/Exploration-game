@@ -10,9 +10,11 @@ public class AttackAstronauts {
     private int maxNumberOfSimultaneousAliensHelp;   //Número máximo de aliens que van a ayudar al alien que huye
     private List<int> alienStates;  //0 -> atacando(idle).  1 -> huyendo.  2 -> supporteando al que huye
     private Dictionary<int, int> alienAstronautTarget = new Dictionary<int, int>();   //Only for states 2
+    [HideInInspector]
+    public Dictionary<int, int> alienAttacksAstronaut = new Dictionary<int, int>();
     private Dictionary<int, bool> hittedAstronaut = new Dictionary<int, bool>();
 
-    private float minTimeBetweenShoots = 4.5f;
+    private float minTimeBetweenShoots = 1f;  //4.5f
     private float timeBetweenShoots = 0f;
 
     private int numberOfShoots = 4;    //Numero de disparos que guardará en la cola
@@ -28,8 +30,9 @@ public class AttackAstronauts {
             {
                 controller.shootSuccesses.Enqueue(1);
             }
+            alienAttacksAstronaut.Add(controller.id, -1);   //Indicando que no ataca a nadie
         }
-        maxNumberOfSimultaneousAliensGoAway = 2;    //2
+        maxNumberOfSimultaneousAliensGoAway = 8;    //2
         maxNumberOfSimultaneousAliensHelp = 3;
 
         alienStates = new List<int>();
@@ -120,40 +123,100 @@ public class AttackAstronauts {
         controller.Move();
     }
 
-    private void KeepDistance(AlienController controller, Vector3 astronautPosition) //Intentar mantener 17f unidades de distancia
+    private void KeepDistance(AlienController controller, PlayerController astronaut) //Intentar mantener 17f unidades de distancia
     {
-        Vector3 direction = (astronautPosition - controller.transform.position).normalized;
+        float astronautSpeed = astronaut.GetSpeed();
+        //Update speed to match objective's speed
+        controller.SetSpeed(astronautSpeed + 1f, false);
+        //
 
-        Vector3 closestPlayerPosition = Vector3.zero;
-        float minDistance = 1000f;
-        foreach(PlayerController player in astronautControllers)
+        Vector3 targetAstronautPosition = astronaut.transform.position;
+        Vector3 closestAlienPosition = GetClosestAlienPosition(controller);
+
+        //Check successRate
+        int result = HittedAstronaut(controller);
+
+        if (result == 1 || result == 2)
         {
-            float distance = Vector3.Distance(player.transform.position, controller.transform.position);
-            if(distance < minDistance)
+            if (result == 1)
             {
-                minDistance = distance;
-                closestPlayerPosition = player.transform.position;
+                controller.shootSuccesses.Enqueue(1);
             }
+            if (result == 2)
+            {
+                controller.shootSuccesses.Enqueue(0);
+            }
+            controller.shootSuccesses.Dequeue();
+        }
+        //End check successRate
+        float successRate = GetSuccessRate(controller);
+        float valueSuccess = 10f * (-successRate + 1);   //Cuanto menos success rate, más valor tiene (seguir camino contradictorio)
+        if (successRate >= 0.9f) valueSuccess = 0f;
+        if (successRate < 0.2f)
+        {
+            valueSuccess *= 5;
         }
 
-        Vector3 directionAway = controller.transform.position - closestPlayerPosition;
-        //direction += directionAway;
+        float distanceToAlien = Vector3.Distance(closestAlienPosition, controller.transform.position);
+        float distanceBetweenAliens = 5f; //7f
+        float valueAlien = -distanceToAlien + distanceBetweenAliens;
+        if (distanceToAlien > distanceBetweenAliens) valueAlien = 0f;
 
-        controller.UpdateTrajectoryDirection(direction);
+        float distanceToAstronaut = Vector3.Distance(targetAstronautPosition, controller.transform.position);
 
-        if(Vector3.Distance(controller.transform.position, astronautPosition) > 17f)    //Porque si se aleja más de 20 no puede disparar
+        Vector3 perpendicularDirection = -Vector3.Cross(controller.transform.up, targetAstronautPosition - controller.transform.position).normalized;
+
+        Vector3 directionAlien = -3 * (valueAlien * closestAlienPosition);
+        Vector3 directionAstronaut = 3 * targetAstronautPosition;
+        //Cuando más lejos del alien, menos valor tendrá directionPerpendicular
+        float perpendicularMultiplier = 21f / distanceToAstronaut;
+        Vector3 directionPerpendicular = perpendicularMultiplier * (valueSuccess * perpendicularDirection);   //7 * 
+
+        Vector3 destination = directionAstronaut + directionAlien + directionPerpendicular;   //DECOMMENT THIS
+        //Vector3 destination = directionAstronaut;
+
+        if (distanceToAstronaut >= 7.5f)
         {
+            controller.UpdateTrajectoryDirection(destination);
             controller.SetMove(true);
             controller.Move();
         }
         else
+        {
+            controller.UpdateTrajectoryDirection(-directionAstronaut);
+            controller.SetMove(true);
+            controller.Move();
+        }
+    }
+
+    /*private void KeepDistance(AlienController controller, PlayerController astronaut) //Intentar mantener 17f unidades de distancia
+    {
+        float astronautSpeed = astronaut.GetSpeed();
+        //Update speed to match objective's speed
+        controller.SetSpeed(astronautSpeed + 0.5f, false);
+        //
+
+        Vector3 astronautPosition = astronaut.transform.position;
+
+        Vector3 direction = (astronautPosition - controller.transform.position).normalized;
+
+        controller.UpdateTrajectoryDirection(direction);
+
+        float distance = Vector3.Distance(controller.transform.position, astronautPosition);
+
+        if (distance < 7.5f)    //Porque si se aleja más de 20 no puede disparar
         {
             Vector3 direction2 = (controller.transform.position - astronautPosition).normalized;
             controller.UpdateTrajectoryDirection(direction2);
             controller.SetMove(true);
             controller.Move();
         }
-    }
+        else
+        {
+            controller.SetMove(true);
+            controller.Move();
+        }
+    }*/
 
     private int HittedAstronaut(AlienController controller)   //0 -> ignore; 1 -> hit astronaut; 2 -> hit ground
     {
@@ -175,15 +238,16 @@ public class AttackAstronauts {
         }
     }
 
-    private void ThrowBall(AlienController controller, List<Vector3> direction)
+    private void ThrowBall(AlienController controller, List<Vector3> direction, Vector3 predictionOfMovement)
     {
+        if (controller.isDead()) return;    //Si está muerto, no puede disparar
         Vector3 from = direction[0];    //Posición del alien
         Vector3 to = direction[1];      //Posición del astronauta
 
         float distanceToObjective = Vector3.Magnitude(from - to);
         if (distanceToObjective > controller.GetMaxDistanceToShoot()) return;   //Disparar solo si están a menos de 20 unidades de distancia
 
-        Vector3 directionToAstronaut = (from - to).normalized;
+        Vector3 directionToAstronaut = (from - to).normalized + predictionOfMovement.normalized * 0.2f;
 
         bool nowThrowing = controller.ball.GetComponent<ThrowBall>().NowThrowing();
 
@@ -266,7 +330,7 @@ public class AttackAstronauts {
         }
 
         float distanceToAlien = Vector3.Distance(closestAlienPosition, controller.transform.position);
-        float distanceBetweenAliens = 7f; //6.5f
+        float distanceBetweenAliens = 5f; //7f
         float valueAlien = -distanceToAlien + distanceBetweenAliens;
         if (distanceToAlien > distanceBetweenAliens) valueAlien = 0f;
 
@@ -274,11 +338,14 @@ public class AttackAstronauts {
 
         Vector3 perpendicularDirection = -Vector3.Cross(controller.transform.up, targetAstronautPosition - controller.transform.position).normalized;
 
-        Vector3 directionAlien = -5 * (valueAlien * closestAlienPosition);
+        Vector3 directionAlien = -3 * (valueAlien * closestAlienPosition);
         Vector3 directionAstronaut = 3 * targetAstronautPosition;
-        Vector3 directionPerpendicular = 7 * (valueSuccess * perpendicularDirection);
+        //Cuando más lejos del alien, menos valor tendrá directionPerpendicular
+        float perpendicularMultiplier = 21f / distanceToAstronaut;
+        Vector3 directionPerpendicular = perpendicularMultiplier * (valueSuccess * perpendicularDirection);   //7 * 
 
-        Vector3 destination = directionAlien + directionAstronaut + directionPerpendicular;
+        Vector3 destination = directionAstronaut + directionAlien + directionPerpendicular;   //DECOMMENT THIS
+        //Vector3 destination = directionAstronaut;
 
         if (distanceToAstronaut >= 12f)
         {
@@ -297,46 +364,88 @@ public class AttackAstronauts {
     private void DoSomething(AlienController controller)
     {
         int state = GetAlienState(controller);
+        //state = 0;
+
         switch(state)
         {
             case 0: //Atacando (idle)
-                //Hacer función que intente mantener la distancia con los astronautas y dispare
-                List<Vector3> directionOfRandomAstronaut = controller.GetDirectionOfRandomAstronaut(astronautControllers);
-                List<Vector3> directionOfClosestAstronaut = controller.GetRealDirectionOfClosestAstronaut(astronautControllers);
-                float probabilityOfHittingClosest = 0.7f;
-                float probability = Random.Range(0f, 1f);
-                List<Vector3> directionOfTargetAstronaut = (probability <= probabilityOfHittingClosest) ? directionOfClosestAstronaut : directionOfRandomAstronaut;
+                    //Hacer función que intente mantener la distancia con los astronautas y dispare
+                List<Vector3> directionOfTargetAstronaut = new List<Vector3>();
+                int targetAstronautId = 0;
+                if (alienAttacksAstronaut[controller.id] != -1)
+                {
+                    targetAstronautId = alienAttacksAstronaut[controller.id];
+                    if(astronautControllers[targetAstronautId].isDead())
+                    {
+                        alienAttacksAstronaut[controller.id] = -1;
+                        DoSomething(controller);
+                    }
+                }
+                else
+                {
+                    int randomAstronautId = controller.GetDirectionOfRandomAstronaut(astronautControllers);
+                    int closestAstronautId = controller.GetRealDirectionOfClosestAstronaut(astronautControllers);
 
-                ThrowBall(controller, directionOfTargetAstronaut);
+                    float probabilityOfChoosingClosest = 0.7f;
+                    float probability = Random.Range(0f, 1f);
+                    targetAstronautId = (probability <= probabilityOfChoosingClosest) ? closestAstronautId : randomAstronautId;
+                    alienAttacksAstronaut[controller.id] = targetAstronautId;
+                }
+
+                directionOfTargetAstronaut.Add(astronautControllers[targetAstronautId].transform.position);
+                directionOfTargetAstronaut.Add(controller.transform.position);
+
+                Vector3 predictionOfMovement = Vector3.zero;
+                if (astronautControllers[targetAstronautId].move)
+                {
+                    predictionOfMovement = astronautControllers[targetAstronautId].trajectoryDirection.normalized * 2;
+                }
+
+                ThrowBall(controller, directionOfTargetAstronaut, predictionOfMovement);
                 UpdateAlienTrajectory(controller, directionOfTargetAstronaut);
                 break;
             case 1: //Huyendo
-                //List<Vector3> directionOfEscape = controller.GetDirectionOfEscape();
                 List<Vector3> directionOfEscape = new List<Vector3>();
                 PlayerController astronautToEscapeFrom = controller.GetAstronautToEscapeFrom();
+                alienAttacksAstronaut[controller.id] = astronautToEscapeFrom.id;
                 directionOfEscape.Add(astronautToEscapeFrom.transform.position);
                 directionOfEscape.Add(controller.transform.position);
+
+                predictionOfMovement = Vector3.zero;
+                if (astronautToEscapeFrom.move)
+                {
+                    predictionOfMovement = astronautToEscapeFrom.trajectoryDirection.normalized * 2;
+                }
+
+                ThrowBall(controller, directionOfEscape, predictionOfMovement);
                 MoveAway(controller, directionOfEscape);
                 break;
             case 2: //Supporteando al que huye
                 int idFrom = alienAstronautTarget[controller.id];
-                Vector3 from = Vector3.zero;
-                foreach(PlayerController player in astronautControllers)
+                if(astronautControllers[idFrom].isDead())
                 {
-                    if(idFrom == player.id)
-                    {
-                        from = player.transform.position;
-                    }
+                    SetAlienState(controller.id, 0, null);
+                    DoSomething(controller);
                 }
+
+                alienAttacksAstronaut[controller.id] = idFrom;
+
+                PlayerController from = astronautControllers[idFrom];//astronautControllers[idFrom].transform.position;
                 Vector3 to = controller.transform.position;
                 List<Vector3> directionToAstronaut = new List<Vector3>();
 
-                directionToAstronaut.Add(from);
+                predictionOfMovement = Vector3.zero;
+                if(from.move)
+                {
+                    predictionOfMovement = from.trajectoryDirection.normalized * 2;
+                }
+
+                directionToAstronaut.Add(from.transform.position);
                 directionToAstronaut.Add(to);
 
-                ThrowBall(controller, directionToAstronaut);
-                //MoveAway(controller, directionToAstronaut);
+                ThrowBall(controller, directionToAstronaut, predictionOfMovement);
                 KeepDistance(controller, from); //Mantener la distancia contra el astronauta que hace bullying
+                controller.SetSpeed(0f, true);  //Reset Speed
                 break;
         }
     }
@@ -354,13 +463,73 @@ public class AttackAstronauts {
 
     public void UpdateAliens()
     {
+        /*
+        foreach (AlienController controller in alienControllers)
+        {
+            DrawStateIcon(controller);
+        }
+
+        AlienController runningAwayAlien = null;
+        foreach(AlienController controller in alienControllers)
+        {
+            if(!controller.isDead())
+            {
+                if (controller.CheckDistanceWithAstronauts(astronautControllers))    //True if this alien is too close to astronauts with swords
+                {
+                    if (GetNumberOfSimultaneousAliensGoAway() <= maxNumberOfSimultaneousAliensGoAway - 1)
+                    {
+                        SetAlienState(controller.id, 1, null);    //Set this alien state to running away
+                        runningAwayAlien = controller;
+                    }
+                }
+                else
+                {
+                    SetAlienState(controller.id, 0, null);
+                }
+            }
+        }
+
+        if (runningAwayAlien != null)
+        {
+            int numberOfSimultaneousAliensHelp = 0;
+            foreach (AlienController controller in alienControllers)     //Warn other aliens about state 1 aliens, and override their state
+            {
+                if (runningAwayAlien.id != controller.id && (numberOfSimultaneousAliensHelp <= maxNumberOfSimultaneousAliensHelp - 1) && !controller.isDead())
+                {
+                    ++numberOfSimultaneousAliensHelp;
+                    PlayerController astronautToEscapeFrom = runningAwayAlien.GetAstronautToEscapeFrom();
+                    if (!astronautToEscapeFrom.isDead())
+                    {
+                        SetAlienState(controller.id, 2, astronautToEscapeFrom);
+                    }
+                    else
+                    {
+                        SetAlienState(controller.id, 0, null);
+                    }
+                }
+            }
+        }
+        else
+        {
+            foreach(AlienController controller in alienControllers)
+            {
+                SetAlienState(controller.id, 0, null);
+            }
+        }
+
+        foreach (AlienController controller in alienControllers)
+        {
+            DoSomething(controller);
+        }*/
+
+        
         foreach(AlienController controller in alienControllers)
         {
             //Draw State Icon
             DrawStateIcon(controller);
             //End Draw State Icon
-
-            if (controller.CheckDistanceWithAstronauts(astronautControllers))    //True if this alien is too close
+            
+            if (controller.CheckDistanceWithAstronauts(astronautControllers))    //True if this alien is too close to astronauts with swords
             {
                 if(GetNumberOfSimultaneousAliensGoAway() <= maxNumberOfSimultaneousAliensGoAway - 1)
                 {
@@ -376,7 +545,7 @@ public class AttackAstronauts {
                             PlayerController astronautToEscapeFrom = controller.GetAstronautToEscapeFrom();
                             if(!astronautToEscapeFrom.isDead())
                             {
-                                SetAlienState(controller2.id, 2, astronautToEscapeFrom/*astronautPosition*/);
+                                SetAlienState(controller2.id, 2, astronautToEscapeFrom);
                             }
                             else
                             {

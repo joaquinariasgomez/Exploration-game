@@ -24,7 +24,7 @@
       <maxSpeed> 5 </maxSpeed>
     </astronaut>
     <alien>
-      <maxSpeed> 2.5 </maxSpeed>
+      <maxSpeed> 2.5 </maxSpeed>  <!-- 2.5 or 4 -->
       <maxDistanceToShoot> 20 </maxDistanceToShoot>
     </alien>
   </entity>
