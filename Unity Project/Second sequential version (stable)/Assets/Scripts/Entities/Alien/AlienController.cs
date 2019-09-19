@@ -125,7 +125,7 @@ public class AlienController : MonoBehaviour {
     {
         if (dead)
         {
-            animator.SetFloat("speedPercent", 1f, speedSmoothTime, Time.deltaTime);
+            animator.SetFloat("speedPercent", 0f, speedSmoothTime, Time.deltaTime);
         }
         if(PauseMenu.GamePaused || dead)
         {
@@ -139,7 +139,7 @@ public class AlienController : MonoBehaviour {
 
     public void Hit()
     {
-        float value = 10.5f;
+        float value = 20;//10.5f;
         this.DecreaseLifeBy(value);
         this.HealthBar.GetComponent<HealthBar>().UpdateHealth(this.life);
     }

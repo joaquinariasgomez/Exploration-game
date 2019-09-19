@@ -43,7 +43,7 @@ public class PSO
 
     //Astronauts variables
     private int iteration_astronaut = 1;
-    private int maxIterations_astronaut = 1000;   //3000
+    private int maxIterations_astronaut = 1500;//1000;   //3000
     private int maxIterWithWmin_astronaut = 50;  //400
 
     private bool stopExploring_astronaut = false;

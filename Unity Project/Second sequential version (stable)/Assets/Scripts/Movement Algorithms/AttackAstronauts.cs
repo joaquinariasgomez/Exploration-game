@@ -14,7 +14,7 @@ public class AttackAstronauts {
     public Dictionary<int, int> alienAttacksAstronaut = new Dictionary<int, int>();
     private Dictionary<int, bool> hittedAstronaut = new Dictionary<int, bool>();
 
-    private float minTimeBetweenShoots = 1f;  //4.5f
+    private float minTimeBetweenShoots = 0.5f;//1f;  //4.5f
     private float timeBetweenShoots = 0f;
 
     private int numberOfShoots = 4;    //Numero de disparos que guardará en la cola

@@ -188,12 +188,12 @@ public class PlayerController : MonoBehaviour {
 
     public void Hit()
     {
-        float value = 6f;    //10.5f
+        float value = 8f;//3f;    //10.5f
         if(hasShield)
         {
-            value *= 0.5f;
+            value *= 0.25f;//0.25f;
         }
-        //this.DecreaseLifeBy(value);
+        this.DecreaseLifeBy(value);
         this.HealthBar.GetComponent<HealthBar>().UpdateHealth(this.life);
         this.miniHealthBar.GetComponent<HealthBar>().UpdateHealth(this.life);
     }
@@ -645,7 +645,7 @@ public class PlayerController : MonoBehaviour {
     {
         if (dead)
         {
-            animator.SetFloat("speedPercent", 1f, speedSmoothTime, Time.deltaTime);
+            animator.SetFloat("speedPercent", 0f, speedSmoothTime, Time.deltaTime);
         }
     }
 
